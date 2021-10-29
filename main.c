@@ -12,13 +12,22 @@
 
 #define HSYNC_BACKPORCH 18
 
+// from experimenting a line started at linCounter = 25 appears right at top of screen one at 285 to 286 is bottom
+// a delay in clock cycles of 14 to to 14+148 gives a useable horizontal line length
+// this gives us a possible screen memory dimension of
+#define XSIZE 100
+#define YSIZE 200
+
 int main()
 {
 	uint16_t lineCounter = 0;
 	uint8_t  vSync = 0;
-	uint16_t i = 0;
-	uint16_t drawScreen = 0;
-	uint16_t xPos = 0;
+	uint8_t i = 0;
+	uint8_t drawPixel = 0;
+	uint8_t xStart = 80; // time in clock cycles to delay into line to start drawing a pixel
+	uint8_t xEnd = 90; // time in clock cycles to delay into line to start drawing a pixel
+	uint8_t screenMemory[YSIZE][XSIZE];
+
 
 	DDRB |= 1 << COMPOSITE_PIN;
 	DDRB |= 1 << LUMINANCE_PIN;
@@ -74,29 +83,43 @@ int main()
 			// hold output to composite connector to 300mV
 			DDRB &= ~(1 << COMPOSITE_PIN); // set COMPOSITE_PIN as input
 			PORTB |= 1 << COMPOSITE_PIN; // set PORTB COMPOSITE_PIN to high, as DDRB in input this causes output to go high
-			for (i = 0; i < 18; i++)// delay same amount to give proper back porch before drawing any pixels on the line
+			for (i = 0; i < HSYNC_BACKPORCH; i++)// delay same amount to give proper back porch before drawing any pixels on the line
 			{
 				__asm__ __volatile__ ("nop");
 			}
 
-			if (drawScreen)
+
+			// test to just draw a the smallest pixel possible
+			// none of this is good for doing real screen drawing
+			// the whole line writing must be a total of less than (64 - (18 * 3)) = 10usec
+			if (drawPixel)
 			{
-				_delay_us(10);
+				for (i = 0; i < xStart; i++)// delay in line 1 = 1/16000000 =0.0000000625 assuming nop = 1 clock cycle
+				{
+					__asm__ __volatile__ ("nop");
+				}
 				DDRB |= 1 << LUMINANCE_PIN;
 				PORTB |= 1 << LUMINANCE_PIN;
-				_delay_us(1);
+
+				for (i = 0; i < xEnd; i++)// delay in line 1 = 1/16000000 =0.0000000625 assuming nop = 1 clock cycle
+				{
+					__asm__ __volatile__ ("nop");
+				}
+
 				DDRB &= ~(1 << LUMINANCE_PIN);
 				PORTB &= ~(1 << LUMINANCE_PIN);
 			}
 		}
-
 		lineCounter++;
 		switch (lineCounter)
 		{
-			case 1: vSync = 0; xPos = 0; break;
-			case 200: drawScreen = 1; break;
-			case 205: drawScreen = 0; break;
-			case MAX_LINE_BEFORE_BLANK-6: vSync = 1; drawScreen = 0; break;
+			case 1: vSync = 0; break;
+			//case 25: drawPixel = 1; xStart = 30; xEnd = 100; break;
+			//case 26: drawPixel = 0; break;
+			case 285: drawPixel = 1; xStart = 14; xEnd = 148; break;
+			case 286: drawPixel = 0; break;
+
+			case MAX_LINE_BEFORE_BLANK-6: vSync = 1; drawPixel = 0; break;
 			case MAX_LINE_BEFORE_BLANK: lineCounter = 0; vSync = 0; break;
 		}
 	}
