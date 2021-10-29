@@ -11,22 +11,45 @@
 #define MAX_LINE_BEFORE_BLANK 312
 
 #define HSYNC_BACKPORCH 18
+#define HSYNC_FRONT_PORCH_1 2
+#define HSYNC_FRONT_PORCH_2 16
 
 // from experimenting a line started at linCounter = 25 appears right at top of screen one at 285 to 286 is bottom
-// a delay in clock cycles of 14 to to 14+148 gives a useable horizontal line length
-// this gives us a possible screen memory dimension of
-#define XSIZE 100
-#define YSIZE 200
+// a delay in clock cycles of 14 to plus a delay of 148 clock cycles gives a usable horizontal line length
+
+//XSIZE is in bytes
+#define XSIZE 18
+#define YSIZE 233
+#define LINE_START 25
+#define LINE_END 285
 
 int main()
 {
 	uint16_t lineCounter = 0;
 	uint8_t  vSync = 0;
 	uint8_t i = 0;
-	uint8_t drawPixel = 0;
-	uint8_t xStart = 80; // time in clock cycles to delay into line to start drawing a pixel
-	uint8_t xEnd = 90; // time in clock cycles to delay into line to start drawing a pixel
+	uint8_t drawPixelsOnLine = 0;
+	uint8_t afterStartOfLineSync = 0;
 	uint8_t screenMemory[YSIZE][XSIZE];
+	uint8_t screenLine = 0;
+	uint8_t pixelOn = 1;
+	uint8_t checkboard = 1;
+
+	// setup a test pattern
+	uint8_t flag = 0;
+	uint8_t bits = 0b01010101;
+	uint8_t bitPat = 0;
+	for (uint8_t y = 0; y < YSIZE; y++)
+		for (uint8_t x = 0; x < XSIZE; x++)
+		{
+			screenMemory[y][x] = bitPat;
+			flag = 1 - flag;
+			if (flag == 1)
+			{
+				bitPat = bits;
+			}
+		}
+
 
 
 	DDRB |= 1 << COMPOSITE_PIN;
@@ -67,7 +90,7 @@ int main()
 			DDRB &= ~(1 << LUMINANCE_PIN);
 			PORTB &= ~(1 << LUMINANCE_PIN);
 
-			for (i = 0; i < HSYNC_BACKPORCH; i++)// delay same amount to give proper back porch before drawing any pixels on the line
+			for (i = 0; i < HSYNC_FRONT_PORCH_1; i++)// delay same amount to give proper back porch before drawing any pixels on the line
 			{
 				__asm__ __volatile__ ("nop");
 			}
@@ -83,43 +106,45 @@ int main()
 			// hold output to composite connector to 300mV
 			DDRB &= ~(1 << COMPOSITE_PIN); // set COMPOSITE_PIN as input
 			PORTB |= 1 << COMPOSITE_PIN; // set PORTB COMPOSITE_PIN to high, as DDRB in input this causes output to go high
-			for (i = 0; i < HSYNC_BACKPORCH; i++)// delay same amount to give proper back porch before drawing any pixels on the line
+			for (i = 0; i < HSYNC_FRONT_PORCH_2; i++)// delay same amount to give proper back porch before drawing any pixels on the line
 			{
 				__asm__ __volatile__ ("nop");
 			}
+			afterStartOfLineSync = 1;
+		}
 
+		// the whole line writing must be a total of less than (64 - (18 * 3)) = 10usec =
+		// a delay in line 1 = 1/16000000 =0.0000000625 assuming nop = 1 clock cycle
 
-			// test to just draw a the smallest pixel possible
-			// none of this is good for doing real screen drawing
-			// the whole line writing must be a total of less than (64 - (18 * 3)) = 10usec
-			if (drawPixel)
+		drawPixelsOnLine;
+		checkboard = 1 - checkboard;
+		if (drawPixelsOnLine && checkboard)
+		{
+			for (uint8_t line = 0; line < 54; line++)
 			{
-				for (i = 0; i < xStart; i++)// delay in line 1 = 1/16000000 =0.0000000625 assuming nop = 1 clock cycle
-				{
-					__asm__ __volatile__ ("nop");
-				}
-				DDRB |= 1 << LUMINANCE_PIN;
-				PORTB |= 1 << LUMINANCE_PIN;
+				pixelOn = 1 - pixelOn;
 
-				for (i = 0; i < xEnd; i++)// delay in line 1 = 1/16000000 =0.0000000625 assuming nop = 1 clock cycle
+				if (pixelOn)
 				{
-					__asm__ __volatile__ ("nop");
+					DDRB |= (1 << LUMINANCE_PIN);
+					PORTB |= (1 << LUMINANCE_PIN);
 				}
-
-				DDRB &= ~(1 << LUMINANCE_PIN);
-				PORTB &= ~(1 << LUMINANCE_PIN);
+				else
+				{
+					DDRB &= ~(1 << LUMINANCE_PIN);
+					PORTB &= ~(1 << LUMINANCE_PIN);
+				}
 			}
 		}
+
+
 		lineCounter++;
 		switch (lineCounter)
 		{
 			case 1: vSync = 0; break;
-			//case 25: drawPixel = 1; xStart = 30; xEnd = 100; break;
-			//case 26: drawPixel = 0; break;
-			case 285: drawPixel = 1; xStart = 14; xEnd = 148; break;
-			case 286: drawPixel = 0; break;
-
-			case MAX_LINE_BEFORE_BLANK-6: vSync = 1; drawPixel = 0; break;
+			case LINE_START: screenLine = 0; drawPixelsOnLine = 1; break;
+			case LINE_END: drawPixelsOnLine = 0;  break;
+			case MAX_LINE_BEFORE_BLANK-6: vSync = 1; drawPixelsOnLine = 0; break;
 			case MAX_LINE_BEFORE_BLANK: lineCounter = 0; vSync = 0; break;
 		}
 	}
