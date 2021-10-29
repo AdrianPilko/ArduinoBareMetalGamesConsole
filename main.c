@@ -28,6 +28,10 @@ int main()
 				// wait till the timer overflow flag is SET
 		}
 
+		// immediately reset the interrupt timer, previous version had this at the end
+		// which made the whole thing be delayed when we're trying to maintain the 64us PAL line timing
+		TCNT1 = 0;
+		TIFR1 |= (1<<OCF1A) ; //clear timer1 overflow flag
 
 		if (vSync > 0) // invert the line sync pulses when in vsync part of screen
 		{
@@ -41,15 +45,29 @@ int main()
 		}
 		else
 		{
+			// before the end of line (which in here is also effectively just the start of the line!) we need to hold at 300mV
+			// and ensure no pixels
+			DDRB &= ~(1 << COMPOSITE_PIN); // set COMPOSITE_PIN as input
+			PORTB |= 1 << COMPOSITE_PIN; // set PORTB COMPOSITE_PIN to high, as DDRB in input this causes output to go high
+			DDRB &= ~(1 << LUMINANCE_PIN);
+			PORTB &= ~(1 << LUMINANCE_PIN);
+
+			for (i = 0; i < 18; i++)// delay same amount to give proper back porch before drawing any pixels on the line
+			{
+				__asm__ __volatile__ ("nop");
+			}
+
+			// Hold the output to the composite connector low, the zero volt hsync
 			PORTB &= 0 << COMPOSITE_PIN; // set all PORTB COMPOSITE_PIN to low, as DDRB in next statement is input this causes output to go low
 			DDRB |= (1 << COMPOSITE_PIN); // set COMPOSITE_PIN as output
 			for (i = 0; i < 18; i++)
 			{
 				__asm__ __volatile__ ("nop");
 			}
+
+			// hold output to composite connector to 300mV
 			DDRB &= ~(1 << COMPOSITE_PIN); // set COMPOSITE_PIN as input
 			PORTB |= 1 << COMPOSITE_PIN; // set PORTB COMPOSITE_PIN to high, as DDRB in input this causes output to go high
-
 			for (i = 0; i < 18; i++)// delay same amount to give proper back porch before drawing any pixels on the line
 			{
 				__asm__ __volatile__ ("nop");
@@ -60,7 +78,12 @@ int main()
 		if (pixels)
 		{
 			DDRB |= 1 << LUMINANCE_PIN;
-			PORTB |= 1 << LUMINANCE_PIN; // set PORTB COMPOSITE_PIN to high
+			PORTB |= 1 << LUMINANCE_PIN;
+		}
+		else
+		{
+			DDRB &= ~(1 << LUMINANCE_PIN);
+			PORTB &= ~(1 << LUMINANCE_PIN);
 		}
 
 		lineCounter++;
@@ -72,9 +95,5 @@ int main()
 			case MAX_LINE_BEFORE_BLANK-6: vSync = 1; pixels = 0; break;
 			case MAX_LINE_BEFORE_BLANK: lineCounter = 0; vSync = 0; pixels = 0;break;
 		}
-
-
-		TCNT1 = 0;
-		TIFR1 |= (1<<OCF1A) ; //clear timer1 overflow flag
 	}
 }
