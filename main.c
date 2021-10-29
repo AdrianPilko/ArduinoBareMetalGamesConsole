@@ -15,13 +15,15 @@
 int main()
 {
 	uint16_t lineCounter = 0;
-	uint8_t vSync = 0;
-	uint8_t i = 0;
-	uint8_t	pixels = 1;
-	uint8_t drawScreen = 0;
-	uint8_t	xPos = 0;
-	uint8_t	barStartPosition = 0;
-	uint8_t widthOfBar = 30;
+	uint8_t  vSync = 0;
+	uint16_t i = 0;
+	uint8_t	 pixels = 1;
+	uint16_t drawScreen = 0;
+	uint16_t xPos = 0;
+	uint16_t barStartPosition = 0;
+	uint16_t widthOfBar = 30;
+	uint16_t lineStartTriggered = 0;
+	uint16_t timeInLine = 0;
 
 
 
@@ -33,10 +35,10 @@ int main()
 	TCNT1 = 0;
 	while(1)
 	{
-		//If flag is set toggle the led
+		// wait for hsync timer interrupt to trigger
 		while((TIFR1 & (1<<OCF1A)) == 0)
 		{
-				// wait till the timer overflow flag is SET
+			// wait till the timer overflow flag is SET
 		}
 
 		// immediately reset the interrupt timer, previous version had this at the end
@@ -54,7 +56,7 @@ int main()
 			PORTB &= 0 << COMPOSITE_PIN; // set all PORTB COMPOSITE_PIN to low, as DDRB in next statement is input this causes output to go low
 			DDRB |= (1 << COMPOSITE_PIN);
 		}
-		else
+		else // hsync
 		{
 			// before the end of line (which in here is also effectively just the start of the line!) we need to hold at 300mV
 			// and ensure no pixels
@@ -84,6 +86,11 @@ int main()
 				__asm__ __volatile__ ("nop");
 			}
 
+			lineStartTriggered = 1;
+		}
+
+		if (lineStartTriggered)
+		{
 			lineCounter++;
 			switch (lineCounter)
 			{
@@ -93,7 +100,8 @@ int main()
 				case MAX_LINE_BEFORE_BLANK-6: vSync = 1; drawScreen = 0; break;
 				case MAX_LINE_BEFORE_BLANK: lineCounter = 0; vSync = 0; drawScreen = 0;break;
 			}
-
+			lineStartTriggered = 0;
+			timeInLine = 0;
 			xPos = 0;
 		}
 
