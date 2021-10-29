@@ -18,8 +18,12 @@ int main()
 	uint8_t vSync = 0;
 	uint8_t i = 0;
 	uint8_t	pixels = 1;
-	uint8_t	xPos
-	uint8_t	barStartPosition = 90;
+	uint8_t drawScreen = 0;
+	uint8_t	xPos = 0;
+	uint8_t	barStartPosition = 0;
+	uint8_t widthOfBar = 30;
+
+
 
 	DDRB |= 1 << COMPOSITE_PIN;
 	DDRB |= 1 << LUMINANCE_PIN;
@@ -79,41 +83,44 @@ int main()
 			{
 				__asm__ __volatile__ ("nop");
 			}
+
+			lineCounter++;
+			switch (lineCounter)
+			{
+				case 1: vSync = 0; pixels = 0; break;
+				case 10: drawScreen = 1; break; // only start pixel drawing after these many lines
+				case 230: drawScreen = 0; break; // pixels off
+				case MAX_LINE_BEFORE_BLANK-6: vSync = 1; drawScreen = 0; break;
+				case MAX_LINE_BEFORE_BLANK: lineCounter = 0; vSync = 0; drawScreen = 0;break;
+			}
+
 			xPos = 0;
 		}
 
 		xPos++;
 
+		if (drawScreen)
+		{
+			if ((xPos > barStartPosition) && (xPos < barStartPosition+widthOfBar))
+			{
+				pixels = 1;
+			}
+			else
+			{
+				pixels = 0;
+			}
+		}
 		// the problem is we don't really know where in the line we are, we need a blanking period at end of line as well
 		if (pixels)
 		{
-			if (xPos == barStartPosition)
-			{
-				// turn white "pixel pin" on
-				DDRB |= 1 << LUMINANCE_PIN;
-				PORTB |= 1 << LUMINANCE_PIN;
-			}
-			if (xPos >= barStartPosition+50) // make this test bar 50 "pixels" wide)
-			{
-				// turn white "pixel pin" off
-				DDRB &= ~(1 << LUMINANCE_PIN);
-				PORTB &= ~(1 << LUMINANCE_PIN);
-			}
+			// turn white "pixel pin" on
+			DDRB |= 1 << LUMINANCE_PIN;
+			PORTB |= 1 << LUMINANCE_PIN;
 		}
 		else
 		{
 			DDRB &= ~(1 << LUMINANCE_PIN);
 			PORTB &= ~(1 << LUMINANCE_PIN);
-		}
-
-		lineCounter++;
-		switch (lineCounter)
-		{
-			case 1: vSync = 0; pixels = 0; break;
-			case 60: pixels = 1; break; // only start pixel drawing after these many lines
-			case 70: pixels = 0; break; // pixels off
-			case MAX_LINE_BEFORE_BLANK-6: vSync = 1; pixels = 0; break;
-			case MAX_LINE_BEFORE_BLANK: lineCounter = 0; vSync = 0; pixels = 0;break;
 		}
 	}
 }
