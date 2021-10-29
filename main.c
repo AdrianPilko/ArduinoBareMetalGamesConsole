@@ -78,6 +78,16 @@ int main()
 			{
 				__asm__ __volatile__ ("nop");
 			}
+
+			if (drawScreen)
+			{
+				_delay_us(10);
+				DDRB |= 1 << LUMINANCE_PIN;
+				PORTB |= 1 << LUMINANCE_PIN;
+				_delay_us(1);
+				DDRB &= ~(1 << LUMINANCE_PIN);
+				PORTB &= ~(1 << LUMINANCE_PIN);
+			}
 		}
 
 		lineCounter++;
@@ -85,23 +95,9 @@ int main()
 		{
 			case 1: vSync = 0; xPos = 0; break;
 			case 200: drawScreen = 1; break;
-			case 201: drawScreen = 0; break;
+			case 205: drawScreen = 0; break;
 			case MAX_LINE_BEFORE_BLANK-6: vSync = 1; drawScreen = 0; break;
 			case MAX_LINE_BEFORE_BLANK: lineCounter = 0; vSync = 0; break;
 		}
-
-		if (drawScreen)
-		{
-			xPos++;
-			// turn white "pixel pin" on
-			DDRB |= 1 << LUMINANCE_PIN;
-			PORTB |= 1 << LUMINANCE_PIN;
-		}
-		else
-		{
-			DDRB &= ~(1 << LUMINANCE_PIN);
-			PORTB &= ~(1 << LUMINANCE_PIN);
-		}
-
 	}
 }
