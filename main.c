@@ -20,8 +20,8 @@
 //XSIZE is in bytes
 #define XSIZE 18
 #define YSIZE 233
-#define LINE_START 25
-#define LINE_END 285
+
+
 
 int main()
 {
@@ -33,7 +33,7 @@ int main()
 	uint8_t screenMemory[YSIZE][XSIZE];
 	uint8_t screenLine = 0;
 	uint8_t pixelOn = 1;
-	uint8_t checkboard = 1;
+	uint8_t lineLength = 0;
 
 	// setup a test pattern
 	uint8_t flag = 0;
@@ -56,7 +56,7 @@ int main()
 	DDRB |= 1 << LUMINANCE_PIN;
 
 	TCCR1B = (1<<CS10); // switch off clock prescaller
-	OCR1A = 1025; 	   //usec delay
+	OCR1A = 1025; 	   //timer interrupt cycles which gives rise to 64usec line sync time
 	TCNT1 = 0;
 	while(1)
 	{
@@ -116,25 +116,21 @@ int main()
 		// the whole line writing must be a total of less than (64 - (18 * 3)) = 10usec =
 		// a delay in line 1 = 1/16000000 =0.0000000625 assuming nop = 1 clock cycle
 
-		drawPixelsOnLine;
-		checkboard = 1 - checkboard;
-		if (drawPixelsOnLine && checkboard)
+		if (drawPixelsOnLine)
 		{
-			for (uint8_t line = 0; line < 54; line++)
+			for (i = 0; i < 25; i++)
 			{
-				pixelOn = 1 - pixelOn;
-
-				if (pixelOn)
-				{
-					DDRB |= (1 << LUMINANCE_PIN);
-					PORTB |= (1 << LUMINANCE_PIN);
-				}
-				else
-				{
-					DDRB &= ~(1 << LUMINANCE_PIN);
-					PORTB &= ~(1 << LUMINANCE_PIN);
-				}
+				__asm__ __volatile__ ("nop");
 			}
+			DDRB |= (1 << LUMINANCE_PIN); // pixel on
+			PORTB |= (1 << LUMINANCE_PIN); // pixel on
+			for (i = 0; i < lineLength; i++)
+			{
+				__asm__ __volatile__ ("nop");
+			}
+			DDRB &= ~(1 << LUMINANCE_PIN); // pixel off
+			PORTB &= ~(1 << LUMINANCE_PIN); // pixel off
+			lineLength+=3;
 		}
 
 
@@ -142,8 +138,16 @@ int main()
 		switch (lineCounter)
 		{
 			case 1: vSync = 0; break;
-			case LINE_START: screenLine = 0; drawPixelsOnLine = 1; break;
-			case LINE_END: drawPixelsOnLine = 0;  break;
+			case 40: screenLine = 0; drawPixelsOnLine = 1; lineLength = 0; break;
+			case 80: drawPixelsOnLine = 0;  lineLength = 0; break;
+			case 81: screenLine = 0; drawPixelsOnLine = 1; lineLength = 0; break;
+			case 120: drawPixelsOnLine = 0;  lineLength = 0; break;
+			case 121: screenLine = 0; drawPixelsOnLine = 1; lineLength = 0; break;
+			case 160: drawPixelsOnLine = 0;  lineLength = 0; break;
+			case 161: screenLine = 0; drawPixelsOnLine = 1; lineLength = 0; break;
+			case 200: drawPixelsOnLine = 0;  lineLength = 0; break;
+			case 201: screenLine = 0; drawPixelsOnLine = 1; lineLength = 0; break;
+			case 240: drawPixelsOnLine = 0;  lineLength = 0; break;
 			case MAX_LINE_BEFORE_BLANK-6: vSync = 1; drawPixelsOnLine = 0; break;
 			case MAX_LINE_BEFORE_BLANK: lineCounter = 0; vSync = 0; break;
 		}
