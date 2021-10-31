@@ -10,8 +10,8 @@
 #define LUMINANCE_PIN PB4
 #define MAX_LINE_BEFORE_BLANK 312
 #define FIRST_LINE_DRAWN 28
-#define LAST_LINE_DRAWN 200
-#define HALF_SCREEN 100
+#define LAST_LINE_DRAWN 250
+#define HALF_SCREEN 125
 
 
 #define HSYNC_BACKPORCH 18
@@ -46,32 +46,33 @@ int main()
 	CLKPR = 0b10000000; // zero the CLKPS3 CLKPS2 CLKPS1 CLKPS0 bits to disable and clock division
 	CLKPR = 0b00000000; // clear CLKPCE bit
 
+	memset (&screenMemory[0][0],0,sizeof(uint8_t) * YSIZE * XSIZE );
 	// setup a 10 line checkerboard in memory for testing
 	for (uint8_t y = 0; y < YSIZE; y+=20)
 	{
 		for (uint8_t x = 0; x < XSIZE; x++)
 		{
-			screenMemory[y][x]  = 0b00001111;
-			screenMemory[y+1][x] = 0b00001111;
-			screenMemory[y+2][x] = 0b00001111;
-			screenMemory[y+3][x] = 0b00001111;
-			screenMemory[y+4][x] = 0b00001111;
-			screenMemory[y+5][x] = 0b00001111;
-			screenMemory[y+6][x] = 0b00001111;
-			screenMemory[y+7][x] = 0b00001111;
-			screenMemory[y+8][x] = 0b00001111;
-			screenMemory[y+9][x] = 0b00001111;
+			screenMemory[y][x]  =  0b00010000;
+			screenMemory[y+1][x] = 0b00010000;
+			screenMemory[y+2][x] = 0b00010000;
+			screenMemory[y+3][x] = 0b00010000;
+			screenMemory[y+4][x] = 0b11111111;
+			screenMemory[y+5][x] = 0b11111111;
+			screenMemory[y+6][x] = 0b00010000;
+			screenMemory[y+7][x] = 0b00010000;
+			screenMemory[y+8][x] = 0b00010000;
+			screenMemory[y+9][x] = 0b00010000;
 
-			screenMemory[y+10][x]  = 0b11110000;
-			screenMemory[y+11][x]  = 0b11110000;
-			screenMemory[y+12][x]  = 0b11110000;
-			screenMemory[y+13][x]  = 0b11110000;
-			screenMemory[y+14][x]  = 0b11110000;
-			screenMemory[y+15][x]  = 0b11110000;
-			screenMemory[y+16][x]  = 0b11110000;
-			screenMemory[y+17][x]  = 0b11110000;
-			screenMemory[y+18][x]  = 0b11110000;
-			screenMemory[y+19][x]  = 0b11110000;
+			screenMemory[y+10][x]  = 0b00010000;
+			screenMemory[y+11][x]  = 0b00010000;
+			screenMemory[y+12][x]  = 0b00010000;
+			screenMemory[y+13][x]  = 0b00010000;
+			screenMemory[y+14][x]  = 0b00010000;
+			screenMemory[y+15][x]  = 0b00010000;
+			screenMemory[y+16][x]  = 0b00010000;
+			screenMemory[y+17][x]  = 0b00010000;
+			screenMemory[y+18][x]  = 0b00010000;
+			screenMemory[y+19][x]  = 0b00010000;
 		}
 	}
 
@@ -139,10 +140,10 @@ int main()
 		// flag "everyOther" ensures we update half the pixels on alternate frames
 		// this is similar to the PAL interlacing, and gives us more clock cycles for
 		// game code!
-		if ((drawPixelsOnLine) && (everyOther))
+		if (drawPixelsOnLine)//&& (everyOther))
 		{
-			uint8_t * loopPtrMax = screenMemory[yCounter+1];
-			uint8_t * OneLine = screenMemory[yCounter];
+			uint8_t * loopPtrMax = &screenMemory[yCounter][XSIZE-1];
+			uint8_t * OneLine = &screenMemory[yCounter][0];
 			do {
 				if (*OneLine & (1 <<  0))
 					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
@@ -177,7 +178,7 @@ int main()
 
 				OneLine++;
 			}
-			while (OneLine < loopPtrMax);
+			while (OneLine <= loopPtrMax);
 		}
 		DDRB &= ~(1 << LUMINANCE_PIN); // pixel off
 		PORTB &= ~(1 << LUMINANCE_PIN); // pixel off
