@@ -39,22 +39,39 @@ int main()
 	uint8_t pixelOn = 1;
 	uint8_t lineLength = 0;
 	uint8_t everyOther = 0;
+	uint8_t yCounter = 0;
 
 	// looking at the data sheet not sure if you have to do this in 3 instructions or not
 	CLKPR = 0b10000000; // set the CLKPCE bit to enable the clock prescaler to be changed
 	CLKPR = 0b10000000; // zero the CLKPS3 CLKPS2 CLKPS1 CLKPS0 bits to disable and clock division
 	CLKPR = 0b00000000; // clear CLKPCE bit
 
-	// setup a test pattern
-	for (uint8_t y = 0; y < YSIZE; y+=2)
+	// setup a 10 line checkerboard in memory for testing
+	for (uint8_t y = 0; y < YSIZE; y+=20)
 	{
-		for (uint8_t x = 0; x < XSIZE; x+=2)
+		for (uint8_t x = 0; x < XSIZE; x++)
 		{
-			// primative checkboard
-			screenMemory[y][x]  = 0xAA;
-			screenMemory[y][x+1]  = 0x55;
-			screenMemory[y+1][x]  = 0x55;
-			screenMemory[y+1][x+1]  = 0xAA;
+			screenMemory[y][x]  = 0b00001111;
+			screenMemory[y+1][x] = 0b00001111;
+			screenMemory[y+2][x] = 0b00001111;
+			screenMemory[y+3][x] = 0b00001111;
+			screenMemory[y+4][x] = 0b00001111;
+			screenMemory[y+5][x] = 0b00001111;
+			screenMemory[y+6][x] = 0b00001111;
+			screenMemory[y+7][x] = 0b00001111;
+			screenMemory[y+8][x] = 0b00001111;
+			screenMemory[y+9][x] = 0b00001111;
+
+			screenMemory[y+10][x]  = 0b11110000;
+			screenMemory[y+11][x]  = 0b11110000;
+			screenMemory[y+12][x]  = 0b11110000;
+			screenMemory[y+13][x]  = 0b11110000;
+			screenMemory[y+14][x]  = 0b11110000;
+			screenMemory[y+15][x]  = 0b11110000;
+			screenMemory[y+16][x]  = 0b11110000;
+			screenMemory[y+17][x]  = 0b11110000;
+			screenMemory[y+18][x]  = 0b11110000;
+			screenMemory[y+19][x]  = 0b11110000;
 		}
 	}
 
@@ -96,8 +113,6 @@ int main()
 			// and ensure no pixels
 			DDRB &= ~(1 << COMPOSITE_PIN); // set COMPOSITE_PIN as input
 			PORTB |= 1 << COMPOSITE_PIN; // set PORTB COMPOSITE_PIN to high, as DDRB in input this causes output to go high
-			DDRB &= ~(1 << LUMINANCE_PIN);
-			PORTB &= ~(1 << LUMINANCE_PIN);
 
 			// Hold the output to the composite connector low, the zero volt hsync
 			PORTB &= 0 << COMPOSITE_PIN; // set all PORTB COMPOSITE_PIN to low, as DDRB in next statement is input this causes output to go low
@@ -110,7 +125,7 @@ int main()
 			// hold output to composite connector to 300mV
 			DDRB &= ~(1 << COMPOSITE_PIN); // set COMPOSITE_PIN as input
 			PORTB |= 1 << COMPOSITE_PIN; // set PORTB COMPOSITE_PIN to high, as DDRB in input this causes output to go high
-			for (i = 0; i < HSYNC_FRONT_PORCH_2; i++)// delay same amount to give proper back porch before drawing any pixels on the line
+			for (i = 0; i < HSYNC_BACKPORCH+10; i++)// delay same amount to give proper back porch before drawing any pixels on the line
 			{
 				__asm__ __volatile__ ("nop");
 			}
@@ -126,48 +141,54 @@ int main()
 		// game code!
 		if ((drawPixelsOnLine) && (everyOther))
 		{
-			for (uint8_t x = 0; x < XSIZE; x++)
-			{
-				uint8_t bits = screenMemory[lineCounter][x];
+			uint8_t * loopPtrMax = screenMemory[yCounter+1];
+			uint8_t * OneLine = screenMemory[yCounter];
+			do {
+				if (*OneLine & (1 <<  0))
+					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
+				else
+					{DDRB &= ~(1 << LUMINANCE_PIN); PORTB &= ~(1 << LUMINANCE_PIN); }
+				if (*OneLine & (1 <<  1))
+					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
+				else
+					{DDRB &= ~(1 << LUMINANCE_PIN); PORTB &= ~(1 << LUMINANCE_PIN); }
+				if (*OneLine & (1 <<  2))
+					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
+				else
+					{DDRB &= ~(1 << LUMINANCE_PIN); PORTB &= ~(1 << LUMINANCE_PIN); }
+				if (*OneLine & (1 <<  3))
+					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
+				else
+					{DDRB &= ~(1 << LUMINANCE_PIN); PORTB &= ~(1 << LUMINANCE_PIN); }
+				if (*OneLine & (1 <<  4))
+					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
+				else
+					{DDRB &= ~(1 << LUMINANCE_PIN); PORTB &= ~(1 << LUMINANCE_PIN); }
+				if (*OneLine & (1 <<  5))
+					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
+				else
+					{DDRB &= ~(1 << LUMINANCE_PIN); PORTB &= ~(1 << LUMINANCE_PIN); }
+				if (*OneLine & (1 <<  6))
+					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
+				else
+					{DDRB &= ~(1 << LUMINANCE_PIN); PORTB &= ~(1 << LUMINANCE_PIN); }
+				if (*OneLine & (1 <<  7))
+					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
 
-				if (bits & (1 <<  0))
-					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
-				else
-					{DDRB &= ~(1 << LUMINANCE_PIN); PORTB &= ~(1 << LUMINANCE_PIN); }
-				if (bits & (1 <<  1))
-					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
-				else
-					{DDRB &= ~(1 << LUMINANCE_PIN); PORTB &= ~(1 << LUMINANCE_PIN); }
-				if (bits & (1 <<  2))
-					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
-				else
-					{DDRB &= ~(1 << LUMINANCE_PIN); PORTB &= ~(1 << LUMINANCE_PIN); }
-				if (bits & (1 <<  3))
-					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
-				else
-					{DDRB &= ~(1 << LUMINANCE_PIN); PORTB &= ~(1 << LUMINANCE_PIN); }
-				if (bits & (1 <<  4))
-					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
-				else
-					{DDRB &= ~(1 << LUMINANCE_PIN); PORTB &= ~(1 << LUMINANCE_PIN); }
-				if (bits & (1 <<  5))
-					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
-				else
-					{DDRB &= ~(1 << LUMINANCE_PIN); PORTB &= ~(1 << LUMINANCE_PIN); }
-				if (bits & (1 <<  6))
-					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
-				else
-					{DDRB &= ~(1 << LUMINANCE_PIN); PORTB &= ~(1 << LUMINANCE_PIN); }
-				if (bits & (1 <<  7))
-					{DDRB |= (1 << LUMINANCE_PIN); PORTB |= (1 << LUMINANCE_PIN);}
+				OneLine++;
 			}
+			while (OneLine < loopPtrMax);
 		}
+		DDRB &= ~(1 << LUMINANCE_PIN); // pixel off
+		PORTB &= ~(1 << LUMINANCE_PIN); // pixel off
 		lineCounter++;
+		if (drawPixelsOnLine) yCounter++;
+
 		switch (lineCounter)
 		{
 			case 1: vSync = 0; break;
 			case FIRST_LINE_DRAWN: screenLine = 0; drawPixelsOnLine = 1; break;
-			case LAST_LINE_DRAWN: drawPixelsOnLine = 0;
+			case LAST_LINE_DRAWN: drawPixelsOnLine = 0; yCounter = 0;
 								DDRB &= ~(1 << LUMINANCE_PIN); // pixel off
 								PORTB &= ~(1 << LUMINANCE_PIN); // pixel off
 			break;
