@@ -26,7 +26,7 @@
 #define YSIZE (HALF_SCREEN*2)
 
 uint8_t alphafonts[26][8];
-uint8_t symbols[3][8];
+uint8_t symbols[5][8];
 uint8_t screenMemory[YSIZE][XSIZE];
 
 inline void putCharXY(uint8_t x,uint8_t y, uint8_t character)
@@ -53,7 +53,7 @@ void clearScreen()
 int main()
 {
 
-	uint8_t printScreen = 3;
+	uint8_t printScreen = 2;
 
 	symbols[0][0] = 0b00000000;
 	symbols[0][1] = 0b01111110;
@@ -82,6 +82,24 @@ int main()
 	symbols[2][6] = 0b10000001;
 	symbols[2][7] = 0b11111111;
 
+	symbols[3][0] = 0b11111111;
+	symbols[3][1] = 0b11111111;
+	symbols[3][2] = 0b11111111;
+	symbols[3][3] = 0b11111111;
+	symbols[3][4] = 0b11111111;
+	symbols[3][5] = 0b11111111;
+	symbols[3][6] = 0b11111111;
+	symbols[3][7] = 0b11111111;
+
+	symbols[4][0] = 0b00000000;
+	symbols[4][1] = 0b00000000;
+	symbols[4][2] = 0b00000000;
+	symbols[4][3] = 0b00000000;
+	symbols[4][4] = 0b00000000;
+	symbols[4][5] = 0b00000000;
+	symbols[4][6] = 0b00000000;
+	symbols[4][7] = 0b00000000;
+
 	alphafonts[0][0] = 0b00000000;
 	alphafonts[0][1] = 0b00010000;
 	alphafonts[0][2] = 0b00101000;
@@ -92,57 +110,57 @@ int main()
 	alphafonts[0][7] = 0b00000000;
 
 	alphafonts[1][0] = 0b00000000;
-	alphafonts[1][1] = 0b00111100;
+	alphafonts[1][1] = 0b01111000;
 	alphafonts[1][2] = 0b01000100;
-	alphafonts[1][3] = 0b00111100;
-	alphafonts[1][4] = 0b00100100;
+	alphafonts[1][3] = 0b01111000;
+	alphafonts[1][4] = 0b01000100;
 	alphafonts[1][5] = 0b01000100;
-	alphafonts[1][6] = 0b00111100;
+	alphafonts[1][6] = 0b01111000;
 	alphafonts[1][7] = 0b00000000;
 
 	alphafonts[2][0] = 0b00000000;
 	alphafonts[2][1] = 0b00111000;
 	alphafonts[2][2] = 0b01000100;
-	alphafonts[2][3] = 0b00000100;
-	alphafonts[2][4] = 0b00000100;
+	alphafonts[2][3] = 0b01000000;
+	alphafonts[2][4] = 0b01000000;
 	alphafonts[2][5] = 0b01000100;
 	alphafonts[2][6] = 0b00111000;
 	alphafonts[2][7] = 0b00000000;
 
 	alphafonts[3][0] = 0b00000000;
-	alphafonts[3][1] = 0b00111100;
+	alphafonts[3][1] = 0b01111000;
 	alphafonts[3][2] = 0b01000100;
-	alphafonts[3][3] = 0b01000100;
-	alphafonts[3][4] = 0b01000100;
+	alphafonts[3][3] = 0b01000010;
+	alphafonts[3][4] = 0b01000010;
 	alphafonts[3][5] = 0b01000100;
-	alphafonts[3][6] = 0b00111100;
+	alphafonts[3][6] = 0b01111000;
 	alphafonts[3][7] = 0b00000000;
 
 	alphafonts[4][0] = 0b00000000;
 	alphafonts[4][1] = 0b01111100;
-	alphafonts[4][2] = 0b00000100;
-	alphafonts[4][3] = 0b00111100;
-	alphafonts[4][4] = 0b00111100;
-	alphafonts[4][5] = 0b00000100;
+	alphafonts[4][2] = 0b01000000;
+	alphafonts[4][3] = 0b01110000;
+	alphafonts[4][4] = 0b01111100;
+	alphafonts[4][5] = 0b01000000;
 	alphafonts[4][6] = 0b01111100;
 	alphafonts[4][7] = 0b00000000;
 
 	alphafonts[5][0] = 0b00000000;
 	alphafonts[5][1] = 0b01111100;
-	alphafonts[5][2] = 0b00000100;
-	alphafonts[5][3] = 0b00111100;
-	alphafonts[5][4] = 0b00111100;
-	alphafonts[5][5] = 0b00000100;
-	alphafonts[5][6] = 0b00000100;
+	alphafonts[5][2] = 0b01000000;
+	alphafonts[5][3] = 0b01110000;
+	alphafonts[5][4] = 0b01111100;
+	alphafonts[5][5] = 0b01000000;
+	alphafonts[5][6] = 0b01000000;
 	alphafonts[5][7] = 0b00000000;
 
 	alphafonts[6][0] = 0b00000000;
-	alphafonts[6][1] = 0b01111100;
-	alphafonts[6][2] = 0b00000100;
-	alphafonts[6][3] = 0b00000100;
-	alphafonts[6][4] = 0b00100100;
+	alphafonts[6][1] = 0b00111000;
+	alphafonts[6][2] = 0b01000100;
+	alphafonts[6][3] = 0b01000000;
+	alphafonts[6][4] = 0b01001100;
 	alphafonts[6][5] = 0b01000100;
-	alphafonts[6][6] = 0b00111100;
+	alphafonts[6][6] = 0b00111000;
 	alphafonts[6][7] = 0b00000000;
 
 	alphafonts[7][0] = 0b00000000;
@@ -155,39 +173,39 @@ int main()
 	alphafonts[7][7] = 0b00000000;
 
 	alphafonts[8][0] = 0b00000000;
-	alphafonts[8][1] = 0b01111100;
+	alphafonts[8][1] = 0b00111000;
 	alphafonts[8][2] = 0b00010000;
 	alphafonts[8][3] = 0b00010000;
 	alphafonts[8][4] = 0b00010000;
 	alphafonts[8][5] = 0b00010000;
-	alphafonts[8][6] = 0b01111100;
+	alphafonts[8][6] = 0b00111000;
 	alphafonts[8][7] = 0b00000000;
 
 	alphafonts[9][0] = 0b00000000;
-	alphafonts[9][1] = 0b01111100;
-	alphafonts[9][2] = 0b00000100;
-	alphafonts[9][3] = 0b00000100;
-	alphafonts[9][4] = 0b00000100;
-	alphafonts[9][5] = 0b00000100;
-	alphafonts[9][6] = 0b01111000;
+	alphafonts[9][1] = 0b01000000;
+	alphafonts[9][2] = 0b01000000;
+	alphafonts[9][3] = 0b01000000;
+	alphafonts[9][4] = 0b01000000;
+	alphafonts[9][5] = 0b01000100;
+	alphafonts[9][6] = 0b00111000;
 	alphafonts[9][7] = 0b00000000;
 
 	alphafonts[10][0] = 0b00000000;
-	alphafonts[10][1] = 0b01000100;
-	alphafonts[10][2] = 0b00100100;
-	alphafonts[10][3] = 0b00011100;
-	alphafonts[10][4] = 0b00011100;
-	alphafonts[10][5] = 0b00100100;
+	alphafonts[10][1] = 0b01000000;
+	alphafonts[10][2] = 0b01000100;
+	alphafonts[10][3] = 0b01111000;
+	alphafonts[10][4] = 0b01111000;
+	alphafonts[10][5] = 0b01001000;
 	alphafonts[10][6] = 0b01000100;
 	alphafonts[10][7] = 0b00000000;
 
 	alphafonts[11][0] = 0b00000000;
-	alphafonts[11][1] = 0b00000100;
-	alphafonts[11][2] = 0b00000100;
-	alphafonts[11][3] = 0b00000100;
-	alphafonts[11][4] = 0b00000100;
-	alphafonts[11][5] = 0b00000100;
-	alphafonts[11][6] = 0b01111100;
+	alphafonts[11][1] = 0b01000000;
+	alphafonts[11][2] = 0b01000000;
+	alphafonts[11][3] = 0b01000000;
+	alphafonts[11][4] = 0b01000000;
+	alphafonts[11][5] = 0b01000000;
+	alphafonts[11][6] = 0b00111100;
 	alphafonts[11][7] = 0b00000000;
 
 
@@ -202,57 +220,57 @@ int main()
 
 	alphafonts[13][0] = 0b00000000;
 	alphafonts[13][1] = 0b10000100;
-	alphafonts[13][2] = 0b10001100;
-	alphafonts[13][3] = 0b10010100;
-	alphafonts[13][4] = 0b10100100;
-	alphafonts[13][5] = 0b11000100;
+	alphafonts[13][2] = 0b11000100;
+	alphafonts[13][3] = 0b10100100;
+	alphafonts[13][4] = 0b10010100;
+	alphafonts[13][5] = 0b10001100;
 	alphafonts[13][6] = 0b10000100;
 	alphafonts[13][7] = 0b00000000;
 
 	alphafonts[14][0] = 0b00000000;
-	alphafonts[14][1] = 0b00111100;
-	alphafonts[14][2] = 0b01000010;
-	alphafonts[14][3] = 0b01000010;
-	alphafonts[14][4] = 0b01000010;
-	alphafonts[14][5] = 0b01000010;
-	alphafonts[14][6] = 0b00111100;
+	alphafonts[14][1] = 0b00111000;
+	alphafonts[14][2] = 0b01000100;
+	alphafonts[14][3] = 0b01000100;
+	alphafonts[14][4] = 0b01000100;
+	alphafonts[14][5] = 0b01000100;
+	alphafonts[14][6] = 0b00111000;
 	alphafonts[14][7] = 0b00000000;
 
 	alphafonts[15][0] = 0b00000000;
-	alphafonts[15][1] = 0b00111100;
+	alphafonts[15][1] = 0b00111000;
 	alphafonts[15][2] = 0b01000100;
 	alphafonts[15][3] = 0b01000100;
-	alphafonts[15][4] = 0b00111100;
-	alphafonts[15][5] = 0b00000100;
-	alphafonts[15][6] = 0b00000100;
+	alphafonts[15][4] = 0b01111000;
+	alphafonts[15][5] = 0b01000000;
+	alphafonts[15][6] = 0b01000000;
 	alphafonts[15][7] = 0b00000000;
 
 	alphafonts[16][0] = 0b00000000;
 	alphafonts[16][1] = 0b01111000;
 	alphafonts[16][2] = 0b10000100;
 	alphafonts[16][3] = 0b10000100;
-	alphafonts[16][4] = 0b10100100;
-	alphafonts[16][5] = 0b01000100;
-	alphafonts[16][6] = 0b10111000;
-	alphafonts[16][7] = 0b00000000;
+	alphafonts[16][4] = 0b10010100;
+	alphafonts[16][5] = 0b10001000;
+	alphafonts[16][6] = 0b01110100;
+	alphafonts[16][7] = 0b00000010;
 
 	alphafonts[17][0] = 0b00000000;
-	alphafonts[17][1] = 0b00111100;
+	alphafonts[17][1] = 0b00111000;
 	alphafonts[17][2] = 0b01000100;
 	alphafonts[17][3] = 0b01000100;
-	alphafonts[17][4] = 0b00111100;
-	alphafonts[17][5] = 0b00100100;
+	alphafonts[17][4] = 0b01111000;
+	alphafonts[17][5] = 0b01001000;
 	alphafonts[17][6] = 0b01000100;
 	alphafonts[17][7] = 0b00000000;
 
 	alphafonts[18][0] = 0b00000000;
 	alphafonts[18][1] = 0b00111000;
 	alphafonts[18][2] = 0b01000100;
-	alphafonts[18][3] = 0b00001000;
-	alphafonts[18][4] = 0b00010000;
-	alphafonts[18][5] = 0b00100000;
-	alphafonts[18][6] = 0b01000100;
-	alphafonts[18][7] = 0b00111000;
+	alphafonts[18][3] = 0b00110000;
+	alphafonts[18][4] = 0b00011000;
+	alphafonts[18][5] = 0b01000100;
+	alphafonts[18][6] = 0b00111000;
+	alphafonts[18][7] = 0b00000000;
 
 	alphafonts[19][0] = 0b00000000;
 	alphafonts[19][1] = 0b01111100;
@@ -310,10 +328,10 @@ int main()
 
 	alphafonts[25][0] = 0b00000000;
 	alphafonts[25][1] = 0b01111100;
-	alphafonts[25][2] = 0b00100000;
-	alphafonts[25][3] = 0b00010000;
-	alphafonts[25][4] = 0b00001000;
-	alphafonts[25][5] = 0b00000100;
+	alphafonts[25][2] = 0b00000100;
+	alphafonts[25][3] = 0b00001000;
+	alphafonts[25][4] = 0b00010000;
+	alphafonts[25][5] = 0b00100000;
 	alphafonts[25][6] = 0b01111100;
 	alphafonts[25][7] = 0b00000000;
 	uint16_t lineCounter = 0;
@@ -395,31 +413,34 @@ int main()
 		// the whole line writing must be a total of less than (64 - (18 * 3)) = 10usec =
 		// a delay in line 1 = 1/16000000 =0.0000000625 assuming nop = 1 clock cycle
 
-		#define  LUM_ON { DDRB = PORTB = 0b00011000; }
-		// have to add this nop to get timing right in clock
+		#define  LUM_ON DDRB = PORTB = 0b11000;
 		// cycles i.e. LUM_ON and LUM_OFF must take exactly same time
-		#define  LUM_OFF { DDRB = PORTB = 0; __asm__ __volatile__ ("nop");}
+		//#define  LUM_OFF DDRB = PORTB = 0;
+		#define  LUM_OFF PORTB = 0; __asm__ __volatile__ ("nop;nop");
 
 		if (drawPixelsOnLine)
 		{
-			for (i = 0; i < 10; i++)
+			for (i = 0; i < 30; i++)
 			{
 				__asm__ __volatile__ ("nop");
 			}
-			uint8_t * loopPtrMax = &screenMemory[yCounter][XSIZE-1];
-			uint8_t * OneLine = &screenMemory[yCounter][0];
+			register uint8_t * loopPtrMax = &screenMemory[yCounter][XSIZE-1];
+			register uint8_t * OneLine = &screenMemory[yCounter][0];
+			register uint8_t theBits = *OneLine;
 			do {
-				if (*OneLine & (1 << 0)) LUM_ON else LUM_OFF
-				if (*OneLine & (1 << 1)) LUM_ON else LUM_OFF
-				if (*OneLine & (1 << 2)) LUM_ON else LUM_OFF
-				if (*OneLine & (1 << 3)) LUM_ON else LUM_OFF
-				if (*OneLine & (1 << 4)) LUM_ON else LUM_OFF
-				if (*OneLine & (1 << 5)) LUM_ON else LUM_OFF
-				if (*OneLine & (1 << 6)) LUM_ON else LUM_OFF
-				if (*OneLine & (1 << 7)) LUM_ON else LUM_OFF
+				if (theBits & 0b10000000) LUM_ON else LUM_OFF
+	 			if (theBits & 0b01000000) LUM_ON else LUM_OFF
+				if (theBits & 0b00100000) LUM_ON else LUM_OFF
+				if (theBits & 0b00010000) LUM_ON else LUM_OFF
+				if (theBits & 0b00001000) LUM_ON else LUM_OFF
+				if (theBits & 0b00000100) LUM_ON else LUM_OFF
+				if (theBits & 0b00000010) LUM_ON else LUM_OFF
+				if (theBits & 0b00000001) LUM_ON else LUM_OFF
 				OneLine++;
+				theBits = *OneLine;
 			}
-			while (OneLine <= loopPtrMax);
+			while (OneLine < loopPtrMax);
+
 			LUM_OFF
 		}
 
@@ -463,17 +484,18 @@ int main()
 				}
 				else if (printScreen == 2) // draw a grid using symbols
 				{
-					for (uint8_t y = 0; y < YSIZE; y+=8)
+					for (uint8_t y = 0; y < YSIZE-16; y+=16)
 					{
 						uint8_t c = 0;
-						for (uint8_t x = 0; x < XSIZE; x++)
+						for (uint8_t x = 0; x < XSIZE; x+=2)
 						{
-							putSymXY(x,y,c);
-							c++;
-							if (c>=2) c = 0;
+							putSymXY(x,y,3);
+							putSymXY(x+1,y,4);
+							putSymXY(x,y+8,4);
+							putSymXY(x+1,y+8,3);
 						}
 					}
-					printScreen = 3;
+					printScreen = 4;
 					updateScreenMemory = 100000;
 				}
 				else if (printScreen == 3)
