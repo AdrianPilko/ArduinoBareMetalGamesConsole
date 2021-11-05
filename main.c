@@ -416,7 +416,7 @@ int main()
 		#define  LUM_ON DDRB = PORTB = 0b11000;
 		// cycles i.e. LUM_ON and LUM_OFF must take exactly same time
 		//#define  LUM_OFF DDRB = PORTB = 0;
-		#define  LUM_OFF PORTB = 0; __asm__ __volatile__ ("nop;nop");
+		#define  LUM_OFF PORTB = 0;
 
 		if (drawPixelsOnLine)
 		{
