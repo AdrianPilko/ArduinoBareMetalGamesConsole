@@ -168,7 +168,7 @@ int main()
 	alphafonts[4][0] = 0b00000000;
 	alphafonts[4][1] = 0b01111100;
 	alphafonts[4][2] = 0b01000000;
-	alphafonts[4][3] = 0b01111100;
+	alphafonts[4][3] = 0b01000000;
 	alphafonts[4][4] = 0b01111100;
 	alphafonts[4][5] = 0b01000000;
 	alphafonts[4][6] = 0b01111100;
