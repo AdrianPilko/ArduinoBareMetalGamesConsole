@@ -64,7 +64,7 @@ void clearScreen()
 int main()
 {
 
-	uint8_t printScreen = 1;
+	uint8_t printScreen = 0;
 
 	symbols[0][0] = 0b00000000;
 	symbols[0][1] = 0b01111110;
@@ -177,7 +177,7 @@ int main()
 	alphafonts[5][0] = 0b00000000;
 	alphafonts[5][1] = 0b01111100;
 	alphafonts[5][2] = 0b01000000;
-	alphafonts[5][3] = 0b01110000;
+	alphafonts[5][3] = 0b01000000;
 	alphafonts[5][4] = 0b01111100;
 	alphafonts[5][5] = 0b01000000;
 	alphafonts[5][6] = 0b01000000;
@@ -195,7 +195,7 @@ int main()
 	alphafonts[7][0] = 0b00000000;
 	alphafonts[7][1] = 0b01000100;
 	alphafonts[7][2] = 0b01000100;
-	alphafonts[7][3] = 0b01111100;
+	alphafonts[7][3] = 0b01000100;
 	alphafonts[7][4] = 0b01111100;
 	alphafonts[7][5] = 0b01000100;
 	alphafonts[7][6] = 0b01000100;
@@ -482,12 +482,20 @@ int main()
 
 			if (printScreen == 0) // draw my name
 			{
-				putCharXY(0,0,0);
-				putCharXY(1,0,3);
-				putCharXY(2,0,17);
-				putCharXY(3,0,8);
-				putCharXY(4,0,0);
-				putCharXY(5,0,13);
+				putCharXY(0,0,convertToMyCharSet('A'));
+				putCharXY(1,7,convertToMyCharSet('D'));
+				putCharXY(2,15,convertToMyCharSet('R'));
+				putCharXY(3,23,convertToMyCharSet('I'));
+				putCharXY(4,31,convertToMyCharSet('A'));
+				putCharXY(5,39,convertToMyCharSet('N'));
+				putCharXY(0,39+7,convertToMyCharSet('I'));
+				putCharXY(1,39+15,convertToMyCharSet('S'));
+				putCharXY(0,54+7,convertToMyCharSet('G'));
+				putCharXY(1,54+15,convertToMyCharSet('R'));
+				putCharXY(2,54+23,convertToMyCharSet('E'));
+				putCharXY(3,54+31,convertToMyCharSet('A'));
+				putCharXY(4,54+39,convertToMyCharSet('T'));
+
 				updateScreenMemory = 100000;
 				printScreen = 128; // only do once
 			}
