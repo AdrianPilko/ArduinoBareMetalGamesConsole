@@ -25,8 +25,12 @@
 #define XSIZE 8
 #define YSIZE (HALF_SCREEN*2)
 
+#define COMMA 5
+#define EXCLAMATION 6
+#define SPACE 4
+
 uint8_t alphafonts[26][8];
-uint8_t symbols[5][8];
+uint8_t symbols[7][8];
 uint8_t screenMemory[YSIZE][XSIZE];
 
 inline void putCharXY(uint8_t x,uint8_t y, uint8_t character)
@@ -45,6 +49,13 @@ inline void putSymXY(uint8_t x,uint8_t y, uint8_t symbolNumber)
 	}
 }
 
+inline uint8_t convertToMyCharSet(char charToConvert)
+{
+	uint8_t rv = (uint8_t)charToConvert - 65;
+	if ((rv > 25) || (rv < 0)) rv = 4;
+	return rv;
+}
+
 void clearScreen()
 {
 	memset (&screenMemory[0][0],0,sizeof(uint8_t) * YSIZE * XSIZE );
@@ -53,7 +64,7 @@ void clearScreen()
 int main()
 {
 
-	uint8_t printScreen = 2;
+	uint8_t printScreen = 1;
 
 	symbols[0][0] = 0b00000000;
 	symbols[0][1] = 0b01111110;
@@ -100,6 +111,24 @@ int main()
 	symbols[4][6] = 0b00000000;
 	symbols[4][7] = 0b00000000;
 
+	symbols[5][0] = 0b00000000;
+	symbols[5][1] = 0b00000000;
+	symbols[5][2] = 0b00000000;
+	symbols[5][3] = 0b00000000;
+	symbols[5][4] = 0b00000000;
+	symbols[5][5] = 0b00000110;
+	symbols[5][6] = 0b00000010;
+	symbols[5][7] = 0b00000100;
+
+	symbols[6][0] = 0b00000000;
+	symbols[6][1] = 0b00011000;
+	symbols[6][2] = 0b00011000;
+	symbols[6][3] = 0b00011000;
+	symbols[6][4] = 0b00011000;
+	symbols[6][5] = 0b00000000;
+	symbols[6][6] = 0b00011000;
+	symbols[6][7] = 0b00000000;
+
 	alphafonts[0][0] = 0b00000000;
 	alphafonts[0][1] = 0b00010000;
 	alphafonts[0][2] = 0b00101000;
@@ -139,7 +168,7 @@ int main()
 	alphafonts[4][0] = 0b00000000;
 	alphafonts[4][1] = 0b01111100;
 	alphafonts[4][2] = 0b01000000;
-	alphafonts[4][3] = 0b01110000;
+	alphafonts[4][3] = 0b01111100;
 	alphafonts[4][4] = 0b01111100;
 	alphafonts[4][5] = 0b01000000;
 	alphafonts[4][6] = 0b01111100;
@@ -182,19 +211,19 @@ int main()
 	alphafonts[8][7] = 0b00000000;
 
 	alphafonts[9][0] = 0b00000000;
-	alphafonts[9][1] = 0b01000000;
-	alphafonts[9][2] = 0b01000000;
-	alphafonts[9][3] = 0b01000000;
-	alphafonts[9][4] = 0b01000000;
+	alphafonts[9][1] = 0b00000100;
+	alphafonts[9][2] = 0b00000100;
+	alphafonts[9][3] = 0b00000100;
+	alphafonts[9][4] = 0b00000100;
 	alphafonts[9][5] = 0b01000100;
 	alphafonts[9][6] = 0b00111000;
 	alphafonts[9][7] = 0b00000000;
 
 	alphafonts[10][0] = 0b00000000;
-	alphafonts[10][1] = 0b01000000;
+	alphafonts[10][1] = 0b01000100;
 	alphafonts[10][2] = 0b01000100;
-	alphafonts[10][3] = 0b01111000;
-	alphafonts[10][4] = 0b01111000;
+	alphafonts[10][3] = 0b01001000;
+	alphafonts[10][4] = 0b01110000;
 	alphafonts[10][5] = 0b01001000;
 	alphafonts[10][6] = 0b01000100;
 	alphafonts[10][7] = 0b00000000;
@@ -338,8 +367,8 @@ int main()
 	uint8_t  vSync = 0;
 	uint8_t i = 0;
 	uint8_t drawPixelsOnLine = 0;
+	uint32_t updateScreenMemory = 0;
 	uint8_t yCounter = 0;
-	uint32_t updateScreenMemory = 10;
 	uint8_t letterToShow = 0;
 	uint8_t TextLine = 0;
 	uint8_t xPos = 0;
@@ -416,7 +445,7 @@ int main()
 		#define  LUM_ON DDRB = PORTB = 0b11000;
 		// cycles i.e. LUM_ON and LUM_OFF must take exactly same time
 		//#define  LUM_OFF DDRB = PORTB = 0;
-		#define  LUM_OFF PORTB = 0;
+		#define  LUM_OFF DDRB = 0;
 
 		if (drawPixelsOnLine)
 		{
@@ -427,6 +456,7 @@ int main()
 			register uint8_t * loopPtrMax = &screenMemory[yCounter][XSIZE-1];
 			register uint8_t * OneLine = &screenMemory[yCounter][0];
 			register uint8_t theBits = *OneLine;
+
 			do {
 				if (theBits & 0b10000000) LUM_ON else LUM_OFF
 	 			if (theBits & 0b01000000) LUM_ON else LUM_OFF
@@ -438,10 +468,9 @@ int main()
 				if (theBits & 0b00000001) LUM_ON else LUM_OFF
 				OneLine++;
 				theBits = *OneLine;
-			}
-			while (OneLine < loopPtrMax);
-
+			}while (OneLine < loopPtrMax);
 			LUM_OFF
+
 		}
 
 
@@ -451,83 +480,61 @@ int main()
 		{
 			yCounter++;
 
-			if (updateScreenMemory-- == 0)
+			if (printScreen == 0) // draw my name
 			{
-				if (printScreen == 0) // draw my name
-				{
-					putCharXY(0,0,0);
-					putCharXY(1,0,3);
-					putCharXY(2,0,17);
-					putCharXY(3,0,8);
-					putCharXY(4,0,0);
-					putCharXY(5,0,13);
-					updateScreenMemory = 100000;
-					printScreen = 1;
-				}
-				else if (printScreen == 1) // draw alphabet
-				{
-					clearScreen();
-					for (letterToShow = 0; letterToShow < 26; letterToShow++)
-					{
-						putCharXY(xPos,yPos,letterToShow);
-						xPos+=1;
-						if (xPos >= XSIZE) // 10 characters wide
-						{
-							xPos = 0;
-							yPos += 8;
-						}
-					}
-					xPos = 0;
-					yPos = 0;
-					printScreen = 2;
-					updateScreenMemory = 100000;
-				}
-				else if (printScreen == 2) // draw a grid using symbols
-				{
-					for (uint8_t y = 0; y < YSIZE-16; y+=16)
-					{
-						uint8_t c = 0;
-						for (uint8_t x = 0; x < XSIZE; x+=2)
-						{
-							putSymXY(x,y,3);
-							putSymXY(x+1,y,4);
-							putSymXY(x,y+8,4);
-							putSymXY(x+1,y+8,3);
-						}
-					}
-					printScreen = 4;
-					updateScreenMemory = 100000;
-				}
-				else if (printScreen == 3)
-				{
-					putCharXY(0,0,7);
-					putCharXY(1,0,4);
-					putCharXY(2,0,11);
-					putCharXY(3,0,11);
-					putCharXY(4,0,14);
-					putCharXY(0,8,22);
-					putCharXY(1,8,14);
-					putCharXY(2,8,17);
-					putCharXY(3,8,11);
-					putCharXY(4,8,3);
-					printScreen = 4;
-					updateScreenMemory = 100000;
-				}
-				else if (printScreen == 4)
-				{
-					updateScreenMemory = 100000; // no more updates
-				}
+				putCharXY(0,0,0);
+				putCharXY(1,0,3);
+				putCharXY(2,0,17);
+				putCharXY(3,0,8);
+				putCharXY(4,0,0);
+				putCharXY(5,0,13);
+				updateScreenMemory = 100000;
+				printScreen = 128; // only do once
+			}
+			if (printScreen == 1) // print hello, world
+			{
+				putCharXY(0,0,convertToMyCharSet('H'));
+				putCharXY(0,7,convertToMyCharSet('E'));
+				putCharXY(0,15,convertToMyCharSet('L'));
+				putCharXY(0,23,convertToMyCharSet('L'));
+				putCharXY(0,31,convertToMyCharSet('O'));
+				putSymXY(0,38,COMMA);
+				putSymXY(0,45,SPACE);
+				putCharXY(0,45+0,convertToMyCharSet('W'));
+				putCharXY(0,45+7,convertToMyCharSet('O'));
+				putCharXY(0,45+15,convertToMyCharSet('R'));
+				putCharXY(0,45+23,convertToMyCharSet('L'));
+				putCharXY(0,45+31,convertToMyCharSet('D'));
+				putSymXY(0,45+45,EXCLAMATION);
+				updateScreenMemory = 100000;
+				printScreen = 128; // only do once
 			}
 		}
 
 		switch (lineCounter)
 		{
-			case 1: vSync = 0;	break;
-			case FIRST_LINE_DRAWN: drawPixelsOnLine = 1; break;
-			case LAST_LINE_DRAWN: drawPixelsOnLine = 0; yCounter = 0; LUM_OFF; 	break;
-			case MAX_LINE_BEFORE_BLANK-6: vSync = 1; drawPixelsOnLine = 0; break;
-			case MAX_LINE_BEFORE_BLANK: lineCounter = 0; vSync = 0;	break;
+			case 1:
+				vSync = 0;
+				break;
+			case FIRST_LINE_DRAWN+1: drawPixelsOnLine = 1; break;
+			//case (MAX_LINE_BEFORE_BLANK - 80) :
+			//	drawPixelsOnLine = 1; break;
+			//case (MAX_LINE_BEFORE_BLANK - 72) :
+			//	drawPixelsOnLine = 0; break;
+			case LAST_LINE_DRAWN:
+				drawPixelsOnLine = 0; yCounter = 0; LUM_OFF; 	break;
+			case (MAX_LINE_BEFORE_BLANK-40):
+				drawPixelsOnLine = 0; break;
+			case (MAX_LINE_BEFORE_BLANK-6):
+				vSync = 1; drawPixelsOnLine = 0; break;
+			case MAX_LINE_BEFORE_BLANK:
+				lineCounter = 0; vSync = 0;	break;
 		}
+
+		//if (scrollDown == MAX_LINE_BEFORE_BLANK - 80)
+		//{
+
+		//}
 	}
 }
 
