@@ -92,15 +92,15 @@ void animateAliens()
 		uint8_t lineTemp = alienY;
 		putCharXY(alienX,lineTemp,convertToMyCharSet(' '));
 		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX,lineTemp,convertToMyCharSet(' '));
+		putCharXY(alienX+1,lineTemp,convertToMyCharSet(' '));
 		lineTemp+= LINE_INC_ALIENS;
 		putCharXY(alienX,lineTemp,convertToMyCharSet(' '));
 		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX,lineTemp,convertToMyCharSet(' '));
+		putCharXY(alienX+1,lineTemp,convertToMyCharSet(' '));
 		lineTemp+= LINE_INC_ALIENS;
 		putCharXY(alienX,lineTemp,convertToMyCharSet(' '));
 		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX,lineTemp,convertToMyCharSet(' '));
+		putCharXY(alienX+1,lineTemp,convertToMyCharSet(' '));
 
 		alienX = alienX + 1;
 		if (alienX > 6) alienX = 0;
@@ -112,30 +112,30 @@ void animateAliens()
 		uint8_t lineTemp = alienY;
 		putCharXY(alienX,lineTemp,convertToMyCharSet('$'));
 		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX,lineTemp,convertToMyCharSet('$'));
+		putCharXY(alienX+1,lineTemp,convertToMyCharSet('$'));
 		lineTemp+= LINE_INC_ALIENS;
 		putCharXY(alienX,lineTemp,convertToMyCharSet('$'));
 		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX,lineTemp,convertToMyCharSet('$'));
+		putCharXY(alienX+1,lineTemp,convertToMyCharSet('$'));
 		lineTemp+= LINE_INC_ALIENS;
 		putCharXY(alienX,lineTemp,convertToMyCharSet('$'));
 		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX,lineTemp,convertToMyCharSet('$'));
+		putCharXY(alienX+1,lineTemp,convertToMyCharSet('$'));
 	}
 	else
 	{
 		uint8_t lineTemp = alienY;
 		putCharXY(alienX,lineTemp,convertToMyCharSet('£'));
 		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX,lineTemp,convertToMyCharSet('£'));
+		putCharXY(alienX+1,lineTemp,convertToMyCharSet('£'));
 		lineTemp+= LINE_INC_ALIENS;
 		putCharXY(alienX,lineTemp,convertToMyCharSet('£'));
 		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX,lineTemp,convertToMyCharSet('£'));
+		putCharXY(alienX+1,lineTemp,convertToMyCharSet('£'));
 		lineTemp+= LINE_INC_ALIENS;
 		putCharXY(alienX,lineTemp,convertToMyCharSet('£'));
 		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX,lineTemp,convertToMyCharSet('£'));
+		putCharXY(alienX+1,lineTemp,convertToMyCharSet('£'));
 	}
 	alienToggle = 1 - alienToggle;
 }
@@ -150,6 +150,7 @@ int main()
 {
 	uint8_t alienToggleCountDown = 128;
 	uint8_t printScreen = 2;
+	uint8_t drawBarrier = 0;
 
 	uint16_t lineCounter = 0;
 	uint8_t  vSync = 0;
@@ -255,7 +256,7 @@ int main()
 		if (drawPixelsOnLine)
 		{
 			// read out each line from memory and display
-			for (i = 0; i < 20; i++)
+			for (i = 0; i < 30; i++)
 			{
 				__asm__ __volatile__ ("nop");
 			}
@@ -279,15 +280,6 @@ int main()
 			}while (OneLine < loopPtrMax);
 			PIXEL_OFF_NO_NOP()
 
-			yCounter++;
-		}
-
-
-
-		lineCounter++;
-
-		if (drawPixelsOnLine)
-		{
 			if (printScreen == 2) // print hello, world
 			{
 
@@ -330,7 +322,45 @@ int main()
 				putCharXY(0,lineTemp,convertToMyCharSet('!'));
 				printScreen = 128; // only do once
 			}
+			yCounter++;
 		}
+
+		lineCounter++;
+
+		if (drawBarrier == 1)
+		{
+			for (i = 0; i < 50; i++)
+			{
+				__asm__ __volatile__ ("nop");
+			}
+			PIXEL_ON();
+			for (i = 0; i < 18; i++)
+			{
+				__asm__ __volatile__ ("nop");
+			}
+			PIXEL_OFF_NO_NOP();
+			for (i = 0; i < 25; i++)
+			{
+				__asm__ __volatile__ ("nop");
+			}
+			PIXEL_ON();
+			for (i = 0; i < 18; i++)
+			{
+				__asm__ __volatile__ ("nop");
+			}
+			PIXEL_OFF_NO_NOP();
+			for (i = 0; i < 25; i++)
+			{
+				__asm__ __volatile__ ("nop");
+			}
+			PIXEL_ON();
+			for (i = 0; i < 18; i++)
+			{
+				__asm__ __volatile__ ("nop");
+			}
+			PIXEL_OFF_NO_NOP();
+		}
+
 
 		switch (lineCounter)
 		{
@@ -338,17 +368,22 @@ int main()
 				vSync = 0;
 				break;
 			case FIRST_LINE_DRAWN+1: drawPixelsOnLine = 1; break;
-			//case (MAX_LINE_BEFORE_BLANK - 80) :
-			//	drawPixelsOnLine = 1; break;
-			//case (MAX_LINE_BEFORE_BLANK - 72) :
-			//	drawPixelsOnLine = 0; break;
-			case LAST_LINE_DRAWN:
-				drawPixelsOnLine = 0; yCounter = 0; PIXEL_OFF(); 	break;
+			case (MAX_LINE_BEFORE_BLANK-80) :
+				drawPixelsOnLine = 0;
+		        drawBarrier = 1;
+				break;
+			case (MAX_LINE_BEFORE_BLANK-70) :
+				PIXEL_OFF();
+		        drawBarrier = 0;
+				break;
+
 			case (MAX_LINE_BEFORE_BLANK-40):
-				drawPixelsOnLine = 0; break;
+				yCounter = 0;
+				break;
 			case (MAX_LINE_BEFORE_BLANK-6):
 				vSync = 1; drawPixelsOnLine = 0; break;
 			case MAX_LINE_BEFORE_BLANK:
+				drawPixelsOnLine = 0;
 				lineCounter = 0; vSync = 0;
 
 				if (alienToggleCountDown-- == 0)
@@ -365,28 +400,5 @@ int main()
 				break;
 
 		}
-
-
-		//if (scrollDown == MAX_LINE_BEFORE_BLANK - 80)
-		//{
-
-		//}
 	}
 }
-
-
-#if 0
-else
-{
-	DDRB |= (1 << LUMINANCE_PIN); // pixel on
-	PORTB |= (1 << LUMINANCE_PIN); // pixel on
-	for (i = 0; i < 205; i++)
-	{
-		__asm__ __volatile__ ("nop");
-	}
-
-	DDRB &= ~(1 << LUMINANCE_PIN); // pixel off
-	PORTB &= ~(1 << LUMINANCE_PIN); // pixel off
-}
-
-#endif
