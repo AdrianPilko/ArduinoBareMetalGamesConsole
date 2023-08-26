@@ -27,10 +27,15 @@
 #define XSIZE 8
 #define YSIZE (HALF_SCREEN*2)
 
-#define COMMA 5
-#define EXCLAMATION 6
-#define SPACE 4
-
+#define SQUARE 26
+#define SQUARE_WITH_DOT 27
+#define EGG_TIMER 28
+#define SOLID_ON 29
+#define SPACE 30
+#define COMMA 31
+#define EXCLAMATION 32
+#define ALIEN_1 33
+#define ALIEN_2 34
 
 uint8_t screenMemory[YSIZE][XSIZE];
 
@@ -42,18 +47,26 @@ inline void putCharXY(uint8_t x,uint8_t y, uint8_t character)
 	}
 }
 
-//inline void putSymXY(uint8_t x,uint8_t y, uint8_t symbolNumber)
-//{
-//	for (uint8_t i = 0; i < 8; i++)
-//	{
-//		screenMemory[y+i][x] = symbols[symbolNumber][i];
-//	}
-//}
-
 inline uint8_t convertToMyCharSet(char charToConvert)
 {
 	uint8_t rv = (uint8_t)charToConvert - 65;
-	if ((rv > 25) || (rv < 0)) rv = 4;
+
+	if ((rv > 25+9) || (rv < 0))
+	{ // check for special char
+		switch (charToConvert)
+		{
+			case ',' : rv = COMMA; break;
+			case '!' : rv = EXCLAMATION; break;
+			case ' ' : rv = SPACE; break;
+			case '[' : rv = SQUARE; break;
+			case '}' : rv = SQUARE_WITH_DOT; break;
+			case '#' : rv = SOLID_ON; break;
+			case '£' : rv = ALIEN_1; break;
+			case '$' : rv = ALIEN_2; break;
+			default: rv = 4;  break; // "E for error!"
+		};
+	}
+
 	return rv;
 }
 
@@ -214,15 +227,9 @@ int main()
 		{
 			if (printScreen == 0) // draw my name
 			{
-				putCharXY(0,0,convertToMyCharSet('A'));
-				putCharXY(1,0,convertToMyCharSet('D'));
-				putCharXY(2,0,convertToMyCharSet('A'));
-				putCharXY(3,0,convertToMyCharSet('A'));
-				putCharXY(4,0,convertToMyCharSet('D'));
-				putCharXY(5,0,convertToMyCharSet('A'));
+				putCharXY(0,0,convertToMyCharSet('$'));
+				putCharXY(0,16,convertToMyCharSet('£'));
 
-				putCharXY(6,31,convertToMyCharSet('D'));
-				putCharXY(0,31,convertToMyCharSet('D'));
 				updateScreenMemory = 100000;
 				printScreen = 128; // only do once
 			}
