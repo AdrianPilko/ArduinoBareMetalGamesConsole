@@ -4,7 +4,9 @@
 // centre pin. if using atmega328p on bare board (not arduino) then its PB5 and PB4.
 
 #include<avr/io.h>
+#include <avr/pgmspace.h>
 #include <util/delay.h>
+#include "charset.h"
 
 #define COMPOSITE_PIN PB5
 #define LUMINANCE_PIN PB4
@@ -29,8 +31,7 @@
 #define EXCLAMATION 6
 #define SPACE 4
 
-uint8_t alphafonts[26][8];
-uint8_t symbols[7][8];
+
 uint8_t screenMemory[YSIZE][XSIZE];
 
 inline void putCharXY(uint8_t x,uint8_t y, uint8_t character)
@@ -41,13 +42,13 @@ inline void putCharXY(uint8_t x,uint8_t y, uint8_t character)
 	}
 }
 
-inline void putSymXY(uint8_t x,uint8_t y, uint8_t symbolNumber)
-{
-	for (uint8_t i = 0; i < 8; i++)
-	{
-		screenMemory[y+i][x] = symbols[symbolNumber][i];
-	}
-}
+//inline void putSymXY(uint8_t x,uint8_t y, uint8_t symbolNumber)
+//{
+//	for (uint8_t i = 0; i < 8; i++)
+//	{
+//		screenMemory[y+i][x] = symbols[symbolNumber][i];
+//	}
+//}
 
 inline uint8_t convertToMyCharSet(char charToConvert)
 {
@@ -66,303 +67,6 @@ int main()
 
 	uint8_t printScreen = 0;
 
-	symbols[0][0] = 0b00000000;
-	symbols[0][1] = 0b01111110;
-	symbols[0][2] = 0b01000010;
-	symbols[0][3] = 0b01000010;
-	symbols[0][4] = 0b01000010;
-	symbols[0][5] = 0b01000010;
-	symbols[0][6] = 0b01111110;
-	symbols[0][7] = 0b00000000;
-
-	symbols[1][0] = 0b11111111;
-	symbols[1][1] = 0b10000001;
-	symbols[1][2] = 0b10111101;
-	symbols[1][3] = 0b10100101;
-	symbols[1][4] = 0b10100101;
-	symbols[1][5] = 0b10111101;
-	symbols[1][6] = 0b10000001;
-	symbols[1][7] = 0b11111111;
-
-	symbols[2][0] = 0b11011011;
-	symbols[2][1] = 0b00000000;
-	symbols[2][2] = 0b01100110;
-	symbols[2][3] = 0b00000000;
-	symbols[2][4] = 0b00011000;
-	symbols[2][5] = 0b00011000;
-	symbols[2][6] = 0b10000001;
-	symbols[2][7] = 0b11111111;
-
-	symbols[3][0] = 0b11111111;
-	symbols[3][1] = 0b11111111;
-	symbols[3][2] = 0b11111111;
-	symbols[3][3] = 0b11111111;
-	symbols[3][4] = 0b11111111;
-	symbols[3][5] = 0b11111111;
-	symbols[3][6] = 0b11111111;
-	symbols[3][7] = 0b11111111;
-
-	symbols[4][0] = 0b00000000;
-	symbols[4][1] = 0b00000000;
-	symbols[4][2] = 0b00000000;
-	symbols[4][3] = 0b00000000;
-	symbols[4][4] = 0b00000000;
-	symbols[4][5] = 0b00000000;
-	symbols[4][6] = 0b00000000;
-	symbols[4][7] = 0b00000000;
-
-	symbols[5][0] = 0b00000000;
-	symbols[5][1] = 0b00000000;
-	symbols[5][2] = 0b00000000;
-	symbols[5][3] = 0b00000000;
-	symbols[5][4] = 0b00000000;
-	symbols[5][5] = 0b00000110;
-	symbols[5][6] = 0b00000010;
-	symbols[5][7] = 0b00000100;
-
-	symbols[6][0] = 0b00000000;
-	symbols[6][1] = 0b00011000;
-	symbols[6][2] = 0b00011000;
-	symbols[6][3] = 0b00011000;
-	symbols[6][4] = 0b00011000;
-	symbols[6][5] = 0b00000000;
-	symbols[6][6] = 0b00011000;
-	symbols[6][7] = 0b00000000;
-
-	alphafonts[0][0] = 0b00000000;
-	alphafonts[0][1] = 0b00010000;
-	alphafonts[0][2] = 0b00101000;
-	alphafonts[0][3] = 0b01000100;
-	alphafonts[0][4] = 0b01111100;
-	alphafonts[0][5] = 0b01000100;
-	alphafonts[0][6] = 0b01000100;
-	alphafonts[0][7] = 0b00000000;
-
-	alphafonts[1][0] = 0b00000000;
-	alphafonts[1][1] = 0b01111000;
-	alphafonts[1][2] = 0b01000100;
-	alphafonts[1][3] = 0b01111000;
-	alphafonts[1][4] = 0b01000100;
-	alphafonts[1][5] = 0b01000100;
-	alphafonts[1][6] = 0b01111000;
-	alphafonts[1][7] = 0b00000000;
-
-	alphafonts[2][0] = 0b00000000;
-	alphafonts[2][1] = 0b00111000;
-	alphafonts[2][2] = 0b01000100;
-	alphafonts[2][3] = 0b01000000;
-	alphafonts[2][4] = 0b01000000;
-	alphafonts[2][5] = 0b01000100;
-	alphafonts[2][6] = 0b00111000;
-	alphafonts[2][7] = 0b00000000;
-
-	alphafonts[3][0] = 0b00000000;
-	alphafonts[3][1] = 0b01111000;
-	alphafonts[3][2] = 0b01000100;
-	alphafonts[3][3] = 0b01000010;
-	alphafonts[3][4] = 0b01000010;
-	alphafonts[3][5] = 0b01000100;
-	alphafonts[3][6] = 0b01111000;
-	alphafonts[3][7] = 0b00000000;
-
-	alphafonts[4][0] = 0b00000000;
-	alphafonts[4][1] = 0b01111100;
-	alphafonts[4][2] = 0b01000000;
-	alphafonts[4][3] = 0b01000000;
-	alphafonts[4][4] = 0b01111100;
-	alphafonts[4][5] = 0b01000000;
-	alphafonts[4][6] = 0b01111100;
-	alphafonts[4][7] = 0b00000000;
-
-	alphafonts[5][0] = 0b00000000;
-	alphafonts[5][1] = 0b01111100;
-	alphafonts[5][2] = 0b01000000;
-	alphafonts[5][3] = 0b01000000;
-	alphafonts[5][4] = 0b01111100;
-	alphafonts[5][5] = 0b01000000;
-	alphafonts[5][6] = 0b01000000;
-	alphafonts[5][7] = 0b00000000;
-
-	alphafonts[6][0] = 0b00000000;
-	alphafonts[6][1] = 0b00111000;
-	alphafonts[6][2] = 0b01000100;
-	alphafonts[6][3] = 0b01000000;
-	alphafonts[6][4] = 0b01001100;
-	alphafonts[6][5] = 0b01000100;
-	alphafonts[6][6] = 0b00111000;
-	alphafonts[6][7] = 0b00000000;
-
-	alphafonts[7][0] = 0b00000000;
-	alphafonts[7][1] = 0b01000100;
-	alphafonts[7][2] = 0b01000100;
-	alphafonts[7][3] = 0b01000100;
-	alphafonts[7][4] = 0b01111100;
-	alphafonts[7][5] = 0b01000100;
-	alphafonts[7][6] = 0b01000100;
-	alphafonts[7][7] = 0b00000000;
-
-	alphafonts[8][0] = 0b00000000;
-	alphafonts[8][1] = 0b00111000;
-	alphafonts[8][2] = 0b00010000;
-	alphafonts[8][3] = 0b00010000;
-	alphafonts[8][4] = 0b00010000;
-	alphafonts[8][5] = 0b00010000;
-	alphafonts[8][6] = 0b00111000;
-	alphafonts[8][7] = 0b00000000;
-
-	alphafonts[9][0] = 0b00000000;
-	alphafonts[9][1] = 0b00000100;
-	alphafonts[9][2] = 0b00000100;
-	alphafonts[9][3] = 0b00000100;
-	alphafonts[9][4] = 0b00000100;
-	alphafonts[9][5] = 0b01000100;
-	alphafonts[9][6] = 0b00111000;
-	alphafonts[9][7] = 0b00000000;
-
-	alphafonts[10][0] = 0b00000000;
-	alphafonts[10][1] = 0b01000100;
-	alphafonts[10][2] = 0b01000100;
-	alphafonts[10][3] = 0b01001000;
-	alphafonts[10][4] = 0b01110000;
-	alphafonts[10][5] = 0b01001000;
-	alphafonts[10][6] = 0b01000100;
-	alphafonts[10][7] = 0b00000000;
-
-	alphafonts[11][0] = 0b00000000;
-	alphafonts[11][1] = 0b01000000;
-	alphafonts[11][2] = 0b01000000;
-	alphafonts[11][3] = 0b01000000;
-	alphafonts[11][4] = 0b01000000;
-	alphafonts[11][5] = 0b01000000;
-	alphafonts[11][6] = 0b00111100;
-	alphafonts[11][7] = 0b00000000;
-
-
-	alphafonts[12][0] = 0b00000000;
-	alphafonts[12][1] = 0b10000010;
-	alphafonts[12][2] = 0b11000110;
-	alphafonts[12][3] = 0b10101010;
-	alphafonts[12][4] = 0b10010010;
-	alphafonts[12][5] = 0b10000010;
-	alphafonts[12][6] = 0b10000010;
-	alphafonts[12][7] = 0b00000000;
-
-	alphafonts[13][0] = 0b00000000;
-	alphafonts[13][1] = 0b10000100;
-	alphafonts[13][2] = 0b11000100;
-	alphafonts[13][3] = 0b10100100;
-	alphafonts[13][4] = 0b10010100;
-	alphafonts[13][5] = 0b10001100;
-	alphafonts[13][6] = 0b10000100;
-	alphafonts[13][7] = 0b00000000;
-
-	alphafonts[14][0] = 0b00000000;
-	alphafonts[14][1] = 0b00111000;
-	alphafonts[14][2] = 0b01000100;
-	alphafonts[14][3] = 0b01000100;
-	alphafonts[14][4] = 0b01000100;
-	alphafonts[14][5] = 0b01000100;
-	alphafonts[14][6] = 0b00111000;
-	alphafonts[14][7] = 0b00000000;
-
-	alphafonts[15][0] = 0b00000000;
-	alphafonts[15][1] = 0b00111000;
-	alphafonts[15][2] = 0b01000100;
-	alphafonts[15][3] = 0b01000100;
-	alphafonts[15][4] = 0b01111000;
-	alphafonts[15][5] = 0b01000000;
-	alphafonts[15][6] = 0b01000000;
-	alphafonts[15][7] = 0b00000000;
-
-	alphafonts[16][0] = 0b00000000;
-	alphafonts[16][1] = 0b01111000;
-	alphafonts[16][2] = 0b10000100;
-	alphafonts[16][3] = 0b10000100;
-	alphafonts[16][4] = 0b10010100;
-	alphafonts[16][5] = 0b10001000;
-	alphafonts[16][6] = 0b01110100;
-	alphafonts[16][7] = 0b00000010;
-
-	alphafonts[17][0] = 0b00000000;
-	alphafonts[17][1] = 0b00111000;
-	alphafonts[17][2] = 0b01000100;
-	alphafonts[17][3] = 0b01000100;
-	alphafonts[17][4] = 0b01111000;
-	alphafonts[17][5] = 0b01001000;
-	alphafonts[17][6] = 0b01000100;
-	alphafonts[17][7] = 0b00000000;
-
-	alphafonts[18][0] = 0b00000000;
-	alphafonts[18][1] = 0b00111000;
-	alphafonts[18][2] = 0b01000100;
-	alphafonts[18][3] = 0b00110000;
-	alphafonts[18][4] = 0b00011000;
-	alphafonts[18][5] = 0b01000100;
-	alphafonts[18][6] = 0b00111000;
-	alphafonts[18][7] = 0b00000000;
-
-	alphafonts[19][0] = 0b00000000;
-	alphafonts[19][1] = 0b01111100;
-	alphafonts[19][2] = 0b00010000;
-	alphafonts[19][3] = 0b00010000;
-	alphafonts[19][4] = 0b00010000;
-	alphafonts[19][5] = 0b00010000;
-	alphafonts[19][6] = 0b00010000;
-	alphafonts[19][7] = 0b00000000;
-
-	alphafonts[20][0] = 0b00000000;
-	alphafonts[20][1] = 0b01000100;
-	alphafonts[20][2] = 0b01000100;
-	alphafonts[20][3] = 0b01000100;
-	alphafonts[20][4] = 0b01000100;
-	alphafonts[20][5] = 0b01000100;
-	alphafonts[20][6] = 0b00111000;
-	alphafonts[20][7] = 0b00000000;
-
-	alphafonts[21][0] = 0b00000000;
-	alphafonts[21][1] = 0b01000100;
-	alphafonts[21][2] = 0b01000100;
-	alphafonts[21][3] = 0b01000100;
-	alphafonts[21][4] = 0b01000100;
-	alphafonts[21][5] = 0b00101000;
-	alphafonts[21][6] = 0b00010000;
-	alphafonts[21][7] = 0b00000000;
-
-	alphafonts[22][0] = 0b00000000;
-	alphafonts[22][1] = 0b01000010;
-	alphafonts[22][2] = 0b01000010;
-	alphafonts[22][3] = 0b01000010;
-	alphafonts[22][4] = 0b01011010;
-	alphafonts[22][5] = 0b01100110;
-	alphafonts[22][6] = 0b01000010;
-	alphafonts[22][7] = 0b00000000;
-
-	alphafonts[23][0] = 0b01000100;
-	alphafonts[23][1] = 0b01000100;
-	alphafonts[23][2] = 0b01000100;
-	alphafonts[23][3] = 0b00101000;
-	alphafonts[23][4] = 0b00010000;
-	alphafonts[23][5] = 0b00101000;
-	alphafonts[23][6] = 0b01000100;
-	alphafonts[23][7] = 0b01000100;
-
-	alphafonts[24][0] = 0b00000000;
-	alphafonts[24][1] = 0b01000100;
-	alphafonts[24][2] = 0b01000100;
-	alphafonts[24][3] = 0b01111100;
-	alphafonts[24][4] = 0b00010000;
-	alphafonts[24][5] = 0b00010000;
-	alphafonts[24][6] = 0b00010000;
-	alphafonts[24][7] = 0b00000000;
-
-	alphafonts[25][0] = 0b00000000;
-	alphafonts[25][1] = 0b01111100;
-	alphafonts[25][2] = 0b00000100;
-	alphafonts[25][3] = 0b00001000;
-	alphafonts[25][4] = 0b00010000;
-	alphafonts[25][5] = 0b00100000;
-	alphafonts[25][6] = 0b01111100;
-	alphafonts[25][7] = 0b00000000;
 	uint16_t lineCounter = 0;
 	uint8_t  vSync = 0;
 	uint8_t i = 0;
@@ -442,48 +146,90 @@ int main()
 		// the whole line writing must be a total of less than (64 - (18 * 3)) = 10usec =
 		// a delay in line 1 = 1/16000000 =0.0000000625 assuming nop = 1 clock cycle
 
-		#define  LUM_ON DDRB = PORTB = 0b11000;
+		//#define  LUM_ON DDRB = PORTB = 0b11000;
 		// cycles i.e. LUM_ON and LUM_OFF must take exactly same time
-		//#define  LUM_OFF DDRB = PORTB = 0;
-		#define  LUM_OFF DDRB = 0;
+#define PIXEL_OFF() \
+		asm volatile ( \
+		 "ldi r16, 0\n" \
+		 "out %[port1], r16\n" \
+		 "nop\n"    \
+		 "nop\n"    \
+		 :  \
+		 : [port1] "I" (_SFR_IO_ADDR(DDRB)) \
+		 );
+#define PIXEL_OFF_NO_NOP() \
+		asm volatile ( \
+		 "ldi r16, 0\n" \
+		 "out %[port1], r16\n" \
+		 :  \
+		 : [port1] "I" (_SFR_IO_ADDR(DDRB)) \
+		 );
+
+
+#define PIXEL_ON() \
+		asm volatile ( \
+		 "ldi r16, 0b11000\n" \
+		 "out %[port1], r16\n" \
+		 "out %[port2], r16\n"    \
+		 :  \
+		 : [port1] "I" (_SFR_IO_ADDR(PORTB)), [port2] "I" (_SFR_IO_ADDR(DDRB)) \
+		 );
+
 
 		if (drawPixelsOnLine)
 		{
-			for (i = 0; i < 30; i++)
+			// read out each line from memory and display
+			for (i = 0; i < 20; i++)
 			{
 				__asm__ __volatile__ ("nop");
 			}
-			register uint8_t * loopPtrMax = &screenMemory[yCounter][XSIZE-1];
-			register uint8_t * OneLine = &screenMemory[yCounter][0];
-			register uint8_t theBits = *OneLine;
+
+		    register uint8_t *loopPtrMax = &screenMemory[yCounter][XSIZE - 1];
+		    register uint8_t *OneLine = &screenMemory[yCounter][0];
+		    register uint8_t theBits = *OneLine;
 
 			do {
-				if (theBits & 0b10000000) LUM_ON else LUM_OFF
-	 			if (theBits & 0b01000000) LUM_ON else LUM_OFF
-				if (theBits & 0b00100000) LUM_ON else LUM_OFF
-				if (theBits & 0b00010000) LUM_ON else LUM_OFF
-				if (theBits & 0b00001000) LUM_ON else LUM_OFF
-				if (theBits & 0b00000100) LUM_ON else LUM_OFF
-				if (theBits & 0b00000010) LUM_ON else LUM_OFF
-				if (theBits & 0b00000001) LUM_ON else LUM_OFF
-				OneLine++;
+				if (theBits & 0b10000000) PIXEL_ON() else PIXEL_OFF_NO_NOP()
+				if (theBits & 0b01000000) PIXEL_ON() else PIXEL_OFF_NO_NOP()
+				if (theBits & 0b00100000) PIXEL_ON() else PIXEL_OFF_NO_NOP()
+				if (theBits & 0b00010000) PIXEL_ON() else PIXEL_OFF_NO_NOP()
+				if (theBits & 0b00001000) PIXEL_ON() else PIXEL_OFF_NO_NOP()
+				if (theBits & 0b00000100) PIXEL_ON() else PIXEL_OFF_NO_NOP()
+				if (theBits & 0b00000010) PIXEL_ON() else PIXEL_OFF_NO_NOP()
+				if (theBits & 0b00000001) PIXEL_ON() else PIXEL_OFF_NO_NOP()
+				PIXEL_OFF_NO_NOP()
+	 			OneLine++;
 				theBits = *OneLine;
 			}while (OneLine < loopPtrMax);
-			LUM_OFF
+			PIXEL_OFF_NO_NOP()
 
+			yCounter++;
 		}
 
 
 
 		lineCounter++;
+
 		if (drawPixelsOnLine)
 		{
-			yCounter++;
-
 			if (printScreen == 0) // draw my name
 			{
 				putCharXY(0,0,convertToMyCharSet('A'));
-				putCharXY(1,7,convertToMyCharSet('D'));
+				putCharXY(1,0,convertToMyCharSet('D'));
+				putCharXY(2,0,convertToMyCharSet('A'));
+				putCharXY(3,0,convertToMyCharSet('A'));
+				putCharXY(4,0,convertToMyCharSet('D'));
+				putCharXY(5,0,convertToMyCharSet('A'));
+
+				putCharXY(6,31,convertToMyCharSet('D'));
+				putCharXY(0,31,convertToMyCharSet('D'));
+				updateScreenMemory = 100000;
+				printScreen = 128; // only do once
+			}
+			if (printScreen == 1) // draw my name
+			{
+				putCharXY(0,0,convertToMyCharSet('A'));
+				putCharXY(8,7,convertToMyCharSet('D'));
 				putCharXY(2,15,convertToMyCharSet('R'));
 				putCharXY(3,23,convertToMyCharSet('I'));
 				putCharXY(4,31,convertToMyCharSet('A'));
@@ -499,21 +245,21 @@ int main()
 				updateScreenMemory = 100000;
 				printScreen = 128; // only do once
 			}
-			if (printScreen == 1) // print hello, world
+			if (printScreen == 2) // print hello, world
 			{
 				putCharXY(0,0,convertToMyCharSet('H'));
 				putCharXY(0,7,convertToMyCharSet('E'));
 				putCharXY(0,15,convertToMyCharSet('L'));
 				putCharXY(0,23,convertToMyCharSet('L'));
 				putCharXY(0,31,convertToMyCharSet('O'));
-				putSymXY(0,38,COMMA);
-				putSymXY(0,45,SPACE);
+				//putSymXY(0,38,COMMA);
+				//putSymXY(0,45,SPACE);
 				putCharXY(0,45+0,convertToMyCharSet('W'));
 				putCharXY(0,45+7,convertToMyCharSet('O'));
 				putCharXY(0,45+15,convertToMyCharSet('R'));
 				putCharXY(0,45+23,convertToMyCharSet('L'));
 				putCharXY(0,45+31,convertToMyCharSet('D'));
-				putSymXY(0,45+45,EXCLAMATION);
+				//putSymXY(0,45+45,EXCLAMATION);
 				updateScreenMemory = 100000;
 				printScreen = 128; // only do once
 			}
@@ -530,7 +276,7 @@ int main()
 			//case (MAX_LINE_BEFORE_BLANK - 72) :
 			//	drawPixelsOnLine = 0; break;
 			case LAST_LINE_DRAWN:
-				drawPixelsOnLine = 0; yCounter = 0; LUM_OFF; 	break;
+				drawPixelsOnLine = 0; yCounter = 0; PIXEL_OFF(); 	break;
 			case (MAX_LINE_BEFORE_BLANK-40):
 				drawPixelsOnLine = 0; break;
 			case (MAX_LINE_BEFORE_BLANK-6):
