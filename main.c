@@ -3,9 +3,11 @@
 // one side of the pot goes to VCC the other to ground and the centre of the pot also goes to the composite connector
 // centre pin. if using atmega328p on bare board (not arduino) then its PB5 and PB4.
 
+#include <avr/power.h>
 #include<avr/io.h>
 #include <avr/pgmspace.h>
 #include <util/delay.h>
+#include <string.h>
 #include "charset.h"
 
 #define COMPOSITE_PIN PB5
@@ -36,6 +38,10 @@
 #define EXCLAMATION 32
 #define ALIEN_1 33
 #define ALIEN_2 34
+
+#define LINE_INC 8
+#define LINE_INC_ALIENS 12
+#define TOGGLE_RATE 32
 
 uint8_t screenMemory[YSIZE][XSIZE];
 
@@ -70,6 +76,71 @@ inline uint8_t convertToMyCharSet(char charToConvert)
 	return rv;
 }
 
+uint8_t alienX = 0;  // top most alien x pos
+uint8_t alienY = 0;
+uint8_t keepXCount = 0;
+uint8_t alienToggle = 0;
+
+void animateAliens()
+{
+
+	keepXCount++;
+	if (keepXCount == 3)
+	{
+		keepXCount = 0;
+
+		uint8_t lineTemp = alienY;
+		putCharXY(alienX,lineTemp,convertToMyCharSet(' '));
+		lineTemp+= LINE_INC_ALIENS;
+		putCharXY(alienX,lineTemp,convertToMyCharSet(' '));
+		lineTemp+= LINE_INC_ALIENS;
+		putCharXY(alienX,lineTemp,convertToMyCharSet(' '));
+		lineTemp+= LINE_INC_ALIENS;
+		putCharXY(alienX,lineTemp,convertToMyCharSet(' '));
+		lineTemp+= LINE_INC_ALIENS;
+		putCharXY(alienX,lineTemp,convertToMyCharSet(' '));
+		lineTemp+= LINE_INC_ALIENS;
+		putCharXY(alienX,lineTemp,convertToMyCharSet(' '));
+
+		alienX = alienX + 1;
+		if (alienX > 6) alienX = 0;
+	}
+
+	if (alienToggle)
+	{
+
+		uint8_t lineTemp = alienY;
+		putCharXY(alienX,lineTemp,convertToMyCharSet('$'));
+		lineTemp+= LINE_INC_ALIENS;
+		putCharXY(alienX,lineTemp,convertToMyCharSet('$'));
+		lineTemp+= LINE_INC_ALIENS;
+		putCharXY(alienX,lineTemp,convertToMyCharSet('$'));
+		lineTemp+= LINE_INC_ALIENS;
+		putCharXY(alienX,lineTemp,convertToMyCharSet('$'));
+		lineTemp+= LINE_INC_ALIENS;
+		putCharXY(alienX,lineTemp,convertToMyCharSet('$'));
+		lineTemp+= LINE_INC_ALIENS;
+		putCharXY(alienX,lineTemp,convertToMyCharSet('$'));
+	}
+	else
+	{
+		uint8_t lineTemp = alienY;
+		putCharXY(alienX,lineTemp,convertToMyCharSet('£'));
+		lineTemp+= LINE_INC_ALIENS;
+		putCharXY(alienX,lineTemp,convertToMyCharSet('£'));
+		lineTemp+= LINE_INC_ALIENS;
+		putCharXY(alienX,lineTemp,convertToMyCharSet('£'));
+		lineTemp+= LINE_INC_ALIENS;
+		putCharXY(alienX,lineTemp,convertToMyCharSet('£'));
+		lineTemp+= LINE_INC_ALIENS;
+		putCharXY(alienX,lineTemp,convertToMyCharSet('£'));
+		lineTemp+= LINE_INC_ALIENS;
+		putCharXY(alienX,lineTemp,convertToMyCharSet('£'));
+	}
+	alienToggle = 1 - alienToggle;
+}
+
+
 void clearScreen()
 {
 	memset (&screenMemory[0][0],0,sizeof(uint8_t) * YSIZE * XSIZE );
@@ -77,24 +148,16 @@ void clearScreen()
 
 int main()
 {
-
-	uint8_t printScreen = 0;
+	uint8_t alienToggleCountDown = 128;
+	uint8_t printScreen = 2;
 
 	uint16_t lineCounter = 0;
 	uint8_t  vSync = 0;
 	uint8_t i = 0;
 	uint8_t drawPixelsOnLine = 0;
-	uint32_t updateScreenMemory = 0;
 	uint8_t yCounter = 0;
-	uint8_t letterToShow = 0;
-	uint8_t TextLine = 0;
-	uint8_t xPos = 0;
-	uint8_t yPos = 0;
 
-	// looking at the data sheet not sure if you have to do this in 3 instructions or not
-	CLKPR = 0b10000000; // set the CLKPCE bit to enable the clock prescaler to be changed
-	CLKPR = 0b10000000; // zero the CLKPS3 CLKPS2 CLKPS1 CLKPS0 bits to disable and clock division
-	CLKPR = 0b00000000; // clear CLKPCE bit
+	clock_prescale_set(clock_div_1);
 
 	clearScreen();
 
@@ -225,49 +288,46 @@ int main()
 
 		if (drawPixelsOnLine)
 		{
-			if (printScreen == 0) // draw my name
-			{
-				putCharXY(0,0,convertToMyCharSet('$'));
-				putCharXY(0,16,convertToMyCharSet('£'));
-
-				updateScreenMemory = 100000;
-				printScreen = 128; // only do once
-			}
-			if (printScreen == 1) // draw my name
-			{
-				putCharXY(0,0,convertToMyCharSet('A'));
-				putCharXY(8,7,convertToMyCharSet('D'));
-				putCharXY(2,15,convertToMyCharSet('R'));
-				putCharXY(3,23,convertToMyCharSet('I'));
-				putCharXY(4,31,convertToMyCharSet('A'));
-				putCharXY(5,39,convertToMyCharSet('N'));
-				putCharXY(0,39+7,convertToMyCharSet('I'));
-				putCharXY(1,39+15,convertToMyCharSet('S'));
-				putCharXY(0,54+7,convertToMyCharSet('G'));
-				putCharXY(1,54+15,convertToMyCharSet('R'));
-				putCharXY(2,54+23,convertToMyCharSet('E'));
-				putCharXY(3,54+31,convertToMyCharSet('A'));
-				putCharXY(4,54+39,convertToMyCharSet('T'));
-
-				updateScreenMemory = 100000;
-				printScreen = 128; // only do once
-			}
 			if (printScreen == 2) // print hello, world
 			{
-				putCharXY(0,0,convertToMyCharSet('H'));
-				putCharXY(0,7,convertToMyCharSet('E'));
-				putCharXY(0,15,convertToMyCharSet('L'));
-				putCharXY(0,23,convertToMyCharSet('L'));
-				putCharXY(0,31,convertToMyCharSet('O'));
-				//putSymXY(0,38,COMMA);
-				//putSymXY(0,45,SPACE);
-				putCharXY(0,45+0,convertToMyCharSet('W'));
-				putCharXY(0,45+7,convertToMyCharSet('O'));
-				putCharXY(0,45+15,convertToMyCharSet('R'));
-				putCharXY(0,45+23,convertToMyCharSet('L'));
-				putCharXY(0,45+31,convertToMyCharSet('D'));
-				//putSymXY(0,45+45,EXCLAMATION);
-				updateScreenMemory = 100000;
+
+				uint8_t lineTemp = 0;
+				putCharXY(0,lineTemp,convertToMyCharSet('S'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('P'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('A'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('C'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('E'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('T'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('I'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('M'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('E'));
+				lineTemp+=LINE_INC;
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('I'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('N'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('V'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('A'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('D'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('E'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('R'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('S'));
+				lineTemp+=LINE_INC;
+				putCharXY(0,lineTemp,convertToMyCharSet('!'));
 				printScreen = 128; // only do once
 			}
 		}
@@ -289,8 +349,23 @@ int main()
 			case (MAX_LINE_BEFORE_BLANK-6):
 				vSync = 1; drawPixelsOnLine = 0; break;
 			case MAX_LINE_BEFORE_BLANK:
-				lineCounter = 0; vSync = 0;	break;
+				lineCounter = 0; vSync = 0;
+
+				if (alienToggleCountDown-- == 0)
+				{
+					static uint8_t firstTime = 0;
+					if (firstTime == 0)
+					{
+						firstTime = 1;
+						clearScreen();
+					}
+					animateAliens();
+					alienToggleCountDown = TOGGLE_RATE;
+				}
+				break;
+
 		}
+
 
 		//if (scrollDown == MAX_LINE_BEFORE_BLANK - 80)
 		//{
