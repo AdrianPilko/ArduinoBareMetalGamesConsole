@@ -83,6 +83,8 @@ int main()
 	uint16_t playerDirection = 1;
 
 	uint8_t alienInLineOn = 0;
+	uint16_t alienXStartPos = 20;
+	uint16_t alienDirection = 1;
 
 	uint16_t lineCounter = 0;
 	uint8_t  vSync = 0;
@@ -165,7 +167,7 @@ int main()
 		if (drawAliens)
 		{
 			// read out each line from memory and display
-			for (i = 0; i < 40; i++)
+			for (i = 0; i < 15+alienXStartPos; i++)
 			{
 				__asm__ __volatile__ ("nop");
 			}
@@ -346,6 +348,7 @@ int main()
 				alienVertCount = 0;
 
 				playerXPos += playerDirection;
+				alienXStartPos+=alienDirection;
 
 				if (playerXPos >= 64)
 				{
@@ -357,6 +360,17 @@ int main()
 					playerDirection = 1;
 					playerXPos = 1;
 				}
+				if (alienXStartPos >= 64)
+				{
+					alienDirection = -1;
+					alienXStartPos = 63;
+				}
+				if (alienXStartPos <= 0)
+				{
+					alienDirection = 1;
+					alienXStartPos = 1;
+				}
+
 
 				if (alienToggleCountDown-- == 0)
 				{
