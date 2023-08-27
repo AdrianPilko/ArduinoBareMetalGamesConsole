@@ -19,6 +19,7 @@
 #define PLAYER_WIDTH 15
 #define BARRIER_WIDTH 20
 #define BARRIER_GAP_WIDTH 20
+#define MIN_DELAY 5
 
 
 #define HSYNC_BACKPORCH 18
@@ -53,21 +54,6 @@ uint8_t alienToggle = 0;
 uint8_t alienLineCount = 0;
 uint8_t alienVertCount = 0;
 
-// theBytes is the definition of the sprite, but we only draw one line at once, hence "line" is
-// also passed in
-void drawSprite(const uint8_t theBits)
-{
-	if (theBits & 0b10000000) PIXEL_ON() else PIXEL_OFF()
-	if (theBits & 0b01000000) PIXEL_ON() else PIXEL_OFF()
-	if (theBits & 0b00100000) PIXEL_ON() else PIXEL_OFF()
-	if (theBits & 0b00010000) PIXEL_ON() else PIXEL_OFF()
-	if (theBits & 0b00001000) PIXEL_ON() else PIXEL_OFF()
-	if (theBits & 0b00000100) PIXEL_ON() else PIXEL_OFF()
-	if (theBits & 0b00000010) PIXEL_ON() else PIXEL_OFF()
-	if (theBits & 0b00000001) PIXEL_ON() else PIXEL_OFF()
-}
-
-
 int main()
 {
 	uint8_t alienToggleCountDown = 3;
@@ -76,7 +62,6 @@ int main()
 	uint16_t playerXPos = 30;  // has to be non zero and less that 30
 	uint16_t playerDirection = 1;
 
-	uint8_t alienInLineOn = 0;
 	uint16_t alienXStartPos = 5;
 	uint16_t alienDirection = 1;
 	uint8_t alienMoveThisTime = 0;
@@ -159,15 +144,17 @@ int main()
 		//#define  LUM_ON DDRB = PORTB = 0b11000;
 		// cycles i.e. LUM_ON and LUM_OFF must take exactly same time
 
-		if (drawAliens)
+		if (drawAliens == 1)
 		{
 			// read out each line from memory and display
-			for (i = 0; i < 15+alienXStartPos; i++)
+			for (i = 0; i < MIN_DELAY+alienXStartPos; i++)
 			{
 				__asm__ __volatile__ ("nop");
 			}
 
-			if (alienInLineOn == 1)
+			if (((alienVertCount >= 0) && (alienVertCount < 8)) ||
+			   ((alienVertCount >= 8+20) && (alienVertCount < 8+20+8)) ||
+			   ((alienVertCount >= 8+20+8+20) && (alienVertCount < 8+20+8+20+8)))
 			{
 				if (alienToggle == 0)
 				{
@@ -175,8 +162,8 @@ int main()
 					alienDraw_1(alienLineCount);
 					alienDraw_1(alienLineCount);
 					alienDraw_1(alienLineCount);
-					alienDraw_1(alienLineCount);
-					alienDraw_1(alienLineCount);
+					//alienDraw_1(alienLineCount);
+					//alienDraw_1(alienLineCount);
 				}
 				else
 				{
@@ -184,29 +171,21 @@ int main()
 					alienDraw_2(alienLineCount);
 					alienDraw_2(alienLineCount);
 					alienDraw_2(alienLineCount);
-					alienDraw_2(alienLineCount);
-					alienDraw_2(alienLineCount);
+					//alienDraw_2(alienLineCount);
+					//alienDraw_2(alienLineCount);
 				}
-
 				PIXEL_OFF_NO_NOP()
-				for (i = 0; i < 15; i++)
-				{
-					__asm__ __volatile__ ("nop");
-				}
-
 				alienLineCount++;
-				if (alienLineCount > 7)
-				{
-					alienLineCount = 0;
-					alienInLineOn = 0;
-				}
-				alienVertCount++;
 			}
+			if (alienLineCount > 7)
+			{
+				alienLineCount = 0;
+			}
+			alienVertCount++;
 		}
-
-		if (drawBarrier == 1)
+		else if (drawBarrier == 1)
 		{
-			for (i = 0; i < 50; i++)
+			for (i = 0; i < MIN_DELAY+25; i++)
 			{
 				__asm__ __volatile__ ("nop");
 			}
@@ -237,9 +216,9 @@ int main()
 			}
 			PIXEL_OFF_NO_NOP();
 		}
-		if (drawPlayer)
+		else if (drawPlayer)
 		{
-			for (i = 0; i < 15 + playerXPos; i++)
+			for (i = 0; i < MIN_DELAY + playerXPos; i++)
 			{
 				asm volatile ("nop");
 			}
@@ -260,7 +239,6 @@ int main()
 				break;
 			case FIRST_LINE_DRAWN+20:
 				drawAliens = 1;
-				alienInLineOn = 1;
 				alienLineCount = 0;
 				alienVertCount = 0;
 
