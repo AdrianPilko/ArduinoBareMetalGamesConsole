@@ -44,7 +44,7 @@
 
 #define LINE_INC 8
 #define LINE_INC_ALIENS 12
-#define TOGGLE_RATE 128
+#define TOGGLE_RATE 45
 
 uint8_t alienX = 0;  // top most alien x pos
 uint8_t alienY = 0;
@@ -68,15 +68,9 @@ void drawSprite(const uint8_t theBits)
 }
 
 
-void animateAliens()
-{
-	alienToggle = 1 - alienToggle;
-}
-
-
 int main()
 {
-	uint8_t alienToggleCountDown = TOGGLE_RATE;
+	uint8_t alienToggleCountDown = 3;
 	uint8_t drawBarrier = 0;
 	uint8_t drawPlayer = 0;
 	uint16_t playerXPos = 30;  // has to be non zero and less that 30
@@ -85,6 +79,7 @@ int main()
 	uint8_t alienInLineOn = 0;
 	uint16_t alienXStartPos = 20;
 	uint16_t alienDirection = 1;
+	uint8_t alienMoveThisTime = 0;
 
 	uint16_t lineCounter = 0;
 	uint8_t  vSync = 0;
@@ -172,106 +167,17 @@ int main()
 				__asm__ __volatile__ ("nop");
 			}
 
-			//uint8_t sliceOfSprite = sprites[0][alienLineCount];
-			//drawSprite(sliceOfSprite);
 			if (alienInLineOn == 1)
 			{
-				switch (alienLineCount)
+				if (alienToggle == 0)
 				{
-					case 0:
-						PIXEL_ON() //0b10000001,
-						PIXEL_OFF()
-						PIXEL_OFF()
-						PIXEL_OFF()
-						PIXEL_OFF_NO_NOP()
-						NOP_FOR_TIMING
-						NOP_FOR_TIMING
-						NOP_FOR_TIMING
-						NOP_FOR_TIMING
-						NOP_FOR_TIMING
-						PIXEL_ON()
-						PIXEL_OFF_NO_NOP()break;
-					case 1:
-						PIXEL_OFF() //0b01111110,
-						PIXEL_ON()
-						PIXEL_ON()
-						PIXEL_ON()
-						PIXEL_ON()
-						PIXEL_ON()
-						NOP_FOR_TIMING
-						PIXEL_OFF_NO_NOP()
-						PIXEL_OFF_NO_NOP() break;
-					case 2:
-						NOP_FOR_TIMING //01011010
-						PIXEL_ON()
-						NOP_FOR_TIMING
-						PIXEL_OFF()
-						PIXEL_ON()
-						PIXEL_ON()
-						PIXEL_OFF()
-						PIXEL_ON()
-						NOP_FOR_TIMING
-						PIXEL_OFF_NO_NOP() break;
-					case 3:
-						NOP_FOR_TIMING//0b01111110,
-						NOP_FOR_TIMING
-						NOP_FOR_TIMING
-						PIXEL_ON()
-						PIXEL_ON()
-						PIXEL_ON()
-						PIXEL_ON()
-						PIXEL_ON()
-						PIXEL_ON()
-						NOP_FOR_TIMING
-						PIXEL_OFF_NO_NOP()break;
-					case 4:
-						NOP_FOR_TIMING  //0b00111100,
-						NOP_FOR_TIMING
-						NOP_FOR_TIMING
-						NOP_FOR_TIMING
-						NOP_FOR_TIMING
-						PIXEL_ON()
-						NOP_FOR_TIMING
-						PIXEL_ON()
-						PIXEL_ON()
-						PIXEL_ON()
-						NOP_FOR_TIMING
-						NOP_FOR_TIMING
-						PIXEL_OFF()
-						PIXEL_OFF_NO_NOP() break;
-					case 5:
-						PIXEL_OFF() //0b00100100,
-						PIXEL_OFF_NO_NOP()
-						PIXEL_ON()
-						PIXEL_OFF()
-						PIXEL_OFF()
-						PIXEL_ON()
-						PIXEL_OFF()
-						PIXEL_OFF_NO_NOP() break;
-					case 6:
-						PIXEL_OFF() //	0b01000010,
-						PIXEL_ON()
-						PIXEL_OFF_NO_NOP()
-						PIXEL_OFF()
-						PIXEL_OFF()
-						PIXEL_OFF_NO_NOP()
-						PIXEL_ON()
-						PIXEL_OFF_NO_NOP() break;
-					case 7:
-						PIXEL_OFF_NO_NOP()
-						PIXEL_ON()  //	0b10000001}
-						PIXEL_OFF_NO_NOP()
-						PIXEL_OFF()
-						PIXEL_OFF_NO_NOP()
-						PIXEL_OFF_NO_NOP()
-						PIXEL_OFF_NO_NOP()
-						PIXEL_OFF_NO_NOP()
-						PIXEL_OFF_NO_NOP()
-						PIXEL_ON()
-						PIXEL_OFF_NO_NOP()
-						break;
-					default:PIXEL_OFF_NO_NOP() break;
-				};
+					alienDraw_1(alienLineCount);
+				}
+				else
+				{
+					alienDraw_2(alienLineCount);
+				}
+
 				PIXEL_OFF_NO_NOP()
 				for (i = 0; i < 20; i++)
 				{
@@ -283,8 +189,8 @@ int main()
 					alienLineCount = 0;
 					alienInLineOn = 0;
 				}
+				alienVertCount++;
 			}
-			alienVertCount++;
 		}
 
 		if (drawBarrier == 1)
@@ -348,7 +254,6 @@ int main()
 				alienVertCount = 0;
 
 				playerXPos += playerDirection;
-				alienXStartPos+=alienDirection;
 
 				if (playerXPos >= 64)
 				{
@@ -360,6 +265,13 @@ int main()
 					playerDirection = 1;
 					playerXPos = 1;
 				}
+
+				if (alienMoveThisTime++ == 6)
+				{
+					alienXStartPos+=alienDirection;
+					alienMoveThisTime = 0;
+				}
+
 				if (alienXStartPos >= 64)
 				{
 					alienDirection = -1;
@@ -374,13 +286,8 @@ int main()
 
 				if (alienToggleCountDown-- == 0)
 				{
-					static uint8_t firstTime = 0;
-
-					if (firstTime == 0) firstTime = 1;
-
-					animateAliens();
-
 					alienToggleCountDown = TOGGLE_RATE;
+					alienToggle = 1 - alienToggle;
 				}
 				break;
 			case (MAX_LINE_BEFORE_BLANK-100) :
