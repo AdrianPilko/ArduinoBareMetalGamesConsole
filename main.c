@@ -152,9 +152,6 @@ int main()
 				__asm__ __volatile__ ("nop");
 			}
 
-			if (((alienVertCount >= 0) && (alienVertCount < 8)) ||
-			   ((alienVertCount >= 8+20) && (alienVertCount < 8+20+8)) ||
-			   ((alienVertCount >= 8+20+8+20) && (alienVertCount < 8+20+8+20+8)))
 			{
 				if (alienToggle == 0)
 				{
@@ -162,8 +159,8 @@ int main()
 					alienDraw_1(alienLineCount);
 					alienDraw_1(alienLineCount);
 					alienDraw_1(alienLineCount);
-					//alienDraw_1(alienLineCount);
-					//alienDraw_1(alienLineCount);
+					alienDraw_1(alienLineCount);
+					alienDraw_1(alienLineCount);
 				}
 				else
 				{
@@ -171,8 +168,8 @@ int main()
 					alienDraw_2(alienLineCount);
 					alienDraw_2(alienLineCount);
 					alienDraw_2(alienLineCount);
-					//alienDraw_2(alienLineCount);
-					//alienDraw_2(alienLineCount);
+					alienDraw_2(alienLineCount);
+					alienDraw_2(alienLineCount);
 				}
 				PIXEL_OFF_NO_NOP()
 				alienLineCount++;
@@ -242,7 +239,19 @@ int main()
 				alienLineCount = 0;
 				alienVertCount = 0;
 
-				playerXPos += playerDirection;
+
+		        // Check if Pin 2 is high
+		        if (PIND & (1 << PD2))
+			    {
+		        	playerXPos = playerXPos - 1;
+		        }
+		        // Check if Pin 3 is high
+		        if (PIND & (1 << PD3))
+		        {
+		        	playerXPos = playerXPos + 1;
+		        }
+
+				//playerXPos += playerDirection;
 
 				if (playerXPos >= 64)
 				{
@@ -278,6 +287,26 @@ int main()
 					alienToggleCountDown = TOGGLE_RATE;
 					alienToggle = 1 - alienToggle;
 				}
+				break;
+			case (FIRST_LINE_DRAWN+28) :
+				drawAliens = 0;
+				alienVertCount = 0;
+				break;
+			case (FIRST_LINE_DRAWN+38) :
+				drawAliens = 1;
+				alienVertCount = 0;
+				break;
+			case (FIRST_LINE_DRAWN+46) :
+				drawAliens = 0;
+				alienVertCount = 0;
+				break;
+			case (FIRST_LINE_DRAWN+56) :
+				drawAliens = 1;
+				alienVertCount = 0;
+				break;
+			case (FIRST_LINE_DRAWN+64) :
+				drawAliens = 0;
+				alienVertCount = 0;
 				break;
 			case (MAX_LINE_BEFORE_BLANK-100) :
 				drawAliens = 0;
