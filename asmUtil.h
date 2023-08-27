@@ -155,7 +155,7 @@ void alienDraw_2(const uint8_t alienLineCount)
 {
 	switch (alienLineCount)
 	{
-		case 0:
+		case 0:   // ears
 			PIXEL_OFF_NO_NOP()//0b01000010,
 			NOP_FOR_TIMING
 			NOP_FOR_TIMING
@@ -168,9 +168,10 @@ void alienDraw_2(const uint8_t alienLineCount)
 			PIXEL_ON()
 			PIXEL_OFF_NO_NOP()
 			NOP_FOR_TIMING
-			NOP_FOR_TIMING
+			//NOP_FOR_TIMING
+			//NOP_FOR_TIMING
 			break;
-		case 1:
+		case 1:  // top of head
 			PIXEL_OFF() //0b01111110,
 			PIXEL_ON()
 			PIXEL_ON()
@@ -179,8 +180,11 @@ void alienDraw_2(const uint8_t alienLineCount)
 			PIXEL_ON()
 			NOP_FOR_TIMING
 			PIXEL_OFF_NO_NOP()
-			PIXEL_OFF_NO_NOP() break;
-		case 2:
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+
+			break;
+		case 2: // eyes
 			NOP_FOR_TIMING //01011010
 			PIXEL_ON()
 			NOP_FOR_TIMING
@@ -189,9 +193,10 @@ void alienDraw_2(const uint8_t alienLineCount)
 			PIXEL_ON()
 			PIXEL_OFF()
 			PIXEL_ON()
-			NOP_FOR_TIMING
-			PIXEL_OFF_NO_NOP() break;
-		case 3:
+			PIXEL_OFF_NO_NOP()
+//			NOP_FOR_TIMING
+			break;
+		case 3: // mouth
 			NOP_FOR_TIMING//0b01111110,
 			NOP_FOR_TIMING
 			NOP_FOR_TIMING
@@ -206,11 +211,11 @@ void alienDraw_2(const uint8_t alienLineCount)
 			PIXEL_ON()
 			NOP_FOR_TIMING
 			PIXEL_OFF_NO_NOP()
-			NOP_FOR_TIMING
-			NOP_FOR_TIMING
-			NOP_FOR_TIMING
+			//NOP_FOR_TIMING
+			//NOP_FOR_TIMING
+			//NOP_FOR_TIMING
 			break;
-		case 4:
+		case 4: // bottom of body
 			NOP_FOR_TIMING  //0b00111100,
 			NOP_FOR_TIMING
 			NOP_FOR_TIMING
@@ -223,8 +228,10 @@ void alienDraw_2(const uint8_t alienLineCount)
 			PIXEL_ON()
 			NOP_FOR_TIMING
 			NOP_FOR_TIMING
-			PIXEL_OFF()
-			PIXEL_OFF_NO_NOP() break;
+			PIXEL_OFF_NO_NOP()
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			break;
 		case 5:   // the legs
 			PIXEL_OFF() //0b00100100,
 			PIXEL_OFF_NO_NOP()
@@ -232,8 +239,10 @@ void alienDraw_2(const uint8_t alienLineCount)
 			PIXEL_OFF()
 			PIXEL_OFF()
 			PIXEL_ON()
-			PIXEL_OFF()
-			PIXEL_OFF_NO_NOP() break;
+			PIXEL_OFF_NO_NOP()
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			break;
 		case 6:
 			PIXEL_OFF() //	0b01000010,
 			NOP_FOR_TIMING
@@ -246,7 +255,11 @@ void alienDraw_2(const uint8_t alienLineCount)
 			NOP_FOR_TIMING
 			PIXEL_ON()
 			PIXEL_OFF_NO_NOP()
-			PIXEL_OFF_NO_NOP() break;
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			break;
 		case 7:
 			PIXEL_OFF_NO_NOP()
 			PIXEL_OFF()
@@ -257,9 +270,11 @@ void alienDraw_2(const uint8_t alienLineCount)
 			NOP_FOR_TIMING
 			PIXEL_ON()
 			PIXEL_OFF_NO_NOP()
-			PIXEL_OFF_NO_NOP()
-
-			PIXEL_OFF_NO_NOP()
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
 			break;
 		default:PIXEL_OFF_NO_NOP() break;
 	};

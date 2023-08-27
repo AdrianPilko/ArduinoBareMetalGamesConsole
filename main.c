@@ -44,7 +44,7 @@
 
 #define LINE_INC 8
 #define LINE_INC_ALIENS 12
-#define TOGGLE_RATE 45
+#define TOGGLE_RATE 32
 
 uint8_t alienX = 0;  // top most alien x pos
 uint8_t alienY = 0;
@@ -77,7 +77,7 @@ int main()
 	uint16_t playerDirection = 1;
 
 	uint8_t alienInLineOn = 0;
-	uint16_t alienXStartPos = 20;
+	uint16_t alienXStartPos = 5;
 	uint16_t alienDirection = 1;
 	uint8_t alienMoveThisTime = 0;
 
@@ -171,10 +171,12 @@ int main()
 			{
 				if (alienToggle == 0)
 				{
-					alienDraw_2(alienLineCount);
-					alienDraw_2(alienLineCount);
-					alienDraw_2(alienLineCount);
-					alienDraw_2(alienLineCount);
+					alienDraw_1(alienLineCount);
+					alienDraw_1(alienLineCount);
+					alienDraw_1(alienLineCount);
+					alienDraw_1(alienLineCount);
+					alienDraw_1(alienLineCount);
+					alienDraw_1(alienLineCount);
 				}
 				else
 				{
@@ -182,13 +184,16 @@ int main()
 					alienDraw_2(alienLineCount);
 					alienDraw_2(alienLineCount);
 					alienDraw_2(alienLineCount);
+					alienDraw_2(alienLineCount);
+					alienDraw_2(alienLineCount);
 				}
 
 				PIXEL_OFF_NO_NOP()
-				for (i = 0; i < 20; i++)
+				for (i = 0; i < 15; i++)
 				{
 					__asm__ __volatile__ ("nop");
 				}
+
 				alienLineCount++;
 				if (alienLineCount > 7)
 				{
@@ -272,18 +277,18 @@ int main()
 					playerXPos = 1;
 				}
 
-				if (alienMoveThisTime++ == 6)
+				if (alienMoveThisTime++ == 10)
 				{
-					//alienXStartPos+=alienDirection;
+					alienXStartPos+=alienDirection;
 					alienMoveThisTime = 0;
 				}
 
-				if (alienXStartPos >= 32)
+				if (alienXStartPos >= 35)
 				{
 					alienDirection = -1;
-					alienXStartPos = 63;
+					alienXStartPos = 34;
 				}
-				if (alienXStartPos <= 0)
+				if (alienXStartPos == 0)
 				{
 					alienDirection = 1;
 					alienXStartPos = 1;
