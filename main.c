@@ -16,6 +16,9 @@
 #define FIRST_LINE_DRAWN 42
 #define LAST_LINE_DRAWN 262
 #define HALF_SCREEN 110
+#define PLAYER_WIDTH 17
+#define BARRIER_WIDTH 20
+#define BARRIER_GAP_WIDTH 20
 
 
 #define HSYNC_BACKPORCH 18
@@ -93,15 +96,6 @@ void animateAliens()
 		putCharXY(alienX,lineTemp,convertToMyCharSet(' '));
 		lineTemp+= LINE_INC_ALIENS;
 		putCharXY(alienX+1,lineTemp,convertToMyCharSet(' '));
-		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX,lineTemp,convertToMyCharSet(' '));
-		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX+1,lineTemp,convertToMyCharSet(' '));
-		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX,lineTemp,convertToMyCharSet(' '));
-		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX+1,lineTemp,convertToMyCharSet(' '));
-
 		alienX = alienX + 1;
 		if (alienX > 6) alienX = 0;
 	}
@@ -113,26 +107,10 @@ void animateAliens()
 		putCharXY(alienX,lineTemp,convertToMyCharSet('$'));
 		lineTemp+= LINE_INC_ALIENS;
 		putCharXY(alienX+1,lineTemp,convertToMyCharSet('$'));
-		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX,lineTemp,convertToMyCharSet('$'));
-		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX+1,lineTemp,convertToMyCharSet('$'));
-		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX,lineTemp,convertToMyCharSet('$'));
-		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX+1,lineTemp,convertToMyCharSet('$'));
 	}
 	else
 	{
 		uint8_t lineTemp = alienY;
-		putCharXY(alienX,lineTemp,convertToMyCharSet('£'));
-		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX+1,lineTemp,convertToMyCharSet('£'));
-		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX,lineTemp,convertToMyCharSet('£'));
-		lineTemp+= LINE_INC_ALIENS;
-		putCharXY(alienX+1,lineTemp,convertToMyCharSet('£'));
-		lineTemp+= LINE_INC_ALIENS;
 		putCharXY(alienX,lineTemp,convertToMyCharSet('£'));
 		lineTemp+= LINE_INC_ALIENS;
 		putCharXY(alienX+1,lineTemp,convertToMyCharSet('£'));
@@ -151,6 +129,8 @@ int main()
 	uint8_t alienToggleCountDown = 128;
 	uint8_t printScreen = 2;
 	uint8_t drawBarrier = 0;
+	uint8_t drawPlayer = 0;
+	uint16_t playerXPos = 0;
 
 	uint16_t lineCounter = 0;
 	uint8_t  vSync = 0;
@@ -164,6 +144,12 @@ int main()
 
 	DDRB |= 1 << COMPOSITE_PIN;
 	DDRB |= 1 << LUMINANCE_PIN;
+
+    DDRD &= ~(1 << PD2);	//Pin 2 input
+    PORTD |= (1 << PD2);    //Pin 2 input
+
+    DDRD &= ~(1 << PD3);	//Pin 2 input
+    PORTD |= (1 << PD3);    //Pin 2 input
 
 	TCCR1B = (1<<CS10); // switch off clock prescaller
 	OCR1A = 1025; 	   //timer interrupt cycles which gives rise to 64usec line sync time
@@ -334,29 +320,43 @@ int main()
 				__asm__ __volatile__ ("nop");
 			}
 			PIXEL_ON();
-			for (i = 0; i < 18; i++)
+			for (i = 0; i < BARRIER_WIDTH; i++)
 			{
 				__asm__ __volatile__ ("nop");
 			}
 			PIXEL_OFF_NO_NOP();
-			for (i = 0; i < 25; i++)
+			for (i = 0; i < BARRIER_GAP_WIDTH; i++)
 			{
 				__asm__ __volatile__ ("nop");
 			}
 			PIXEL_ON();
-			for (i = 0; i < 18; i++)
+			for (i = 0; i < BARRIER_WIDTH; i++)
 			{
 				__asm__ __volatile__ ("nop");
 			}
 			PIXEL_OFF_NO_NOP();
-			for (i = 0; i < 25; i++)
+			for (i = 0; i < BARRIER_GAP_WIDTH; i++)
 			{
 				__asm__ __volatile__ ("nop");
 			}
 			PIXEL_ON();
-			for (i = 0; i < 18; i++)
+			for (i = 0; i < BARRIER_WIDTH; i++)
 			{
 				__asm__ __volatile__ ("nop");
+			}
+			PIXEL_OFF_NO_NOP();
+		}
+		if (drawPlayer)
+		{
+			for (i = 0; i < 30 + playerXPos; i++)
+			{
+				asm volatile ("nop");
+			}
+			PIXEL_ON();
+
+			for (i = 0; i < PLAYER_WIDTH ; i++)
+			{
+				asm volatile ("nop");
 			}
 			PIXEL_OFF_NO_NOP();
 		}
@@ -367,25 +367,20 @@ int main()
 			case 1:
 				vSync = 0;
 				break;
-			case FIRST_LINE_DRAWN+1: drawPixelsOnLine = 1; break;
-			case (MAX_LINE_BEFORE_BLANK-80) :
-				drawPixelsOnLine = 0;
-		        drawBarrier = 1;
-				break;
-			case (MAX_LINE_BEFORE_BLANK-70) :
-				PIXEL_OFF();
-		        drawBarrier = 0;
-				break;
-
-			case (MAX_LINE_BEFORE_BLANK-40):
-				yCounter = 0;
-				break;
-			case (MAX_LINE_BEFORE_BLANK-6):
-				vSync = 1; drawPixelsOnLine = 0; break;
-			case MAX_LINE_BEFORE_BLANK:
-				drawPixelsOnLine = 0;
-				lineCounter = 0; vSync = 0;
-
+			case FIRST_LINE_DRAWN+1:
+			   drawPixelsOnLine = 1;
+#if 0
+		        // Check if Pin 2 is high
+		        if (PIND & (1 << PD2))
+			    {
+		        	playerXPos = playerXPos - 1;
+		        }
+		        // Check if Pin 3 is high
+		        if (PIND & (1 << PD3))
+		        {
+		        	playerXPos = playerXPos + 1;
+		        }
+#endif
 				if (alienToggleCountDown-- == 0)
 				{
 					static uint8_t firstTime = 0;
@@ -395,8 +390,42 @@ int main()
 						clearScreen();
 					}
 					animateAliens();
+
+				    if (playerXPos < 64)
+				    {
+			        	playerXPos = playerXPos + 1;
+			        }
+				    else
+				    {
+			        	playerXPos = 0;
+			        }
+
 					alienToggleCountDown = TOGGLE_RATE;
 				}
+				break;
+			case (MAX_LINE_BEFORE_BLANK-80) :
+				drawPixelsOnLine = 0;
+		        drawBarrier = 1;
+				break;
+			case (MAX_LINE_BEFORE_BLANK-70) :
+				PIXEL_OFF_NO_NOP();
+		        drawBarrier = 0;
+				break;
+			case (MAX_LINE_BEFORE_BLANK-60) :
+		        drawPlayer = 1;
+				break;
+			case (MAX_LINE_BEFORE_BLANK-55) :
+		        drawPlayer = 0;
+				PIXEL_OFF_NO_NOP();
+				break;
+			case (MAX_LINE_BEFORE_BLANK-40):
+				yCounter = 0;
+				break;
+			case (MAX_LINE_BEFORE_BLANK-6):
+				vSync = 1; drawPixelsOnLine = 0; break;
+			case MAX_LINE_BEFORE_BLANK:
+				drawPixelsOnLine = 0;
+				lineCounter = 0; vSync = 0;
 				break;
 
 		}
