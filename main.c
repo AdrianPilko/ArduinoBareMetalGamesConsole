@@ -171,10 +171,16 @@ int main()
 			{
 				if (alienToggle == 0)
 				{
-					alienDraw_1(alienLineCount);
+					alienDraw_2(alienLineCount);
+					alienDraw_2(alienLineCount);
+					alienDraw_2(alienLineCount);
+					alienDraw_2(alienLineCount);
 				}
 				else
 				{
+					alienDraw_2(alienLineCount);
+					alienDraw_2(alienLineCount);
+					alienDraw_2(alienLineCount);
 					alienDraw_2(alienLineCount);
 				}
 
@@ -268,11 +274,11 @@ int main()
 
 				if (alienMoveThisTime++ == 6)
 				{
-					alienXStartPos+=alienDirection;
+					//alienXStartPos+=alienDirection;
 					alienMoveThisTime = 0;
 				}
 
-				if (alienXStartPos >= 64)
+				if (alienXStartPos >= 32)
 				{
 					alienDirection = -1;
 					alienXStartPos = 63;
