@@ -275,17 +275,15 @@ int main()
 				lineValidForFire = 1;
 
 
-		        // Check if Pin 2 is high
+		        // Check if input control pins
 		        if (PIND & (1 << PD2))
 			    {
 		        	playerXPos = playerXPos - 1;
 		        }
-		        // Check if Pin 3 is high
 		        if (PIND & (1 << PD3))
 		        {
 		        	playerXPos = playerXPos + 1;
 		        }
-		        // Check if Pin 4 is high (fire button)
 		        if (PIND & (1 << PD4))
 		        {
 		        	firePressed = 0;
