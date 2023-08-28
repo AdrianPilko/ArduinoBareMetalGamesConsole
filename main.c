@@ -204,12 +204,15 @@ int main()
 				NOP_FOR_TIMING
 			}
 			PIXEL_OFF_NO_NOP();
-		} else if (drawPlayer) {
+		}
+		else if (drawPlayer)
+		{
 			for (i = 0; i < MIN_DELAY + playerXPos; i++) {
 				NOP_FOR_TIMING
 			}
 			PIXEL_ON();
 
+			NOP_FOR_TIMING
 			NOP_FOR_TIMING
 			NOP_FOR_TIMING
 			NOP_FOR_TIMING
@@ -270,8 +273,8 @@ int main()
 				firePressed = 1;
 			}
 
-			if (playerXPos >= 50) {
-				playerXPos = 50;
+			if (playerXPos >= 49) {
+				playerXPos = 49;
 			}
 			if (playerXPos <= 4) {
 				playerXPos = 4;
@@ -321,7 +324,7 @@ int main()
 				alienToggle = 1 - alienToggle;
 			}
 
-			if ((alienYBasePos > MAX_LINE_BEFORE_BLANK - 64) && (numberAliens != 0))
+			if ((BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64) && (numberAliens != 0))
 			{
 				//alienYBasePos = 0;
 				while (1) { }// do nothing
