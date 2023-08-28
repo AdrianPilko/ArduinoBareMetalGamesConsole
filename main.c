@@ -30,6 +30,7 @@
 
 #define HSYNC_BACKPORCH 18
 #define HSYNC_FRONT_PORCH_2 15
+#define INITIAL_ALIEN_MOVE_RATE 10u
 
 // from experimenting a line started at linCounter = 25 appears right at top of screen one at 285 to 286 is bottom
 // a delay in clock cycles of 14 to plus a delay of 148 clock cycles gives a usable horizontal line length
@@ -51,8 +52,8 @@
 
 #define LINE_INC 8
 #define LINE_INC_ALIENS 12
-#define TOGGLE_RATE 100
 
+int8_t alienToggleTrigger = 0;
 uint8_t alienX = 0;  // top most alien x pos
 uint8_t alienY = 0;
 uint8_t keepXCount = 0;
@@ -60,24 +61,26 @@ uint8_t alienLineCount = 0;
 uint8_t firePressed = 0;
 uint8_t lineValidForFire = 0;
 uint8_t alienToggle = 0;
+uint8_t numberAliens = 30;
 
-int main() {
-	uint8_t alienToggleCountDown = TOGGLE_RATE;
+static uint8_t drawBarrier = 0;
+static uint8_t drawPlayer = 0;
 
-	uint8_t drawBarrier = 0;
-	uint8_t drawPlayer = 0;
-	uint16_t playerXPos = 30;  // has to be non zero and less that 30
+static uint8_t alienDirection = 1;
 
-	uint8_t alienXStartPos = 5;
-	int8_t alienDirection = 1;
+static uint16_t lineCounter = 0;
+static uint16_t alienYBasePos = 0;
+static uint8_t vSync = 0;
+static uint8_t i = 0;
+static uint8_t drawAliens = 0;
+
+
+int main()
+{
+	int8_t alienXStartPos = 10;
 	uint8_t alienMoveThisTime = 0;
-
-	uint16_t lineCounter = 0;
-	uint16_t alienYBasePos = 0;
-	uint8_t vSync = 0;
-	uint8_t i = 0;
-	uint8_t drawAliens = 0;
-
+	uint16_t playerXPos = 30;  // has to be non zero and less that 30
+	uint8_t alienMoveRate = INITIAL_ALIEN_MOVE_RATE;
 
 	clock_prescale_set(clock_div_1);
 
@@ -241,7 +244,7 @@ int main() {
 		lineCounter++;
 
 
-		if (lineCounter == BASE_ALIEN_Y_1+alienYBasePos) drawAliens = 1;
+		if (lineCounter == BASE_ALIEN_Y_1+alienYBasePos) { drawAliens = 1; lineValidForFire = 1;}
 		if (lineCounter == BASE_ALIEN_Y_2+alienYBasePos) drawAliens = 1;
 		if (lineCounter == BASE_ALIEN_Y_3+alienYBasePos) drawAliens = 1;
 		if (lineCounter == BASE_ALIEN_Y_4+alienYBasePos) drawAliens = 1;
@@ -250,9 +253,9 @@ int main() {
 		switch (lineCounter) {
 		case 1:
 			vSync = 0;
-			break;
-		case FIRST_LINE_DRAWN:
-			lineValidForFire = 1;
+			//break;
+		//case FIRST_LINE_DRAWN:
+
 
 			// Check if input control pins
 			if (PIND & (1 << PD2)) {
@@ -267,36 +270,64 @@ int main() {
 				firePressed = 1;
 			}
 
-			if (playerXPos >= 68) {
-				playerXPos = 67;
+			if (playerXPos >= 50) {
+				playerXPos = 50;
 			}
-			if (playerXPos <= 0) {
-				playerXPos = 1;
+			if (playerXPos <= 4) {
+				playerXPos = 4;
 			}
 			/// all the alien init gumbins!
-			if (alienMoveThisTime++ == 5) {
-				alienXStartPos += alienDirection;
+
+			alienMoveThisTime = alienMoveThisTime + 1;
+
+			if (alienMoveThisTime >= alienMoveRate)
+			{
+				if (alienDirection == 1)
+				{
+					alienXStartPos++;
+				}
+				else
+				{
+					alienXStartPos--;
+				}
 				alienMoveThisTime = 0;
 			}
-			if (alienXStartPos >= 35) {
-				alienDirection = -1;		//- alienSpeedUp;
+
+			if (alienXStartPos >= 35)
+			{
+				alienDirection = 0;
 				alienXStartPos = 34;
 				// move aliens down by one line (getting closer to you!)
 				alienYBasePos += 4;
 			}
-			if (alienXStartPos == 0) {
-				alienDirection = 1; // + alienSpeedUp;
+			if (alienXStartPos == 0)
+			{
+				alienDirection = 1;
 				alienXStartPos = 1;
 				// move aliens down by one line (getting closer to you!)
 				alienYBasePos += 4;
-			}
-			if (alienYBasePos > 50)
-				alienYBasePos = 0;
 
-			if (alienToggleCountDown++ == TOGGLE_RATE) {
-				alienToggleCountDown = 0;
+				// speed up the aliens
+				alienMoveRate = alienMoveRate - 1;
+				if (alienMoveRate <= 2)
+				{
+					alienMoveRate = 2;
+				}
+			}
+
+			if (alienToggleTrigger++ >= 30)
+			{
+				alienToggleTrigger = 0;
 				alienToggle = 1 - alienToggle;
 			}
+
+			if ((alienYBasePos > MAX_LINE_BEFORE_BLANK - 64) && (numberAliens != 0))
+			{
+				//alienYBasePos = 0;
+				while (1) { }// do nothing
+			}
+
+
 
 			break;
 /// moved other cases to if else, due to C not allowing non cost (ie y position in switch case)
