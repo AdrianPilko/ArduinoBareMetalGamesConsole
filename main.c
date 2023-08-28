@@ -22,7 +22,11 @@
 #define BARRIER_WIDTH 20
 #define BARRIER_GAP_WIDTH 20
 #define MIN_DELAY 5
-
+#define BASE_ALIEN_Y_1 (FIRST_LINE_DRAWN + 8)
+#define BASE_ALIEN_Y_2 (FIRST_LINE_DRAWN + 24)
+#define BASE_ALIEN_Y_3 (FIRST_LINE_DRAWN + 40)
+#define BASE_ALIEN_Y_4 (FIRST_LINE_DRAWN + 56)
+#define BASE_ALIEN_Y_5 (FIRST_LINE_DRAWN + 72)
 
 #define HSYNC_BACKPORCH 18
 #define HSYNC_FRONT_PORCH_2 15
@@ -47,99 +51,92 @@
 
 #define LINE_INC 8
 #define LINE_INC_ALIENS 12
-#define TOGGLE_RATE 32
+#define TOGGLE_RATE 100
 
 uint8_t alienX = 0;  // top most alien x pos
 uint8_t alienY = 0;
 uint8_t keepXCount = 0;
-uint8_t alienToggle = 0;
 uint8_t alienLineCount = 0;
-uint8_t alienVertCount = 0;
 uint8_t firePressed = 0;
 uint8_t lineValidForFire = 0;
+uint8_t alienToggle = 0;
 
-int main()
-{
-	uint8_t alienToggleCountDown = 3;
+int main() {
+	uint8_t alienToggleCountDown = TOGGLE_RATE;
+
 	uint8_t drawBarrier = 0;
 	uint8_t drawPlayer = 0;
 	uint16_t playerXPos = 30;  // has to be non zero and less that 30
 
-	uint16_t alienXStartPos = 5;
-	uint16_t alienDirection = 1;
+	uint8_t alienXStartPos = 5;
+	int8_t alienDirection = 1;
 	uint8_t alienMoveThisTime = 0;
 
 	uint16_t lineCounter = 0;
-	uint8_t  vSync = 0;
+	uint16_t alienYBasePos = 0;
+	uint8_t vSync = 0;
 	uint8_t i = 0;
 	uint8_t drawAliens = 0;
 
-	clock_prescale_set(clock_div_1);
 
+	clock_prescale_set(clock_div_1);
 
 	DDRB |= 1 << COMPOSITE_PIN;
 	DDRB |= 1 << LUMINANCE_PIN;
 
-    DDRD &= ~(1 << PD2);	//Pin 2 input (move right)
-    PORTD |= (1 << PD2);    //Pin 2 input
+	DDRD &= ~(1 << PD2);	//Pin 2 input (move right)
+	PORTD |= (1 << PD2);    //Pin 2 input
 
-    DDRD &= ~(1 << PD3);	//Pin 3 input (move left)
-    PORTD |= (1 << PD3);    //Pin 3 input
+	DDRD &= ~(1 << PD3);	//Pin 3 input (move left)
+	PORTD |= (1 << PD3);    //Pin 3 input
 
-    DDRD &= ~(1 << PD4);	//Pin 4 input (fire button)
-    PORTD |= (1 << PD4);    //Pin 4 input
+	DDRD &= ~(1 << PD4);	//Pin 4 input (fire button)
+	PORTD |= (1 << PD4);    //Pin 4 input
 
-	TCCR1B = (1<<CS10); // switch off clock prescaller
-	OCR1A = 1025; 	   //timer interrupt cycles which gives rise to 64usec line sync time
+	TCCR1B = (1 << CS10); // switch off clock prescaller
+	OCR1A = 1025; //timer interrupt cycles which gives rise to 64usec line sync time
 	TCNT1 = 0;
-	while(1)
-	{
+	while (1) {
 		// wait for hsync timer interrupt to trigger
-		while((TIFR1 & (1<<OCF1A)) == 0)
-		{
+		while ((TIFR1 & (1 << OCF1A)) == 0) {
 			// wait till the timer overflow flag is SET
 		}
-
 
 		// immediately reset the interrupt timer, previous version had this at the end
 		// which made the whole thing be delayed when we're trying to maintain the 64us PAL line timing
 		TCNT1 = 0;
-		TIFR1 |= (1<<OCF1A) ; //clear timer1 overflow flag
+		TIFR1 |= (1 << OCF1A); //clear timer1 overflow flag
 
 		if (vSync > 0) // invert the line sync pulses when in vsync part of screen
-		{
+				{
 			DDRB = 0;
-			for (i = 0; i < HSYNC_BACKPORCH+10; i++)
-			{
+			for (i = 0; i < HSYNC_BACKPORCH + 10; i++) {
 				__asm__ __volatile__ ("nop");
 			}
 			PORTB = 0;
 			DDRB = 1;
-		}
-		else // hsync
+		} else // hsync
 		{
 			// before the end of line (which in here is also effectively just the start of the line!) we need to hold at 300mV
 			// and ensure no pixels
 			DDRB = 0;
 			PORTB = 1;
-			for (i = 0; i < 1; i++)
-			{
+			for (i = 0; i < 1; i++) {
 				__asm__ __volatile__ ("nop");
 			}
 
 			// Hold the output to the composite connector low, the zero volt hsync
 			PORTB = 0;
 			DDRB |= (1 << COMPOSITE_PIN); // set COMPOSITE_PIN as output
-			for (i = 0; i < HSYNC_BACKPORCH; i++)
-			{
+			for (i = 0; i < HSYNC_BACKPORCH; i++) {
 				__asm__ __volatile__ ("nop");
 			}
 
 			// hold output to composite connector to 300mV
 			DDRB &= ~(1 << COMPOSITE_PIN); // set COMPOSITE_PIN as input
 			PORTB = 1;
-			for (i = 0; i < HSYNC_BACKPORCH; i++)// delay same amount to give proper back porch before drawing any pixels on the line
-			{
+			for (i = 0; i < HSYNC_BACKPORCH; i++) // delay same amount to give proper back porch before drawing any pixels on the line
+					{
 				__asm__ __volatile__ ("nop");
 			}
 		}
@@ -150,26 +147,21 @@ int main()
 		//#define  LUM_ON DDRB = PORTB = 0b11000;
 		// cycles i.e. LUM_ON and LUM_OFF must take exactly same time
 
-		if (drawAliens == 1)
-		{
+		if (drawAliens == 1) {
 			// read out each line from memory and display
-			for (i = 0; i < MIN_DELAY+alienXStartPos; i++)
-			{
-				__asm__ __volatile__ ("nop");
+			for (i = 0; i < MIN_DELAY + alienXStartPos; i++) {
+				NOP_FOR_TIMING
 			}
 
 			{
-				if (alienToggle == 0)
-				{
+				if (alienToggle == 0) {
 					alienDraw_1(alienLineCount);
 					alienDraw_1(alienLineCount);
 					alienDraw_1(alienLineCount);
 					alienDraw_1(alienLineCount);
 					alienDraw_1(alienLineCount);
 					alienDraw_1(alienLineCount);
-				}
-				else
-				{
+				} else {
 					alienDraw_2(alienLineCount);
 					alienDraw_2(alienLineCount);
 					alienDraw_2(alienLineCount);
@@ -180,49 +172,37 @@ int main()
 				PIXEL_OFF_NO_NOP()
 				alienLineCount++;
 			}
-			if (alienLineCount > 7)
-			{
+			if (alienLineCount > 7) {
 				alienLineCount = 0;
+				drawAliens = 0;
 			}
-			alienVertCount++;
-		}
-		else if (drawBarrier == 1)
-		{
-			for (i = 0; i < MIN_DELAY+25; i++)
-			{
-				__asm__ __volatile__ ("nop");
+		} else if (drawBarrier == 1) {
+			for (i = 0; i < MIN_DELAY + 25; i++) {
+				NOP_FOR_TIMING
 			}
 			PIXEL_ON();
-			for (i = 0; i < BARRIER_WIDTH; i++)
-			{
-				__asm__ __volatile__ ("nop");
+			for (i = 0; i < BARRIER_WIDTH; i++) {
+				NOP_FOR_TIMING
 			}
 			PIXEL_OFF_NO_NOP();
-			for (i = 0; i < BARRIER_GAP_WIDTH; i++)
-			{
-				__asm__ __volatile__ ("nop");
+			for (i = 0; i < BARRIER_GAP_WIDTH; i++) {
+				NOP_FOR_TIMING
 			}
 			PIXEL_ON();
-			for (i = 0; i < BARRIER_WIDTH; i++)
-			{
-				__asm__ __volatile__ ("nop");
+			for (i = 0; i < BARRIER_WIDTH; i++) {
+				NOP_FOR_TIMING
 			}
 			PIXEL_OFF_NO_NOP();
-			for (i = 0; i < BARRIER_GAP_WIDTH; i++)
-			{
-				__asm__ __volatile__ ("nop");
+			for (i = 0; i < BARRIER_GAP_WIDTH; i++) {
+				NOP_FOR_TIMING
 			}
 			PIXEL_ON();
-			for (i = 0; i < BARRIER_WIDTH; i++)
-			{
-				__asm__ __volatile__ ("nop");
+			for (i = 0; i < BARRIER_WIDTH; i++) {
+				NOP_FOR_TIMING
 			}
 			PIXEL_OFF_NO_NOP();
-		}
-		else if (drawPlayer)
-		{
-			for (i = 0; i < MIN_DELAY + playerXPos; i++)
-			{
+		} else if (drawPlayer) {
+			for (i = 0; i < MIN_DELAY + playerXPos; i++) {
 				NOP_FOR_TIMING
 			}
 			PIXEL_ON();
@@ -248,13 +228,9 @@ int main()
 			NOP_FOR_TIMING
 			NOP_FOR_TIMING
 			PIXEL_OFF_NO_NOP();
-		}
-		else if (firePressed == 1)
-		{
-			if (lineValidForFire == 1)
-			{
-				for (i = 0; i < MIN_DELAY + playerXPos+1; i++)
-				{
+		} else if (firePressed == 1) {
+			if (lineValidForFire == 1) {
+				for (i = 0; i < MIN_DELAY + playerXPos; i++) {
 					NOP_FOR_TIMING
 				}
 				PIXEL_ON();
@@ -262,125 +238,94 @@ int main()
 			}
 		}
 
-
-		switch (lineCounter++)
-		{
-			case 1:
-				vSync = 0;
-				break;
-			case FIRST_LINE_DRAWN+20:
-				drawAliens = 1;
-				alienLineCount = 0;
-				alienVertCount = 0;
-				lineValidForFire = 1;
+		lineCounter++;
 
 
-		        // Check if input control pins
-		        if (PIND & (1 << PD2))
-			    {
-		        	playerXPos = playerXPos - 1;
-		        }
-		        if (PIND & (1 << PD3))
-		        {
-		        	playerXPos = playerXPos + 1;
-		        }
-		        if (PIND & (1 << PD4))
-		        {
-		        	firePressed = 0;
-		        }
-		        else
-		        {
-		        	firePressed = 1;
-		        }
+		if (lineCounter == BASE_ALIEN_Y_1+alienYBasePos) drawAliens = 1;
+		if (lineCounter == BASE_ALIEN_Y_2+alienYBasePos) drawAliens = 1;
+		if (lineCounter == BASE_ALIEN_Y_3+alienYBasePos) drawAliens = 1;
+		if (lineCounter == BASE_ALIEN_Y_4+alienYBasePos) drawAliens = 1;
+		if (lineCounter == BASE_ALIEN_Y_5+alienYBasePos) drawAliens = 1;
 
-				if (playerXPos >=68)
-				{
-					playerXPos = 67;
-				}
-				if (playerXPos <= 0)
-				{
-					playerXPos = 1;
-				}
+		switch (lineCounter) {
+		case 1:
+			vSync = 0;
+			break;
+		case FIRST_LINE_DRAWN:
+			lineValidForFire = 1;
 
-				if (alienMoveThisTime++ == 10)
-				{
-					alienXStartPos+=alienDirection;
-					alienMoveThisTime = 0;
-				}
+			// Check if input control pins
+			if (PIND & (1 << PD2)) {
+				playerXPos = playerXPos - 1;
+			}
+			if (PIND & (1 << PD3)) {
+				playerXPos = playerXPos + 1;
+			}
+			if (PIND & (1 << PD4)) {
+				firePressed = 0;
+			} else {
+				firePressed = 1;
+			}
 
-				if (alienXStartPos >= 35)
-				{
-					alienDirection = -1;
-					alienXStartPos = 34;
-				}
-				if (alienXStartPos == 0)
-				{
-					alienDirection = 1;
-					alienXStartPos = 1;
-				}
+			if (playerXPos >= 68) {
+				playerXPos = 67;
+			}
+			if (playerXPos <= 0) {
+				playerXPos = 1;
+			}
+			/// all the alien init gumbins!
+			if (alienMoveThisTime++ == 5) {
+				alienXStartPos += alienDirection;
+				alienMoveThisTime = 0;
+			}
+			if (alienXStartPos >= 35) {
+				alienDirection = -1;		//- alienSpeedUp;
+				alienXStartPos = 34;
+				// move aliens down by one line (getting closer to you!)
+				alienYBasePos += 4;
+			}
+			if (alienXStartPos == 0) {
+				alienDirection = 1; // + alienSpeedUp;
+				alienXStartPos = 1;
+				// move aliens down by one line (getting closer to you!)
+				alienYBasePos += 4;
+			}
+			if (alienYBasePos > 50)
+				alienYBasePos = 0;
 
+			if (alienToggleCountDown++ == TOGGLE_RATE) {
+				alienToggleCountDown = 0;
+				alienToggle = 1 - alienToggle;
+			}
 
-				if (alienToggleCountDown-- == 0)
-				{
-					alienToggleCountDown = TOGGLE_RATE;
-					alienToggle = 1 - alienToggle;
-				}
-				break;
-			case (FIRST_LINE_DRAWN+28) :
-				drawAliens = 0;
-				alienVertCount = 0;
-				break;
-			case (FIRST_LINE_DRAWN+38) :
-				drawAliens = 1;
-				alienVertCount = 0;
-				break;
-			case (FIRST_LINE_DRAWN+46) :
-				drawAliens = 0;
-				alienVertCount = 0;
-				break;
-			case (FIRST_LINE_DRAWN+56) :
-				drawAliens = 1;
-				alienVertCount = 0;
-				break;
-			case (FIRST_LINE_DRAWN+64) :
-				drawAliens = 0;
-				alienVertCount = 0;
-				break;
-			case (FIRST_LINE_DRAWN+74) :
-				drawAliens = 1;
-				alienVertCount = 0;
-				break;
-			case (FIRST_LINE_DRAWN+82) :
-				drawAliens = 0;
-				alienVertCount = 0;
-				break;
-			case (MAX_LINE_BEFORE_BLANK-100) :
-				drawAliens = 0;
-				alienVertCount = 0;
-				break;
-			case (MAX_LINE_BEFORE_BLANK-80) :
-		        drawBarrier = 1;
-				lineValidForFire = 1;
-				break;
-			case (MAX_LINE_BEFORE_BLANK-73) :
-		        drawBarrier = 0;
-				lineValidForFire = 1;
-				break;
-			case (MAX_LINE_BEFORE_BLANK-64) :
-		        drawPlayer = 1;
-				lineValidForFire = 0;
-				break;
-			case (MAX_LINE_BEFORE_BLANK-57) :
-				drawPlayer = 0;
-				break;
-			case (MAX_LINE_BEFORE_BLANK-40):
-				break;
-			case (MAX_LINE_BEFORE_BLANK-6):
-				PIXEL_OFF_NO_NOP();
-				vSync = 1; break;
-			case MAX_LINE_BEFORE_BLANK:
-				lineCounter = 0; vSync = 0;
-				break;
+			break;
+/// moved other cases to if else, due to C not allowing non cost (ie y position in switch case)
+		case (MAX_LINE_BEFORE_BLANK - 80):
+			drawBarrier = 1;
+			lineValidForFire = 1;
+			break;
+		case (MAX_LINE_BEFORE_BLANK - 73):
+			drawBarrier = 0;
+			lineValidForFire = 1;
+			break;
+		case (MAX_LINE_BEFORE_BLANK - 64):
+			drawPlayer = 1;
+			lineValidForFire = 0;
+			break;
+		case (MAX_LINE_BEFORE_BLANK - 57):
+			drawPlayer = 0;
+			break;
+		case (MAX_LINE_BEFORE_BLANK - 40):
+			break;
+		case (MAX_LINE_BEFORE_BLANK - 6):
+			PIXEL_OFF_NO_NOP()
+			;
+			vSync = 1;
+			break;
+		case MAX_LINE_BEFORE_BLANK:
+			lineCounter = 0;
+			vSync = 0;
+			break;
 
 		}
 	}
