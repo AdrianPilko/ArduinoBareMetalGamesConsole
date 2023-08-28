@@ -280,16 +280,3 @@ void alienDraw_2(const uint8_t alienLineCount)
 	};
 }
 
-
-#if 0
-		        // Check if Pin 2 is high
-		        if (PIND & (1 << PD2))
-			    {
-		        	playerXPos = playerXPos - 1;
-		        }
-		        // Check if Pin 3 is high
-		        if (PIND & (1 << PD3))
-		        {
-		        	playerXPos = playerXPos + 1;
-		        }
-#endif

@@ -58,7 +58,6 @@ uint8_t alienX = 0;  // top most alien x pos
 uint8_t alienY = 0;
 uint8_t keepXCount = 0;
 uint8_t alienLineCount = 0;
-uint8_t firePressed = 0;
 uint8_t lineValidForFire = 0;
 uint8_t alienToggle = 0;
 uint8_t numberAliens = 30;
@@ -74,9 +73,9 @@ static uint8_t vSync = 0;
 static uint8_t i = 0;
 static uint8_t drawAliens = 0;
 
-
 int main()
 {
+	uint8_t firePressed = 0;
 	int8_t alienXStartPos = 10;
 	uint8_t alienMoveThisTime = 0;
 	uint16_t playerXPos = 30;  // has to be non zero and less that 30
@@ -234,13 +233,20 @@ int main()
 			NOP_FOR_TIMING
 			NOP_FOR_TIMING
 			PIXEL_OFF_NO_NOP();
-		} else if (firePressed == 1) {
-			if (lineValidForFire == 1) {
-				for (i = 0; i < MIN_DELAY + playerXPos; i++) {
+		//} else if (firePressed == lineCounter)
+		}
+		else if (firePressed == lineCounter)
+		{
+			if (lineValidForFire == 1)
+			{
+				for (i = 0; i < MIN_DELAY + playerXPos; i++)
+				{
 					NOP_FOR_TIMING
 				}
 				PIXEL_ON();
-				PIXEL_OFF_NO_NOP();
+				NOP_FOR_TIMING
+				NOP_FOR_TIMING
+				PIXEL_OFF();
 			}
 		}
 
@@ -267,10 +273,16 @@ int main()
 			if (PIND & (1 << PD3)) {
 				playerXPos = playerXPos + 1;
 			}
-			if (PIND & (1 << PD4)) {
-				firePressed = 0;
-			} else {
-				firePressed = 1;
+			if (PIND & (1 << PD4))
+			{
+				if (firePressed > 0)
+				{
+					firePressed--;
+				}
+			}
+			else
+			{
+				firePressed = 248;  // this will clear on its own
 			}
 
 			if (playerXPos >= 49) {
@@ -336,11 +348,9 @@ int main()
 /// moved other cases to if else, due to C not allowing non cost (ie y position in switch case)
 		case (MAX_LINE_BEFORE_BLANK - 80):
 			drawBarrier = 1;
-			lineValidForFire = 1;
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 73):
 			drawBarrier = 0;
-			lineValidForFire = 1;
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 64):
 			drawPlayer = 1;

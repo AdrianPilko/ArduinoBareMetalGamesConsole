@@ -1,5 +1,6 @@
 #include <avr/pgmspace.h>
 
+#if 0
 PROGMEM const uint8_t sprites[2][8]=
 {
    {0b10000001,
@@ -20,3 +21,5 @@ PROGMEM const uint8_t sprites[2][8]=
 	0b01000010,
 	0b00100100}
 };
+
+#endif
