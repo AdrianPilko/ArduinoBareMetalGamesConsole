@@ -253,32 +253,6 @@ int main()
 				NOP_FOR_TIMING
 				NOP_FOR_TIMING
 				PIXEL_OFF();
-
-				if (playerXPos == alienXStartPos)
-				{
-					alien1 = 0;
-		//			numberAliens--;
-				}
-				if (playerXPos == alienXStartPos+5)
-				{
-					alien2 = 0;
-			//		numberAliens--;
-				}
-				if (playerXPos == alienXStartPos+10)
-				{
-					alien3 = 0;
-				//	numberAliens--;
-				}
-				if (playerXPos == alienXStartPos+15)
-				{
-					alien4 = 0;
-			//		numberAliens--;
-				}
-				if (playerXPos == alienXStartPos+20)
-				{
-					alien5 = 0;
-			//		numberAliens--;
-				}
 			}
 		}
 
@@ -315,6 +289,31 @@ int main()
 			else
 			{
 				firePressed = 250;  // this will clear on its own
+			}
+
+			if (firePressed > 0)
+			{
+				if (playerXPos == alienXStartPos)
+				{
+					alien1 = 0;
+				}
+				if (playerXPos == alienXStartPos+5)
+				{
+					alien2 = 0;
+				}
+				if (playerXPos == alienXStartPos+10)
+				{
+					alien3 = 0;
+				}
+				if (playerXPos == alienXStartPos+15)
+				{
+					alien4 = 0;
+				}
+				if (playerXPos == alienXStartPos+20)
+				{
+					alien5 = 0;
+				}
+
 			}
 
 			if (playerXPos >= 49) {
