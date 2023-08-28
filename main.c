@@ -52,7 +52,7 @@
 
 #define LINE_INC 8
 #define LINE_INC_ALIENS 12
-
+//static uint8_t numberAliens = 5;
 int8_t alienToggleTrigger = 0;
 uint8_t alienX = 0;  // top most alien x pos
 uint8_t alienY = 0;
@@ -60,7 +60,11 @@ uint8_t keepXCount = 0;
 uint8_t alienLineCount = 0;
 uint8_t lineValidForFire = 0;
 uint8_t alienToggle = 0;
-uint8_t numberAliens = 30;
+uint8_t alien1 = 1;
+uint8_t alien2 = 1;
+uint8_t alien3 = 1;
+uint8_t alien4 = 1;
+uint8_t alien5 = 1;
 
 static uint8_t drawBarrier = 0;
 static uint8_t drawPlayer = 0;
@@ -148,7 +152,10 @@ int main()
 
 		//#define  LUM_ON DDRB = PORTB = 0b11000;
 		// cycles i.e. LUM_ON and LUM_OFF must take exactly same time
-
+		//if (numberAliens == 0)
+		//{
+		//	PIXEL_ON(); // todo: add proper win text
+		//}
 		if (drawAliens == 1) {
 			// read out each line from memory and display
 			for (i = 0; i < MIN_DELAY + alienXStartPos; i++) {
@@ -157,19 +164,17 @@ int main()
 
 			{
 				if (alienToggle == 0) {
-					alienDraw_1(alienLineCount);
-					alienDraw_1(alienLineCount);
-					alienDraw_1(alienLineCount);
-					alienDraw_1(alienLineCount);
-					alienDraw_1(alienLineCount);
-					alienDraw_1(alienLineCount);
+					if (alien1) alienDraw_1(alienLineCount);
+					if (alien2) alienDraw_1(alienLineCount);
+					if (alien3) alienDraw_1(alienLineCount);
+					if (alien4) alienDraw_1(alienLineCount);
+					if (alien5) alienDraw_1(alienLineCount);
 				} else {
-					alienDraw_2(alienLineCount);
-					alienDraw_2(alienLineCount);
-					alienDraw_2(alienLineCount);
-					alienDraw_2(alienLineCount);
-					alienDraw_2(alienLineCount);
-					alienDraw_2(alienLineCount);
+					if (alien1) alienDraw_2(alienLineCount);
+					if (alien2) alienDraw_2(alienLineCount);
+					if (alien3) alienDraw_2(alienLineCount);
+					if (alien4) alienDraw_2(alienLineCount);
+					if (alien5) alienDraw_2(alienLineCount);
 				}
 				PIXEL_OFF_NO_NOP()
 				alienLineCount++;
@@ -248,6 +253,31 @@ int main()
 				NOP_FOR_TIMING
 				NOP_FOR_TIMING
 				PIXEL_OFF();
+				if (playerXPos == alienXStartPos)
+				{
+					alien1 = 0;
+		//			numberAliens--;
+				}
+				if (playerXPos == alienXStartPos+5)
+				{
+					alien2 = 0;
+			//		numberAliens--;
+				}
+				if (playerXPos == alienXStartPos+10)
+				{
+					alien3 = 0;
+				//	numberAliens--;
+				}
+				if (playerXPos == alienXStartPos+15)
+				{
+					alien4 = 0;
+			//		numberAliens--;
+				}
+				if (playerXPos == alienXStartPos+20)
+				{
+					alien5 = 0;
+			//		numberAliens--;
+				}
 			}
 		}
 
@@ -289,8 +319,8 @@ int main()
 			if (playerXPos >= 49) {
 				playerXPos = 49;
 			}
-			if (playerXPos <= 4) {
-				playerXPos = 4;
+			if (playerXPos <= 1) {
+				playerXPos = 1;
 			}
 			/// all the alien init gumbins!
 
@@ -309,7 +339,7 @@ int main()
 				alienMoveThisTime = 0;
 			}
 
-			if (alienXStartPos >= 35)
+			if (alienXStartPos >= 35) // remember that this is only the X position of left most alien
 			{
 				alienDirection = 0;
 				alienXStartPos = 34;
@@ -337,13 +367,11 @@ int main()
 				alienToggle = 1 - alienToggle;
 			}
 
-			if ((BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64) && (numberAliens != 0))
+			if (BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64)// && (numberAliens != 0))
 			{
 				//alienYBasePos = 0;
-				while (1) { }// do nothing
+				while (1) { }// need to print game over, here now just stops and display goes blank
 			}
-
-
 
 			break;
 /// moved other cases to if else, due to C not allowing non cost (ie y position in switch case)
