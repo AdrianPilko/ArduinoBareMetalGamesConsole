@@ -60,6 +60,7 @@ uint8_t keepXCount = 0;
 uint8_t alienLineCount = 0;
 uint8_t lineValidForFire = 0;
 uint8_t alienToggle = 0;
+uint8_t GameWon = 0;
 uint8_t alien1 = 1;
 uint8_t alien2 = 1;
 uint8_t alien3 = 1;
@@ -152,11 +153,13 @@ int main()
 
 		//#define  LUM_ON DDRB = PORTB = 0b11000;
 		// cycles i.e. LUM_ON and LUM_OFF must take exactly same time
-		//if (numberAliens == 0)
+		//if (GameWon == 1)
 		//{
 		//	PIXEL_ON(); // todo: add proper win text
 		//}
-		if (drawAliens == 1) {
+		//else if (drawAliens == 1)
+		if (drawAliens == 1)
+		{
 			// read out each line from memory and display
 			for (i = 0; i < MIN_DELAY + alienXStartPos; i++) {
 				NOP_FOR_TIMING
@@ -313,7 +316,14 @@ int main()
 				{
 					alien5 = 0;
 				}
-
+				if ((alien1 == 0) &&
+					(alien2 == 0) &&
+					(alien3 == 0) &&
+					(alien4 == 0) &&
+					(alien5 == 0))
+				{
+					GameWon = 1;
+				}
 			}
 
 			if (playerXPos >= 49) {
@@ -367,7 +377,7 @@ int main()
 				alienToggle = 1 - alienToggle;
 			}
 
-			if (BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64)// && (numberAliens != 0))
+			if ((BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64) && (GameWon != 1))
 			{
 				//alienYBasePos = 0;
 				while (1) { }// need to print game over, here now just stops and display goes blank
