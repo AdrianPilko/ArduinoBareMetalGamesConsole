@@ -253,6 +253,7 @@ int main()
 				NOP_FOR_TIMING
 				NOP_FOR_TIMING
 				PIXEL_OFF();
+
 				if (playerXPos == alienXStartPos)
 				{
 					alien1 = 0;
