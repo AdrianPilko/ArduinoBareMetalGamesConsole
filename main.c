@@ -235,7 +235,7 @@ int main()
 			PIXEL_OFF_NO_NOP();
 		//} else if (firePressed == lineCounter)
 		}
-		else if (firePressed == lineCounter)
+		else if ((firePressed == lineCounter+1) || (firePressed == lineCounter))
 		{
 			if (lineValidForFire == 1)
 			{
@@ -244,6 +244,7 @@ int main()
 					NOP_FOR_TIMING
 				}
 				PIXEL_ON();
+				NOP_FOR_TIMING
 				NOP_FOR_TIMING
 				NOP_FOR_TIMING
 				PIXEL_OFF();
@@ -277,12 +278,12 @@ int main()
 			{
 				if (firePressed > 0)
 				{
-					firePressed--;
+					firePressed -= 10;
 				}
 			}
 			else
 			{
-				firePressed = 248;  // this will clear on its own
+				firePressed = 250;  // this will clear on its own
 			}
 
 			if (playerXPos >= 49) {
