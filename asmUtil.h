@@ -281,6 +281,131 @@ void alienDraw_2(const uint8_t alienLineCount)
 	};
 }
 
+// this is purely to maintain timing of a gap with no alien
+void alienDraw_blank(const uint8_t alienLineCount)
+{
+	switch (alienLineCount)
+	{
+		case 0:
+			PIXEL_OFF() //0b10000001,
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF_NO_NOP()
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			PIXEL_OFF()
+			PIXEL_OFF_NO_NOP()break;
+		case 1:
+			PIXEL_OFF() //0b01111110,
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			NOP_FOR_TIMING
+			PIXEL_OFF_NO_NOP()
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			break;
+		case 2:
+			NOP_FOR_TIMING //01011010
+			PIXEL_OFF()
+			NOP_FOR_TIMING
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			NOP_FOR_TIMING
+			PIXEL_OFF_NO_NOP()
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			break;
+		case 3:
+			NOP_FOR_TIMING//0b01111110,
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			NOP_FOR_TIMING
+			PIXEL_OFF_NO_NOP()
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			break;
+		case 4:
+			NOP_FOR_TIMING  //0b00111100,
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			PIXEL_OFF()
+			NOP_FOR_TIMING
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			PIXEL_OFF_NO_NOP()
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			break;
+		case 5: // legs
+			PIXEL_OFF() //0b00100100,
+			PIXEL_OFF_NO_NOP()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF_NO_NOP()
+			NOP_FOR_TIMING
+			break;
+		case 6:
+			PIXEL_OFF() //	0b01000010,
+			PIXEL_OFF()
+			PIXEL_OFF_NO_NOP()
+			PIXEL_OFF()
+			PIXEL_OFF()
+			PIXEL_OFF_NO_NOP()
+			PIXEL_OFF()
+			PIXEL_OFF_NO_NOP()
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			break;
+		case 7:
+			PIXEL_OFF_NO_NOP()
+			PIXEL_OFF()  //	0b10000001}
+			PIXEL_OFF_NO_NOP()
+			PIXEL_OFF()
+			PIXEL_OFF_NO_NOP()
+			PIXEL_OFF_NO_NOP()
+			PIXEL_OFF_NO_NOP()
+			PIXEL_OFF_NO_NOP()
+			PIXEL_OFF_NO_NOP()
+			PIXEL_OFF()
+			PIXEL_OFF_NO_NOP()
+			NOP_FOR_TIMING
+			break;
+		default:PIXEL_OFF_NO_NOP() break;
+	};
+}
+
 void printYouWon()
 {
 	// todo
