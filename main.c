@@ -18,9 +18,9 @@
 #define FIRST_LINE_DRAWN 42
 #define LAST_LINE_DRAWN 262
 #define HALF_SCREEN 110
-#define PLAYER_WIDTH 15
-#define BARRIER_WIDTH 20
-#define BARRIER_GAP_WIDTH 20
+#define PLAYER_WIDTH 16
+#define BARRIER_WIDTH 15
+#define BARRIER_GAP_WIDTH 15
 #define MIN_DELAY 5
 #define BASE_ALIEN_Y_1 (FIRST_LINE_DRAWN + 8)
 #define BASE_ALIEN_Y_2 (FIRST_LINE_DRAWN + 24)
@@ -34,9 +34,9 @@
 
 #define WIDTH_ALL_ALIENS 30
 #define MAX_X_PLAYER 80
-#define MIN_X_PLAYER 10
+#define MIN_X_PLAYER 1
 #define MAX_X_ALIEN (MAX_X_PLAYER - WIDTH_ALL_ALIENS)
-#define MIN_X_ALIEN MIN_X_PLAYER
+#define MIN_X_ALIEN 1
 
 // from experimenting a line started at linCounter = 25 appears right at top of screen one at 285 to 286 is bottom
 // a delay in clock cycles of 14 to plus a delay of 148 clock cycles gives a usable horizontal line length
@@ -82,7 +82,7 @@ int main()
 	uint8_t alienLineCount = 0;
 	uint8_t lineValidForFire = 0;
 	uint8_t alienToggle = 0;
-	uint16_t firePressed = 0;
+	uint8_t firePressed = 0;
 
 	typedef enum {drawNothing=0, drawAlien, drawBarrier, drawPlayer, gameWon, gameLost} drawType_t;
 	drawType_t drawType = drawNothing;
@@ -172,7 +172,7 @@ int main()
 			case drawAlien:
 
 				// read out each line from memory and display
-				for (int i = 0; i < MIN_DELAY + alienXStartPos; i++)
+				for (int i = 0; i < alienXStartPos; i++)
 				{
 					NOP_FOR_TIMING
 				}
@@ -236,29 +236,19 @@ int main()
 				break;
 
 			case drawBarrier:
-
 				for (int i = 0; i < MIN_DELAY + 25; i++) {
 					NOP_FOR_TIMING
 				}
-				PIXEL_ON();
-				for (int i = 0; i < BARRIER_WIDTH; i++) {
-					NOP_FOR_TIMING
-				}
-				PIXEL_OFF_NO_NOP();
-				for (int i = 0; i < BARRIER_GAP_WIDTH; i++) {
-					NOP_FOR_TIMING
-				}
-				PIXEL_ON();
-				for (int i = 0; i < BARRIER_WIDTH; i++) {
-					NOP_FOR_TIMING
-				}
-				PIXEL_OFF_NO_NOP();
-				for (int i = 0; i < BARRIER_GAP_WIDTH; i++) {
-					NOP_FOR_TIMING
-				}
-				PIXEL_ON();
-				for (int i = 0; i < BARRIER_WIDTH; i++) {
-					NOP_FOR_TIMING
+				for (int barrierLoop = 0; barrierLoop < 10; barrierLoop++)
+				{
+					PIXEL_ON();
+					for (int i = 0; i < BARRIER_WIDTH; i++) {
+						NOP_FOR_TIMING
+					}
+					PIXEL_OFF_NO_NOP();
+					for (int i = 0; i < BARRIER_GAP_WIDTH; i++) {
+						NOP_FOR_TIMING
+					}
 				}
 				PIXEL_OFF_NO_NOP();
 				break;
@@ -312,6 +302,7 @@ int main()
 		}
 
 		lineCounter++;
+
 		if ((BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64) && (drawType != gameWon))
 		{
 			drawType = gameLost;
@@ -354,7 +345,7 @@ int main()
 				{
 					if (firePressed > 0)
 					{
-						firePressed -= 10;
+						firePressed -= 1;
 					}
 				}
 				else
@@ -368,19 +359,19 @@ int main()
 					{
 						aliensBitPackStatus.alien1 = 0;
 					}
-					else if (playerXPos+4 == alienXStartPos)
+					else if (playerXPos == alienXStartPos+2)
 					{
 						aliensBitPackStatus.alien2 = 0;
 					}
-					else if (playerXPos+8 == alienXStartPos)
+					else if (playerXPos == alienXStartPos+4)
 					{
 						aliensBitPackStatus.alien3 = 0;
 					}
-					else if (playerXPos+12 == alienXStartPos)
+					else if (playerXPos == alienXStartPos+6)
 					{
 						aliensBitPackStatus.alien4 = 0;
 					}
-					else if (playerXPos+16 == alienXStartPos)
+					else if (playerXPos == alienXStartPos+8)
 					{
 						aliensBitPackStatus.alien5 = 0;
 					}
@@ -414,6 +405,7 @@ int main()
 					else
 					{
 						alienXStartPos--;
+						//alienXStartPos = playerXPos;
 					}
 					alienMoveThisTime = 0;
 				}
