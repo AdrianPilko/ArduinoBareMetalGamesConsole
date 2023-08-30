@@ -172,10 +172,11 @@ int main()
 			case drawAlien:
 
 				// read out each line from memory and display
-				for (int i = 0; i < alienXStartPos; i++)
-				{
-					NOP_FOR_TIMING
-				}
+				//for (int i = 0; i < alienXStartPos; i++)
+				//{
+				//	NOP_FOR_TIMING
+				//}
+			        _delay_us((double)alienXStartPos);
 
 				{
 					if (alienToggle == 0)
@@ -236,50 +237,23 @@ int main()
 				break;
 
 			case drawBarrier:
-				for (int i = 0; i < MIN_DELAY + 25; i++) {
-					NOP_FOR_TIMING
-				}
-				for (int barrierLoop = 0; barrierLoop < 10; barrierLoop++)
+				_delay_us((double)MIN_DELAY + 25);
+				//for (int i = 0; i < MIN_DELAY + 25; i++) {
+				//	NOP_FOR_TIMING
+				//}
+				for (int barrierLoop = 0; barrierLoop < 3; barrierLoop++)
 				{
 					PIXEL_ON();
-					for (int i = 0; i < BARRIER_WIDTH; i++) {
-						NOP_FOR_TIMING
-					}
+					delay_us((double)BARRIER_WIDTH);
 					PIXEL_OFF_NO_NOP();
-					for (int i = 0; i < BARRIER_GAP_WIDTH; i++) {
-						NOP_FOR_TIMING
-					}
+					delay_us((double)BARRIER_GAP_WIDTH);
 				}
 				PIXEL_OFF_NO_NOP();
 				break;
 			case drawPlayer:
-
-				for (int i = 0; i < MIN_DELAY + playerXPos; i++) {
-					NOP_FOR_TIMING
-				}
+                                _delay_us((double)playerXPos); 
 				PIXEL_ON();
-
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
+				delay_us((double)PLAYER_WIDTH); 
 				PIXEL_OFF_NO_NOP();
 			break;
 			default: PIXEL_OFF(); break;
@@ -289,10 +263,7 @@ int main()
 		{
 			if (lineValidForFire == 1)
 			{
-				for (int i = 0; i < MIN_DELAY + playerXPos; i++)
-				{
-					NOP_FOR_TIMING
-				}
+				_delay_us((double)playerXPos); 
 				PIXEL_ON();
 				NOP_FOR_TIMING
 				NOP_FOR_TIMING
