@@ -34,9 +34,9 @@
 #define INITIAL_ALIEN_MOVE_RATE 10
 
 #define WIDTH_ALL_ALIENS 30
-#define MAX_X_PLAYER 140
+#define MAX_X_PLAYER 135
 #define MIN_X_PLAYER 1
-#define MAX_X_ALIEN 80
+#define MAX_X_ALIEN 77
 #define MIN_X_ALIEN 1
 
 // from experimenting a line started at linCounter = 25 appears right at top of screen one at 285 to 286 is bottom
@@ -270,9 +270,10 @@ int main()
 			break;
 		case FIRST_LINE_DRAWN:
 			PIXEL_ON()
+			delayLoop(125);
+			PIXEL_OFF()
 			break;
 		case FIRST_LINE_DRAWN+1:
-			PIXEL_OFF()
 			//if ((BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64) && (drawType != gameWon))
 			//{
 			//	drawType = gameLost;
@@ -364,14 +365,14 @@ int main()
 					alienDirection = 0;
 					alienXStartPos = MAX_X_ALIEN;
 					// move aliens down by one line (getting closer to you!)
-					//alienYBasePos += 4;
+					alienYBasePos += 4;
 				}
 				if (alienXStartPos < MIN_X_ALIEN)
 				{
 					alienDirection = 1;
 					alienXStartPos = MIN_X_ALIEN;
 					// move aliens down by one line (getting closer to you!)
-					//alienYBasePos += 4;
+					alienYBasePos += 4;
 
 					// speed up the aliens
 					alienMoveRate = alienMoveRate - 1;
@@ -390,7 +391,11 @@ int main()
 			break;
 
 		case (MAX_LINE_BEFORE_BLANK - 80):
-			delayLoop(BARRIER_WIDTH);
+			TEN_NOP_FOR_TIMING;
+			TEN_NOP_FOR_TIMING;
+			TEN_NOP_FOR_TIMING;
+			TEN_NOP_FOR_TIMING;
+			FIVE_NOP_FOR_TIMING;
 			PIXEL_ON();
 			delayLoop(BARRIER_WIDTH);
 			PIXEL_OFF_NO_NOP();
@@ -408,10 +413,12 @@ int main()
 		case (MAX_LINE_BEFORE_BLANK - 78):
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 77):
-			delayLoop(BARRIER_WIDTH);
-		    FIVE_NOP_FOR_TIMING;
-		    NOP_FOR_TIMING;
-		    NOP_FOR_TIMING;
+			TEN_NOP_FOR_TIMING;
+			TEN_NOP_FOR_TIMING;
+			TEN_NOP_FOR_TIMING;
+			TEN_NOP_FOR_TIMING;
+			NOP_FOR_TIMING;
+			NOP_FOR_TIMING;
 		    NOP_FOR_TIMING;
 			PIXEL_ON();
 			delayLoop(BARRIER_WIDTH);
@@ -427,50 +434,39 @@ int main()
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 64):    /// code to draw player
 			delayLoop(playerXPos);
+			FIVE_NOP_FOR_TIMING;
+			FIVE_NOP_FOR_TIMING;
+			NOP_FOR_TIMING;
+			NOP_FOR_TIMING;
+			NOP_FOR_TIMING;
+			NOP_FOR_TIMING;
 			PIXEL_ON();
 			delayLoop(PLAYER_WIDTH);
 			PIXEL_OFF_NO_NOP();
 			lineValidForFire = 0;
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 63):
-			delayLoop(playerXPos);
-		    NOP_FOR_TIMING;
-			TEN_NOP_FOR_TIMING;
-			FIVE_NOP_FOR_TIMING;
-			PIXEL_ON();
-			delayLoop(PLAYER_WIDTH);
-			PIXEL_OFF_NO_NOP();
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 62):
 			delayLoop(playerXPos);
-			NOP_FOR_TIMING;
-			NOP_FOR_TIMING;
-			NOP_FOR_TIMING;
 			PIXEL_ON();
 			delayLoop(PLAYER_WIDTH);
 			PIXEL_OFF_NO_NOP();
 			lineValidForFire = 0;
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 61):
-			delayLoop(playerXPos);
-			FIVE_NOP_FOR_TIMING;
-			PIXEL_ON();
-			delayLoop(PLAYER_WIDTH);
-			PIXEL_OFF_NO_NOP();
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 60):
 			delayLoop(playerXPos);
-			NOP_FOR_TIMING;
-			NOP_FOR_TIMING;
-			NOP_FOR_TIMING;
 			PIXEL_ON();
 			delayLoop(PLAYER_WIDTH);
 			PIXEL_OFF_NO_NOP();
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 50):
-			PIXEL_ON()
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 48):
+			PIXEL_ON()
+			delayLoop(125);
 			PIXEL_OFF()
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 7):
