@@ -34,7 +34,7 @@
 #define INITIAL_ALIEN_MOVE_RATE 10
 
 #define WIDTH_ALL_ALIENS 30
-#define MAX_X_PLAYER 135
+#define MAX_X_PLAYER 125
 #define MIN_X_PLAYER 1
 #define MAX_X_ALIEN 77
 #define MIN_X_ALIEN 1
