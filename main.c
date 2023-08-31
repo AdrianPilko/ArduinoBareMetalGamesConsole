@@ -83,7 +83,7 @@ int main()
 	int playerXPos = MIN_X_PLAYER+68;  // has to be non zero and less that 30
 	int alienXStartPos = MIN_X_ALIEN+10;
 	int alienMoveThisTime = 0;
-	int alienMoveRate = INITIAL_ALIEN_MOVE_RATE;
+	int alienMoveRate = 1;
 
 	aliensBitPackStatus.alien1 = 1;
 	aliensBitPackStatus.alien2 = 1;
@@ -222,27 +222,6 @@ int main()
 					PIXEL_OFF_NO_NOP();
 				}
 				break;
-#if 0
-			//if ((firePressed == lineCounter+1) || (firePressed == lineCounter))
-
-			case drawFire:
-			{
-				if (lineCounter == 60)
-				{
-					delayLoop(playerXPos);
-					PIXEL_ON();
-					NOP_FOR_TIMING
-					NOP_FOR_TIMING
-					PIXEL_OFF();
-				}
-				firePressed = -1;
-			}
-			break;
-			default: PIXEL_OFF(); break;
-
-
-
-#endif
 		}
 		//if ((BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64) && (drawType != gameWon))
 		//{
@@ -347,11 +326,11 @@ int main()
 				{
 					if (alienDirection == 1)
 					{
-						alienXStartPos++;
+						alienXStartPos+=alienMoveRate;
 					}
 					else
 					{
-						alienXStartPos--;
+						alienXStartPos-=alienMoveRate;
 						//alienXStartPos = playerXPos;
 					}
 					alienMoveThisTime = 0;
@@ -372,14 +351,14 @@ int main()
 					alienYBasePos += 4;
 
 					// speed up the aliens
-					alienMoveRate = alienMoveRate - 1;
-					if (alienMoveRate <= 2)
+					alienMoveRate = alienMoveRate + 1;
+					if (alienMoveRate > 16)
 					{
-						alienMoveRate = 2;
+						alienMoveRate = 16;
 					}
 				}
 
-				if (alienToggleTrigger++ >= 30)
+				if (alienToggleTrigger++ >= 20 - alienMoveRate)
 				{
 					alienToggleTrigger = 0;
 					alienToggle = 1 - alienToggle;
