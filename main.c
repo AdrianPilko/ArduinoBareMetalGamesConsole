@@ -293,14 +293,11 @@ int main()
 				}
 				if (PIND & (1 << PD4))
 				{
-					//if (firePressed > 0)
-					//{
-//						firePressed -= 1;
-	//				}
+
 				}
 				else
 				{
-//					drawType = drawFire;
+					firePressed = 10;
 				}
 #if 0
 				if (firePressed > 0)
@@ -391,7 +388,7 @@ int main()
 			break;
 
 		case (MAX_LINE_BEFORE_BLANK - 80):
-			TEN_NOP_FOR_TIMING;
+			//TEN_NOP_FOR_TIMING;
 			TEN_NOP_FOR_TIMING;
 			TEN_NOP_FOR_TIMING;
 			TEN_NOP_FOR_TIMING;
@@ -432,14 +429,34 @@ int main()
 			delayLoop(BARRIER_WIDTH);
 			PIXEL_OFF_NO_NOP();
 			break;
+		case (MAX_LINE_BEFORE_BLANK - 66):    /// code to fire
+			if (firePressed > 0)
+			{
+				delayLoop(playerXPos);
+				PIXEL_ON();
+				NOP_FOR_TIMING;
+				PIXEL_OFF_NO_NOP();
+				firePressed--;
+			}
+			break;
+		case (MAX_LINE_BEFORE_BLANK - 65):    /// code to fire
+			if (firePressed > 0)
+			{
+				TEN_NOP_FOR_TIMING;
+				FIVE_NOP_FOR_TIMING;
+				NOP_FOR_TIMING;
+				NOP_FOR_TIMING;
+				NOP_FOR_TIMING;
+				NOP_FOR_TIMING;
+				delayLoop(playerXPos);
+				PIXEL_ON();
+				NOP_FOR_TIMING;
+				PIXEL_OFF_NO_NOP();
+				firePressed--;
+			}
+			break;
 		case (MAX_LINE_BEFORE_BLANK - 64):    /// code to draw player
 			delayLoop(playerXPos);
-			FIVE_NOP_FOR_TIMING;
-			FIVE_NOP_FOR_TIMING;
-			NOP_FOR_TIMING;
-			NOP_FOR_TIMING;
-			NOP_FOR_TIMING;
-			NOP_FOR_TIMING;
 			PIXEL_ON();
 			delayLoop(PLAYER_WIDTH);
 			PIXEL_OFF_NO_NOP();
@@ -456,10 +473,14 @@ int main()
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 61):
 			break;
-		case (MAX_LINE_BEFORE_BLANK - 60):
+		case (MAX_LINE_BEFORE_BLANK - 60):  // last line of the player draw
 			delayLoop(playerXPos);
 			PIXEL_ON();
 			delayLoop(PLAYER_WIDTH);
+			TEN_NOP_FOR_TIMING;
+			FIVE_NOP_FOR_TIMING;
+			NOP_FOR_TIMING;
+			NOP_FOR_TIMING;
 			PIXEL_OFF_NO_NOP();
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 50):
