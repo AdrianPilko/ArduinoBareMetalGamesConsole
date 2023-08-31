@@ -14,28 +14,29 @@
 
 #define COMPOSITE_PIN PB5
 #define LUMINANCE_PIN PB4
-#define MAX_LINE_BEFORE_BLANK 312
-#define FIRST_LINE_DRAWN 42
+#define MAX_LINE_BEFORE_BLANK 300
+#define FIRST_LINE_DRAWN 50
 #define LAST_LINE_DRAWN 262
 #define HALF_SCREEN 110
 #define PLAYER_WIDTH 16
-#define BARRIER_WIDTH 15
-#define BARRIER_GAP_WIDTH 15
+#define BARRIER_WIDTH 20
 #define MIN_DELAY 5
-#define BASE_ALIEN_Y_1 (FIRST_LINE_DRAWN + 8)
-#define BASE_ALIEN_Y_2 (FIRST_LINE_DRAWN + 24)
-#define BASE_ALIEN_Y_3 (FIRST_LINE_DRAWN + 40)
-#define BASE_ALIEN_Y_4 (FIRST_LINE_DRAWN + 56)
-#define BASE_ALIEN_Y_5 (FIRST_LINE_DRAWN + 72)
+#define BASE_ALIEN_OFFSET FIRST_LINE_DRAWN+4
+#define BASE_ALIEN_Y_1 (70)
+#define BASE_ALIEN_Y_2 (80)
+#define BASE_ALIEN_Y_3 (90)
+#define BASE_ALIEN_Y_4 (100)
+#define BASE_ALIEN_Y_5 (110)
+#define BASE_ALIEN_Y_6 (120)
 
 #define HSYNC_BACKPORCH 18
 #define HSYNC_FRONT_PORCH_2 15
-#define INITIAL_ALIEN_MOVE_RATE 10u
+#define INITIAL_ALIEN_MOVE_RATE 10
 
 #define WIDTH_ALL_ALIENS 30
-#define MAX_X_PLAYER 80
+#define MAX_X_PLAYER 140
 #define MIN_X_PLAYER 1
-#define MAX_X_ALIEN (MAX_X_PLAYER - WIDTH_ALL_ALIENS)
+#define MAX_X_ALIEN 80
 #define MIN_X_ALIEN 1
 
 // from experimenting a line started at linCounter = 25 appears right at top of screen one at 285 to 286 is bottom
@@ -46,56 +47,50 @@
 #define XSIZE 8
 #define YSIZE (HALF_SCREEN*2)
 
-#define SQUARE 26
-#define SQUARE_WITH_DOT 27
-#define EGG_TIMER 28
-#define SOLID_ON 29
-#define SPACE 30
-#define COMMA 31
-#define EXCLAMATION 32
-#define ALIEN_1 33
-#define ALIEN_2 34
-
 #define LINE_INC 8
 #define LINE_INC_ALIENS 12
 
-uint8_t alienDirection = 1;
-uint16_t lineCounter = 0;
-uint16_t alienYBasePos = 0;
-uint8_t vSync = 0;
-
-typedef struct alienStruct
-{
-	uint8_t alien1 : 1;
-	uint8_t alien2 : 1;
-	uint8_t alien3 : 1;
-	uint8_t alien4 : 1;
-	uint8_t alien5 : 1;
-} alienBitPack_t;
-
-alienBitPack_t aliensBitPackStatus;
+static uint8_t alienLineCount = 0;
 
 int main()
 {
+	int alienDirection = 1;
+	int vSync = 0;
+	int lineCounter = 0;
+	int lineValidForFire = 0;
 
-	int8_t alienToggleTrigger = 0;
-	uint8_t alienLineCount = 0;
-	uint8_t lineValidForFire = 0;
-	uint8_t alienToggle = 0;
-	uint8_t firePressed = 0;
+	typedef struct alienStruct
+	{
+		uint8_t alien1 : 1;
+		uint8_t alien2 : 1;
+		uint8_t alien3 : 1;
+		uint8_t alien4 : 1;
+		uint8_t alien5 : 1;
+		uint8_t alien6 : 1;
+	} alienBitPack_t;
 
-	typedef enum {drawNothing=0, drawAlien, drawBarrier, drawPlayer, gameWon, gameLost} drawType_t;
+
+	alienBitPack_t aliensBitPackStatus;
+
+	int alienToggleTrigger = 0;
+
+	int alienToggle = 0;
+	int firePressed = 0;
+	int alienYBasePos = 0;
+
+	typedef enum {drawNothing=0, drawAlien, drawBarrier, drawPlayer, gameWon, gameLost, drawFire} drawType_t;
 	drawType_t drawType = drawNothing;
-	uint8_t playerXPos = MIN_X_PLAYER+30;  // has to be non zero and less that 30
-	int8_t alienXStartPos = MIN_X_ALIEN;
-	uint8_t alienMoveThisTime = 0;
-	uint8_t alienMoveRate = INITIAL_ALIEN_MOVE_RATE;
+	int playerXPos = MIN_X_PLAYER+68;  // has to be non zero and less that 30
+	int alienXStartPos = MIN_X_ALIEN+10;
+	int alienMoveThisTime = 0;
+	int alienMoveRate = INITIAL_ALIEN_MOVE_RATE;
 
 	aliensBitPackStatus.alien1 = 1;
 	aliensBitPackStatus.alien2 = 1;
 	aliensBitPackStatus.alien3 = 1;
 	aliensBitPackStatus.alien4 = 1;
 	aliensBitPackStatus.alien5 = 1;
+	aliensBitPackStatus.alien6 = 1;
 
 	clock_prescale_set(clock_div_1);
 
@@ -133,7 +128,8 @@ int main()
 			}
 			PORTB = 0;
 			DDRB = 1;
-		} else // hsync
+		}
+		else // hsync
 		{
 			// before the end of line (which in here is also effectively just the start of the line!) we need to hold at 300mV
 			// and ensure no pixels
@@ -161,169 +157,151 @@ int main()
 
 		// the whole line writing must be a total of less than (64 - (18 * 3)) = 10usec =
 		// a delay in line 1 = 1/16000000 =0.0000000625 assuming nop = 1 clock cycle
-
+		//drawType = drawNothing;
 		switch (drawType)
 		{
-			case gameWon:  PIXEL_ON(); // do this for now, later add proper a wining screen
-				break;
-			case gameLost:
-				PIXEL_OFF();  // hold it black screen
-				break;
 			case drawAlien:
-
-				// read out each line from memory and display
-				//for (int i = 0; i < alienXStartPos; i++)
-				//{
-				//	NOP_FOR_TIMING
-				//}
-			        _delay_us((double)alienXStartPos);
-
+				delayLoop(alienXStartPos);
+				if (alienToggle == 0)
 				{
-					if (alienToggle == 0)
-					{
-						if (aliensBitPackStatus.alien1)
-							alienDraw_1(alienLineCount);
-						else
-							alienDraw_blank(alienLineCount);
+					//if (aliensBitPackStatus.alien1)
+						alienDraw_1(alienLineCount);
+					//else
+					//	alienDraw_blank(alienLineCount);
+					//if (aliensBitPackStatus.alien2)
+						alienDraw_1(alienLineCount);
+					//else
+					//	alienDraw_blank(alienLineCount);
 
-						if (aliensBitPackStatus.alien2)
-							alienDraw_1(alienLineCount);
-						else
-							alienDraw_blank(alienLineCount);
+					//if (aliensBitPackStatus.alien3)
+						alienDraw_1(alienLineCount);
+					//else
+					//	alienDraw_blank(alienLineCount);
+					//if (aliensBitPackStatus.alien4)
+						alienDraw_1(alienLineCount);
+					//else
+					//	alienDraw_blank(alienLineCount);
+				//	if (aliensBitPackStatus.alien5)
+						alienDraw_1(alienLineCount);
 
-						if (aliensBitPackStatus.alien3)
-							alienDraw_1(alienLineCount);
-						else
-							alienDraw_blank(alienLineCount);
-						if (aliensBitPackStatus.alien4)
-							alienDraw_1(alienLineCount);
-						else
-							alienDraw_blank(alienLineCount);
-						if (aliensBitPackStatus.alien5)
-							alienDraw_1(alienLineCount);
-						else
-							alienDraw_blank(alienLineCount);
-					}
-					else
-					{
-						if (aliensBitPackStatus.alien1)
-							alienDraw_2(alienLineCount);
-						else
-							alienDraw_blank(alienLineCount);
-						if (aliensBitPackStatus.alien2)
-							alienDraw_2(alienLineCount);
-						else
-							alienDraw_blank(alienLineCount);
-						if (aliensBitPackStatus.alien3)
-							alienDraw_2(alienLineCount);
-						else
-							alienDraw_blank(alienLineCount);
-						if (aliensBitPackStatus.alien4)
-							alienDraw_2(alienLineCount);
-						else
-							alienDraw_blank(alienLineCount);
-						if (aliensBitPackStatus.alien5)
-							alienDraw_2(alienLineCount);
-						else
-							alienDraw_blank(alienLineCount);
-					}
-					PIXEL_OFF_NO_NOP()
-					alienLineCount++;
-				}
-				if (alienLineCount > 7) {
-					alienLineCount = 0;
-					drawType = drawNothing;
-				}
-				break;
-
-			case drawBarrier:
-				_delay_us((double)MIN_DELAY + 25);
-				//for (int i = 0; i < MIN_DELAY + 25; i++) {
-				//	NOP_FOR_TIMING
-				//}
-				for (int barrierLoop = 0; barrierLoop < 3; barrierLoop++)
-				{
-					PIXEL_ON();
-					delay_us((double)BARRIER_WIDTH);
-					PIXEL_OFF_NO_NOP();
-					delay_us((double)BARRIER_GAP_WIDTH);
-				}
-				PIXEL_OFF_NO_NOP();
-				break;
-			case drawPlayer:
-                                _delay_us((double)playerXPos); 
-				PIXEL_ON();
-				delay_us((double)PLAYER_WIDTH); 
-				PIXEL_OFF_NO_NOP();
-			break;
-			default: PIXEL_OFF(); break;
-		}
-
-		if ((firePressed == lineCounter+1) || (firePressed == lineCounter))
-		{
-			if (lineValidForFire == 1)
-			{
-				_delay_us((double)playerXPos); 
-				PIXEL_ON();
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				PIXEL_OFF();
-			}
-		}
-
-		lineCounter++;
-
-		if ((BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64) && (drawType != gameWon))
-		{
-			drawType = gameLost;
-		}
-		else if (drawType == gameWon)
-		{
-			// do nothing
-		}
-		else
-		{
-			if (lineCounter == BASE_ALIEN_Y_1+alienYBasePos) { drawType = drawAlien; lineValidForFire = 1;}
-			if (lineCounter == BASE_ALIEN_Y_2+alienYBasePos) drawType = drawAlien;
-			if (lineCounter == BASE_ALIEN_Y_3+alienYBasePos) drawType = drawAlien;
-			if (lineCounter == BASE_ALIEN_Y_4+alienYBasePos) drawType = drawAlien;
-			if (lineCounter == BASE_ALIEN_Y_5+alienYBasePos) drawType = drawAlien;
-		}
-
-		switch (lineCounter) {
-		case 1:
-			vSync = 0;
-
-			if ((BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64) && (drawType != gameWon))
-			{
-				drawType = gameLost;
-			}
-			else if (drawType == gameWon)
-			{
-				// do nothing
-			}
-			else
-			{
-				// Check if input control pins
-				if (PIND & (1 << PD2)) {
-					playerXPos = playerXPos - 1;
-				}
-				if (PIND & (1 << PD3)) {
-					playerXPos = playerXPos + 1;
-				}
-				if (PIND & (1 << PD4))
-				{
-					if (firePressed > 0)
-					{
-						firePressed -= 1;
-					}
+						alienDraw_1(alienLineCount);
+				//	else
+					//	alienDraw_blank(alienLineCount);
 				}
 				else
 				{
-					firePressed = 250;  // this will clear on its own
-				}
+					//if (aliensBitPackStatus.alien1)
+						alienDraw_2(alienLineCount);
+					//else
+					//	alienDraw_blank(alienLineCount);
+				//	if (aliensBitPackStatus.alien2)
+						alienDraw_2(alienLineCount);
+				//	else
+				//		alienDraw_blank(alienLineCount);
+				//	if (aliensBitPackStatus.alien3)
+						alienDraw_2(alienLineCount);
+				//	else
+					//	alienDraw_blank(alienLineCount);
+					//if (aliensBitPackStatus.alien4)
+						alienDraw_2(alienLineCount);
+					//else
+					//	alienDraw_blank(alienLineCount);
+					//if (aliensBitPackStatus.alien5)
+						alienDraw_2(alienLineCount);
 
+						alienDraw_2(alienLineCount);
+					//else
+					//	alienDraw_blank(alienLineCount);
+				}
+				PIXEL_OFF_NO_NOP()
+				alienLineCount++;
+
+				if (alienLineCount > 7) {
+					alienLineCount = 0;
+					drawType = drawNothing;
+					PIXEL_OFF_NO_NOP();
+				}
+				break;
+#if 0
+			//if ((firePressed == lineCounter+1) || (firePressed == lineCounter))
+
+			case drawFire:
+			{
+				if (lineCounter == 60)
+				{
+					delayLoop(playerXPos);
+					PIXEL_ON();
+					NOP_FOR_TIMING
+					NOP_FOR_TIMING
+					PIXEL_OFF();
+				}
+				firePressed = -1;
+			}
+			break;
+			default: PIXEL_OFF(); break;
+
+
+
+#endif
+		}
+		//if ((BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64) && (drawType != gameWon))
+		//{
+		//	drawType = gameLost;
+		//}
+		//else if (drawType == gameWon)
+		//if (drawType == gameWon)
+		//{
+			// do nothing
+		//}
+		//else
+		if (lineCounter == BASE_ALIEN_Y_1+alienYBasePos) drawType = drawAlien;
+		if (lineCounter == BASE_ALIEN_Y_2+alienYBasePos) drawType = drawAlien;
+		if (lineCounter == BASE_ALIEN_Y_3+alienYBasePos) drawType = drawAlien;
+		if (lineCounter == BASE_ALIEN_Y_4+alienYBasePos) drawType = drawAlien;
+		if (lineCounter == BASE_ALIEN_Y_5+alienYBasePos) drawType = drawAlien;
+		if (lineCounter == BASE_ALIEN_Y_6+alienYBasePos) drawType = drawAlien;
+
+		lineCounter++;
+
+		switch (lineCounter)
+		{
+		case 1:
+			vSync = 0;
+			break;
+		case FIRST_LINE_DRAWN:
+			PIXEL_ON()
+			break;
+		case FIRST_LINE_DRAWN+1:
+			PIXEL_OFF()
+			//if ((BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64) && (drawType != gameWon))
+			//{
+			//	drawType = gameLost;
+			//}
+			//else if (drawType == gameWon)
+			//{
+				// do nothing
+			//}
+			//else
+			{
+				// Check if input control pins
+				if (PIND & (1 << PD2)) {
+					playerXPos = playerXPos - 2;
+				}
+				if (PIND & (1 << PD3)) {
+					playerXPos = playerXPos + 2;
+				}
+				if (PIND & (1 << PD4))
+				{
+					//if (firePressed > 0)
+					//{
+//						firePressed -= 1;
+	//				}
+				}
+				else
+				{
+//					drawType = drawFire;
+				}
+#if 0
 				if (firePressed > 0)
 				{
 					if (playerXPos == alienXStartPos)
@@ -355,7 +333,7 @@ int main()
 				{
 					drawType = gameWon;
 				}
-
+#endif
 
 				if (playerXPos > MAX_X_PLAYER) {
 					playerXPos = MAX_X_PLAYER-1;
@@ -386,14 +364,14 @@ int main()
 					alienDirection = 0;
 					alienXStartPos = MAX_X_ALIEN;
 					// move aliens down by one line (getting closer to you!)
-					alienYBasePos += 4;
+					//alienYBasePos += 4;
 				}
 				if (alienXStartPos < MIN_X_ALIEN)
 				{
 					alienDirection = 1;
 					alienXStartPos = MIN_X_ALIEN;
 					// move aliens down by one line (getting closer to you!)
-					alienYBasePos += 4;
+					//alienYBasePos += 4;
 
 					// speed up the aliens
 					alienMoveRate = alienMoveRate - 1;
@@ -409,78 +387,99 @@ int main()
 					alienToggle = 1 - alienToggle;
 				}
 			}
-
 			break;
-			/// moved other cases to if else, due to C not allowing non cost (ie y position in switch case)
+
 		case (MAX_LINE_BEFORE_BLANK - 80):
-			if ((drawType == gameWon) || (drawType == gameLost))
-			{
-
-			}
-			else
-			{
-				drawType = drawBarrier;
-			}
-
+			delayLoop(BARRIER_WIDTH);
+			PIXEL_ON();
+			delayLoop(BARRIER_WIDTH);
+			PIXEL_OFF_NO_NOP();
+			delayLoop(BARRIER_WIDTH);
+			PIXEL_ON();
+			delayLoop(BARRIER_WIDTH);
+			PIXEL_OFF_NO_NOP();
+			delayLoop(BARRIER_WIDTH);
+			PIXEL_ON();
+			delayLoop(BARRIER_WIDTH);
+			PIXEL_OFF_NO_NOP();
 			break;
-		case (MAX_LINE_BEFORE_BLANK - 73):
-			if ((drawType == gameWon) || (drawType == gameLost))
-			{
-
-			}
-			else
-			{
-				drawType = drawNothing;
-			}
+		case (MAX_LINE_BEFORE_BLANK - 79):
 			break;
-		case (MAX_LINE_BEFORE_BLANK - 64):
-			if ((drawType == gameWon) || (drawType == gameLost))
-			{
-
-			}
-			else
-			{
-				drawType = drawPlayer;
-				lineValidForFire = 0;
-			}
+		case (MAX_LINE_BEFORE_BLANK - 78):
 			break;
-		case (MAX_LINE_BEFORE_BLANK - 57):
-			if ((drawType == gameWon) || (drawType == gameLost))
-			{
-
-			}
-			else
-			{
-				drawType = drawNothing;
-			}
+		case (MAX_LINE_BEFORE_BLANK - 77):
+			delayLoop(BARRIER_WIDTH);
+		    FIVE_NOP_FOR_TIMING;
+		    NOP_FOR_TIMING;
+		    NOP_FOR_TIMING;
+		    NOP_FOR_TIMING;
+			PIXEL_ON();
+			delayLoop(BARRIER_WIDTH);
+			PIXEL_OFF_NO_NOP();
+			delayLoop(BARRIER_WIDTH);
+			PIXEL_ON();
+			delayLoop(BARRIER_WIDTH);
+			PIXEL_OFF_NO_NOP();
+			delayLoop(BARRIER_WIDTH);
+			PIXEL_ON();
+			delayLoop(BARRIER_WIDTH);
+			PIXEL_OFF_NO_NOP();
 			break;
-		case (MAX_LINE_BEFORE_BLANK - 40):
-			if ((drawType == gameWon) || (drawType == gameLost))
-			{
-
-			}
-			else
-			{
-				drawType = drawNothing;
-			}
+		case (MAX_LINE_BEFORE_BLANK - 64):    /// code to draw player
+			delayLoop(playerXPos);
+			PIXEL_ON();
+			delayLoop(PLAYER_WIDTH);
+			PIXEL_OFF_NO_NOP();
+			lineValidForFire = 0;
 			break;
-		case (MAX_LINE_BEFORE_BLANK - 6):
-			if ((drawType == gameWon) || (drawType == gameLost))
-			{
-
-			}
-			else
-			{
-				drawType = drawNothing;
-				PIXEL_OFF_NO_NOP()
-			}
+		case (MAX_LINE_BEFORE_BLANK - 63):
+			delayLoop(playerXPos);
+		    NOP_FOR_TIMING;
+			TEN_NOP_FOR_TIMING;
+			FIVE_NOP_FOR_TIMING;
+			PIXEL_ON();
+			delayLoop(PLAYER_WIDTH);
+			PIXEL_OFF_NO_NOP();
+			break;
+		case (MAX_LINE_BEFORE_BLANK - 62):
+			delayLoop(playerXPos);
+			NOP_FOR_TIMING;
+			NOP_FOR_TIMING;
+			NOP_FOR_TIMING;
+			PIXEL_ON();
+			delayLoop(PLAYER_WIDTH);
+			PIXEL_OFF_NO_NOP();
+			lineValidForFire = 0;
+			break;
+		case (MAX_LINE_BEFORE_BLANK - 61):
+			delayLoop(playerXPos);
+			FIVE_NOP_FOR_TIMING;
+			PIXEL_ON();
+			delayLoop(PLAYER_WIDTH);
+			PIXEL_OFF_NO_NOP();
+			break;
+		case (MAX_LINE_BEFORE_BLANK - 60):
+			delayLoop(playerXPos);
+			NOP_FOR_TIMING;
+			NOP_FOR_TIMING;
+			NOP_FOR_TIMING;
+			PIXEL_ON();
+			delayLoop(PLAYER_WIDTH);
+			PIXEL_OFF_NO_NOP();
+			break;
+		case (MAX_LINE_BEFORE_BLANK - 50):
+			PIXEL_ON()
+			break;
+		case (MAX_LINE_BEFORE_BLANK - 48):
+			PIXEL_OFF()
+			break;
+		case (MAX_LINE_BEFORE_BLANK - 7):
 			vSync = 1;
 			break;
 		case MAX_LINE_BEFORE_BLANK:
 			lineCounter = 0;
 			vSync = 0;
 			break;
-
 		}
 	}
 }

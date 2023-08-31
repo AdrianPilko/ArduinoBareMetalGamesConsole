@@ -26,6 +26,25 @@
 		 );
 #define NOP_FOR_TIMING asm volatile ("nop");
 
+#define FIVE_NOP_FOR_TIMING \
+asm volatile ("nop"); \
+asm volatile ("nop"); \
+asm volatile ("nop"); \
+asm volatile ("nop"); \
+asm volatile ("nop");
+
+#define TEN_NOP_FOR_TIMING \
+asm volatile ("nop"); \
+asm volatile ("nop"); \
+asm volatile ("nop"); \
+asm volatile ("nop"); \
+asm volatile ("nop"); \
+asm volatile ("nop"); \
+asm volatile ("nop"); \
+asm volatile ("nop"); \
+asm volatile ("nop"); \
+asm volatile ("nop");
+
 
 void alienDraw_1(const uint8_t alienLineCount)
 {
@@ -282,7 +301,7 @@ void alienDraw_2(const uint8_t alienLineCount)
 }
 
 // this is purely to maintain timing of a gap with no alien
-void alienDraw_blank(const uint8_t alienLineCount)
+void alienDraw_blank(const int alienLineCount)
 {
 	switch (alienLineCount)
 	{
@@ -406,7 +425,13 @@ void alienDraw_blank(const uint8_t alienLineCount)
 	};
 }
 
-void printYouWon()
+inline void delayLoop(int delay)
 {
-	// todo
+	unsigned d = delay;
+	do
+	{
+		NOP_FOR_TIMING
+		d--;
+	}
+	while (d > 0);
 }
