@@ -45,7 +45,7 @@
 
 #define WIDTH_ALL_ALIENS 30
 #define MAX_X_PLAYER 125
-#define MIN_X_PLAYER 1
+#define MIN_X_PLAYER 3
 #define MAX_X_ALIEN 77
 #define MIN_X_ALIEN 2
 
@@ -127,10 +127,10 @@ int main()
 	drawType_t drawType = drawNothing;
 	int playerXPos = MIN_X_PLAYER+68;  // has to be non zero and less that 30
 	int alienXStartPos[5] = {MIN_X_ALIEN,
-			                 MIN_X_ALIEN+2,
-							 MIN_X_ALIEN+4,
-							 MIN_X_ALIEN+6,
-							 MIN_X_ALIEN+8};
+			                 MIN_X_ALIEN+1,
+							 MIN_X_ALIEN+2,
+							 MIN_X_ALIEN+3,
+							 MIN_X_ALIEN+4};
 	int alienMoveThisTime = 0;
 	int alienMoveRate = 1;
 	int fireRate = 0;
@@ -726,10 +726,10 @@ int main()
 				{
 					alienDirection = 0;
 					alienXStartPos[0]=MAX_X_ALIEN;
-					alienXStartPos[1]=MAX_X_ALIEN+2;
-					alienXStartPos[2]=MAX_X_ALIEN+4;
-					alienXStartPos[3]=MAX_X_ALIEN+6;
-					alienXStartPos[4]=MAX_X_ALIEN+8;
+					alienXStartPos[1]=MAX_X_ALIEN+1;
+					alienXStartPos[2]=MAX_X_ALIEN+2;
+					alienXStartPos[3]=MAX_X_ALIEN+3;
+					alienXStartPos[4]=MAX_X_ALIEN+4;
 					// move aliens down by one line (getting closer to you!)
 					alienYBasePos += 4;
 				}
@@ -737,10 +737,10 @@ int main()
 				{
 					alienDirection = 1;
 					alienXStartPos[0]=MIN_X_ALIEN;
-					alienXStartPos[1]=MIN_X_ALIEN+2;
-					alienXStartPos[2]=MIN_X_ALIEN+4;
-					alienXStartPos[3]=MIN_X_ALIEN+6;
-					alienXStartPos[4]=MIN_X_ALIEN+8;
+					alienXStartPos[1]=MIN_X_ALIEN+1;
+					alienXStartPos[2]=MIN_X_ALIEN+2;
+					alienXStartPos[3]=MIN_X_ALIEN+3;
+					alienXStartPos[4]=MIN_X_ALIEN+4;
 					// move aliens down by one line (getting closer to you!)
 					alienYBasePos += 4;
 
@@ -761,12 +761,63 @@ int main()
 			}
 			break;
 
+		case (MAX_LINE_BEFORE_BLANK - 120):    /// code to fire
+			if (firePressed == 1)
+			{
+				delayLoop(playerXPos);
+				PIXEL_ON();
+				NOP_FOR_TIMING;
+				PIXEL_OFF_NO_NOP();
+			}
+			break;
+		case (MAX_LINE_BEFORE_BLANK - 112):    /// code to fire
+			if (firePressed == 1)
+			{
+				delayLoop(playerXPos);
+				PIXEL_ON();
+				NOP_FOR_TIMING;
+				PIXEL_OFF_NO_NOP();
+			}
+			break;
+		case (MAX_LINE_BEFORE_BLANK - 104):    /// code to fire
+			if (firePressed == 1)
+			{
+				delayLoop(playerXPos);
+				PIXEL_ON();
+				NOP_FOR_TIMING;
+				PIXEL_OFF_NO_NOP();
+			}
+			break;
+		case (MAX_LINE_BEFORE_BLANK - 96):    /// code to fire
+			if (firePressed == 1)
+			{
+				delayLoop(playerXPos);
+				PIXEL_ON();
+				NOP_FOR_TIMING;
+				PIXEL_OFF_NO_NOP();
+			}
+			break;
+
+		case (MAX_LINE_BEFORE_BLANK - 88):    /// code to fire
+			if (firePressed == 1)
+			{
+				delayLoop(playerXPos);
+				PIXEL_ON();
+				NOP_FOR_TIMING;
+				PIXEL_OFF_NO_NOP();
+			}
+			break;
 		case (MAX_LINE_BEFORE_BLANK - 80):
 			//TEN_NOP_FOR_TIMING;
 			TEN_NOP_FOR_TIMING;
 			TEN_NOP_FOR_TIMING;
 			TEN_NOP_FOR_TIMING;
+			TEN_NOP_FOR_TIMING;
+			TEN_NOP_FOR_TIMING;
+			TEN_NOP_FOR_TIMING;
 			FIVE_NOP_FOR_TIMING;
+			NOP_FOR_TIMING;
+			NOP_FOR_TIMING;
 			PIXEL_ON();
 			delayLoop(BARRIER_WIDTH);
 			PIXEL_OFF_NO_NOP();
@@ -778,10 +829,6 @@ int main()
 			PIXEL_ON();
 			delayLoop(BARRIER_WIDTH);
 			PIXEL_OFF_NO_NOP();
-			break;
-		case (MAX_LINE_BEFORE_BLANK - 79):
-			break;
-		case (MAX_LINE_BEFORE_BLANK - 78):
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 77):
 			TEN_NOP_FOR_TIMING;
@@ -817,13 +864,6 @@ int main()
 			{
 				TEN_NOP_FOR_TIMING;
 				FIVE_NOP_FOR_TIMING;
-				NOP_FOR_TIMING;
-				NOP_FOR_TIMING;
-				NOP_FOR_TIMING;
-				NOP_FOR_TIMING;
-				NOP_FOR_TIMING;
-				NOP_FOR_TIMING;
-				NOP_FOR_TIMING;
 				delayLoop(playerXPos);
 				PIXEL_ON();
 				NOP_FOR_TIMING;
@@ -841,6 +881,8 @@ int main()
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 62):
 			delayLoop(playerXPos);
+			TEN_NOP_FOR_TIMING;
+			FIVE_NOP_FOR_TIMING;
 			PIXEL_ON();
 			delayLoop(PLAYER_WIDTH);
 			PIXEL_OFF_NO_NOP();
@@ -849,7 +891,7 @@ int main()
 		case (MAX_LINE_BEFORE_BLANK - 61):
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 60):  // last line of the player draw
-			delayLoop(playerXPos);
+			delayLoop(playerXPos-2);
 			PIXEL_ON();
 			delayLoop(PLAYER_WIDTH);
 			TEN_NOP_FOR_TIMING;
