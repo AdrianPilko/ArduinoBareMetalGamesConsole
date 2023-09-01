@@ -1,8 +1,18 @@
-// can be ran on arduino board, pin and 12 and 13 go to centre of a 10k pot, pin 12 through a 330 Ohm resistor.
+// This is meant to be run on an Arduino UNO board
+// pin and 12 and 13 go to centre of a 10k pot, pin 12 through a 330 Ohm resistor.
 // one side of the pot goes to VCC the other to ground and the centre of the pot also goes to the composite connector
 // centre pin. if using atmega328p on bare board (not arduino) then its PB5 and PB4.
 
 // connect pin2 3 and 4 through ground for right, left and fire button
+
+/// The code is written deliberately to ensure correct timing, so instead of for or while, do while loops
+/// in several places, especially for delays, just directly unrolled loops of asm nop are used (nop = no operation)
+/// On arduino a NOP is 1 clock cycles, so gives a timing of
+/// 1 / 16MHz = 1 / 16000000 = 0.0000000625seconds = 0.0625microseconds
+/// each line of the screen must take 64microseconds
+// also switch staements are used to speed up the logic where possible, and more memory is used for
+// structures to save execution time - all this to say the code may look messy but try doing it other ways
+// without using just assembly code (might be the final option!)
 
 #include <avr/power.h>
 #include<avr/io.h>
@@ -61,12 +71,40 @@ int main()
 
 	typedef struct alienStruct
 	{
-		uint8_t alien1 : 1;
-		uint8_t alien2 : 1;
-		uint8_t alien3 : 1;
-		uint8_t alien4 : 1;
-		uint8_t alien5 : 1;
-		uint8_t alien6 : 1;
+		uint32_t alien_row1_col1 : 1;
+		uint32_t alien_row1_col2 : 1;
+		uint32_t alien_row1_col3 : 1;
+		uint32_t alien_row1_col4 : 1;
+		uint32_t alien_row1_col5 : 1;
+		uint32_t alien_row1_col6 : 1;
+
+		uint32_t alien_row2_col1 : 1;
+		uint32_t alien_row2_col2 : 1;
+		uint32_t alien_row2_col3 : 1;
+		uint32_t alien_row2_col4 : 1;
+		uint32_t alien_row2_col5 : 1;
+		uint32_t alien_row2_col6 : 1;
+
+		uint32_t alien_row3_col1 : 1;
+		uint32_t alien_row3_col2 : 1;
+		uint32_t alien_row3_col3 : 1;
+		uint32_t alien_row3_col4 : 1;
+		uint32_t alien_row3_col5 : 1;
+		uint32_t alien_row3_col6 : 1;
+
+		uint32_t alien_row4_col1 : 1;
+		uint32_t alien_row4_col2 : 1;
+		uint32_t alien_row4_col3 : 1;
+		uint32_t alien_row4_col4 : 1;
+		uint32_t alien_row4_col5 : 1;
+		uint32_t alien_row4_col6 : 1;
+
+		uint32_t alien_row5_col1 : 1;
+		uint32_t alien_row5_col2 : 1;
+		uint32_t alien_row5_col3 : 1;
+		uint32_t alien_row5_col4 : 1;
+		uint32_t alien_row5_col5 : 1;
+		uint32_t alien_row5_col6 : 1;
 	} alienBitPack_t;
 
 
@@ -78,19 +116,55 @@ int main()
 	int firePressed = 0;
 	int alienYBasePos = 0;
 
-	typedef enum {drawNothing=0, drawAlien, drawBarrier, drawPlayer, gameWon, gameLost, drawFire} drawType_t;
+	typedef enum {drawNothing=0,
+		drawAlien_row1,
+		drawAlien_row2,
+		drawAlien_row3,
+		drawAlien_row4,
+		drawAlien_row5,
+		drawAlien_row6,
+		gameWon} drawType_t;
 	drawType_t drawType = drawNothing;
 	int playerXPos = MIN_X_PLAYER+68;  // has to be non zero and less that 30
 	int alienXStartPos = MIN_X_ALIEN+10;
 	int alienMoveThisTime = 0;
 	int alienMoveRate = 1;
 
-	aliensBitPackStatus.alien1 = 1;
-	aliensBitPackStatus.alien2 = 1;
-	aliensBitPackStatus.alien3 = 1;
-	aliensBitPackStatus.alien4 = 1;
-	aliensBitPackStatus.alien5 = 1;
-	aliensBitPackStatus.alien6 = 1;
+
+	aliensBitPackStatus.alien_row1_col1= 1;
+	aliensBitPackStatus.alien_row1_col2= 1;
+	aliensBitPackStatus.alien_row1_col3= 1;
+	aliensBitPackStatus.alien_row1_col4= 1;
+	aliensBitPackStatus.alien_row1_col5= 1;
+	aliensBitPackStatus.alien_row1_col6= 1;
+
+	aliensBitPackStatus.alien_row2_col1= 1;
+	aliensBitPackStatus.alien_row2_col2= 1;
+	aliensBitPackStatus.alien_row2_col3= 1;
+	aliensBitPackStatus.alien_row2_col4= 1;
+	aliensBitPackStatus.alien_row2_col5= 1;
+	aliensBitPackStatus.alien_row2_col6= 1;
+
+	aliensBitPackStatus.alien_row3_col1= 1;
+	aliensBitPackStatus.alien_row3_col2= 1;
+	aliensBitPackStatus.alien_row3_col3= 1;
+	aliensBitPackStatus.alien_row3_col4= 1;
+	aliensBitPackStatus.alien_row3_col5= 1;
+	aliensBitPackStatus.alien_row3_col6= 1;
+
+	aliensBitPackStatus.alien_row4_col1= 1;
+	aliensBitPackStatus.alien_row4_col2= 1;
+	aliensBitPackStatus.alien_row4_col3= 1;
+	aliensBitPackStatus.alien_row4_col4= 1;
+	aliensBitPackStatus.alien_row4_col5= 1;
+	aliensBitPackStatus.alien_row4_col6= 1;
+
+	aliensBitPackStatus.alien_row5_col1= 1;
+	aliensBitPackStatus.alien_row5_col2= 1;
+	aliensBitPackStatus.alien_row5_col3= 1;
+	aliensBitPackStatus.alien_row5_col4= 1;
+	aliensBitPackStatus.alien_row5_col5= 1;
+	aliensBitPackStatus.alien_row5_col6= 1;
 
 	clock_prescale_set(clock_div_1);
 
@@ -160,58 +234,381 @@ int main()
 		//drawType = drawNothing;
 		switch (drawType)
 		{
-			case drawAlien:
+			case drawAlien_row1:
 				delayLoop(alienXStartPos);
 				if (alienToggle == 0)
 				{
-					//if (aliensBitPackStatus.alien1)
-						alienDraw_1(alienLineCount);
-					//else
-					//	alienDraw_blank(alienLineCount);
-					//if (aliensBitPackStatus.alien2)
-						alienDraw_1(alienLineCount);
-					//else
-					//	alienDraw_blank(alienLineCount);
-
-					//if (aliensBitPackStatus.alien3)
-						alienDraw_1(alienLineCount);
-					//else
-					//	alienDraw_blank(alienLineCount);
-					//if (aliensBitPackStatus.alien4)
-						alienDraw_1(alienLineCount);
-					//else
-					//	alienDraw_blank(alienLineCount);
-				//	if (aliensBitPackStatus.alien5)
-						alienDraw_1(alienLineCount);
-
-						alienDraw_1(alienLineCount);
-				//	else
-					//	alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row1_col1)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row1_col2)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row1_col3)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row1_col4)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row1_col5)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row1_col6)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
 				}
 				else
 				{
-					//if (aliensBitPackStatus.alien1)
-						alienDraw_2(alienLineCount);
-					//else
-					//	alienDraw_blank(alienLineCount);
-				//	if (aliensBitPackStatus.alien2)
-						alienDraw_2(alienLineCount);
-				//	else
-				//		alienDraw_blank(alienLineCount);
-				//	if (aliensBitPackStatus.alien3)
-						alienDraw_2(alienLineCount);
-				//	else
-					//	alienDraw_blank(alienLineCount);
-					//if (aliensBitPackStatus.alien4)
-						alienDraw_2(alienLineCount);
-					//else
-					//	alienDraw_blank(alienLineCount);
-					//if (aliensBitPackStatus.alien5)
-						alienDraw_2(alienLineCount);
+					if (aliensBitPackStatus.alien_row1_col1)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row1_col2)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row1_col3)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row1_col4)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row1_col5)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row1_col6)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+				}
+				PIXEL_OFF_NO_NOP()
+				alienLineCount++;
 
-						alienDraw_2(alienLineCount);
-					//else
-					//	alienDraw_blank(alienLineCount);
+				if (alienLineCount > 7) {
+					alienLineCount = 0;
+					drawType = drawNothing;
+					PIXEL_OFF_NO_NOP();
+				}
+				break;
+			case drawAlien_row2:
+				delayLoop(alienXStartPos);
+				if (alienToggle == 0)
+				{
+					if (aliensBitPackStatus.alien_row2_col1)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row2_col2)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row2_col3)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row2_col4)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row2_col5)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row2_col6)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+				}
+				else
+				{
+					if (aliensBitPackStatus.alien_row2_col1)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row2_col2)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row2_col3)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row2_col4)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row2_col5)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row2_col6)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+				}
+				PIXEL_OFF_NO_NOP()
+				alienLineCount++;
+
+				if (alienLineCount > 7) {
+					alienLineCount = 0;
+					drawType = drawNothing;
+					PIXEL_OFF_NO_NOP();
+				}
+				break;
+			case drawAlien_row3:
+				delayLoop(alienXStartPos);
+				if (alienToggle == 0)
+				{
+					if (aliensBitPackStatus.alien_row3_col1)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row3_col2)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row3_col3)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row3_col4)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row3_col5)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row3_col6)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+				}
+				else
+				{
+					if (aliensBitPackStatus.alien_row3_col1)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row3_col2)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row3_col3)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row3_col4)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row3_col5)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row3_col6)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+				}
+				PIXEL_OFF_NO_NOP()
+				alienLineCount++;
+
+				if (alienLineCount > 7) {
+					alienLineCount = 0;
+					drawType = drawNothing;
+					PIXEL_OFF_NO_NOP();
+				}
+				break;
+			case drawAlien_row4:
+				delayLoop(alienXStartPos);
+				if (alienToggle == 0)
+				{
+					if (aliensBitPackStatus.alien_row4_col1)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row4_col2)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row4_col3)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row4_col4)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row4_col5)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row4_col6)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+				}
+				else
+				{
+					if (aliensBitPackStatus.alien_row4_col1)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row4_col2)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row4_col3)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row4_col4)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row4_col5)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row4_col6)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+				}
+				PIXEL_OFF_NO_NOP()
+				alienLineCount++;
+
+				if (alienLineCount > 7) {
+					alienLineCount = 0;
+					drawType = drawNothing;
+					PIXEL_OFF_NO_NOP();
+				}
+				break;
+			case drawAlien_row5:
+				delayLoop(alienXStartPos);
+				if (alienToggle == 0)
+				{
+					if (aliensBitPackStatus.alien_row5_col1)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row5_col2)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row5_col3)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row5_col4)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row5_col5)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row5_col6)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+				}
+				else
+				{
+					if (aliensBitPackStatus.alien_row5_col1)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row5_col2)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row5_col3)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row5_col4)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row5_col5)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row5_col6)
+					{
+						 alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
 				}
 				PIXEL_OFF_NO_NOP()
 				alienLineCount++;
@@ -233,12 +630,12 @@ int main()
 			// do nothing
 		//}
 		//else
-		if (lineCounter == BASE_ALIEN_Y_1+alienYBasePos) drawType = drawAlien;
-		if (lineCounter == BASE_ALIEN_Y_2+alienYBasePos) drawType = drawAlien;
-		if (lineCounter == BASE_ALIEN_Y_3+alienYBasePos) drawType = drawAlien;
-		if (lineCounter == BASE_ALIEN_Y_4+alienYBasePos) drawType = drawAlien;
-		if (lineCounter == BASE_ALIEN_Y_5+alienYBasePos) drawType = drawAlien;
-		if (lineCounter == BASE_ALIEN_Y_6+alienYBasePos) drawType = drawAlien;
+		// row_1 is top most
+		if (lineCounter == BASE_ALIEN_Y_1+alienYBasePos) drawType = drawAlien_row1;
+		if (lineCounter == BASE_ALIEN_Y_2+alienYBasePos) drawType = drawAlien_row2;
+		if (lineCounter == BASE_ALIEN_Y_3+alienYBasePos) drawType = drawAlien_row3;
+		if (lineCounter == BASE_ALIEN_Y_4+alienYBasePos) drawType = drawAlien_row4;
+		if (lineCounter == BASE_ALIEN_Y_5+alienYBasePos) drawType = drawAlien_row5;
 
 		lineCounter++;
 
@@ -283,7 +680,7 @@ int main()
 				{
 					if (playerXPos == alienXStartPos)
 					{
-						aliensBitPackStatus.alien1 = 0;
+						aliensBitPackStatus.alien_row1_col1 = 0;
 					}
 					else if (playerXPos == alienXStartPos+2)
 					{
@@ -311,7 +708,6 @@ int main()
 					drawType = gameWon;
 				}
 #endif
-
 				if (playerXPos > MAX_X_PLAYER) {
 					playerXPos = MAX_X_PLAYER-1;
 				}
@@ -331,10 +727,11 @@ int main()
 					else
 					{
 						alienXStartPos-=alienMoveRate;
-						//alienXStartPos = playerXPos;
 					}
 					alienMoveThisTime = 0;
 				}
+
+				alienXStartPos = playerXPos;
 
 				if (alienXStartPos > MAX_X_ALIEN) // remember that this is only the X position of left most alien
 				{
