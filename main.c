@@ -60,14 +60,13 @@
 #define LINE_INC 8
 #define LINE_INC_ALIENS 12
 
-static uint8_t alienLineCount = 0;
-
 int main()
 {
 	int alienDirection = 1;
 	int vSync = 0;
 	int lineCounter = 0;
 	int lineValidForFire = 0;
+	uint8_t alienLineCount = 0;
 
 	typedef struct alienStruct
 	{
@@ -308,14 +307,6 @@ int main()
 					//}
 					//else alienDraw_blank(alienLineCount);
 				}
-				PIXEL_OFF_NO_NOP()
-				alienLineCount++;
-
-				if (alienLineCount > 7) {
-					alienLineCount = 0;
-					drawType = drawNothing;
-					PIXEL_OFF_NO_NOP();
-				}
 				break;
 			case drawAlien_row2:
 				delayLoop(alienXStartPos[0]);
@@ -384,14 +375,6 @@ int main()
 				//		 alienDraw_2(alienLineCount);
 				//	}
 				//	else alienDraw_blank(alienLineCount);
-				}
-				PIXEL_OFF_NO_NOP()
-				alienLineCount++;
-
-				if (alienLineCount > 7) {
-					alienLineCount = 0;
-					drawType = drawNothing;
-					PIXEL_OFF_NO_NOP();
 				}
 				break;
 			case drawAlien_row3:
@@ -462,14 +445,6 @@ int main()
 					//}
 					//else alienDraw_blank(alienLineCount);
 				}
-				PIXEL_OFF_NO_NOP()
-				alienLineCount++;
-
-				if (alienLineCount > 7) {
-					alienLineCount = 0;
-					drawType = drawNothing;
-					PIXEL_OFF_NO_NOP();
-				}
 				break;
 			case drawAlien_row4:
 				delayLoop(alienXStartPos[0]);
@@ -538,14 +513,6 @@ int main()
 					//	 alienDraw_2(alienLineCount);
 					//}
 					//else alienDraw_blank(alienLineCount);
-				}
-				PIXEL_OFF_NO_NOP()
-				alienLineCount++;
-
-				if (alienLineCount > 7) {
-					alienLineCount = 0;
-					drawType = drawNothing;
-					PIXEL_OFF_NO_NOP();
 				}
 				break;
 			case drawAlien_row5:
@@ -616,15 +583,15 @@ int main()
 					//}
 					//else alienDraw_blank(alienLineCount);
 				}
-				PIXEL_OFF_NO_NOP()
-				alienLineCount++;
-
-				if (alienLineCount > 7) {
-					alienLineCount = 0;
-					drawType = drawNothing;
-					PIXEL_OFF_NO_NOP();
-				}
 				break;
+		}
+		if (drawType != drawNothing)
+		{
+			if (alienLineCount++ > 7)
+			{
+				alienLineCount = 0;
+				drawType = drawNothing;
+			}
 		}
 		//if ((BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64))
 //		{
@@ -644,6 +611,7 @@ int main()
 		if (lineCounter == BASE_ALIEN_Y_3+alienYBasePos) drawType = drawAlien_row3;
 		if (lineCounter == BASE_ALIEN_Y_4+alienYBasePos) drawType = drawAlien_row4;
 		if (lineCounter == BASE_ALIEN_Y_5+alienYBasePos) drawType = drawAlien_row5;
+
 
 		lineCounter++;
 
@@ -723,7 +691,7 @@ int main()
 						alienMoveThisTime = 0;
 					}
 				}
-				//alienXStartPos = playerXPos;
+				//alienXStartPos[0] = playerXPos;
 				//alienXStartPos[0] = MIN_X_ALIEN;
 
 				if (alienXStartPos[0] > MAX_X_ALIEN) // remember that this is only the X position of left most alien
@@ -735,7 +703,7 @@ int main()
 					alienXStartPos[3]=MAX_X_ALIEN+3;
 					alienXStartPos[4]=MAX_X_ALIEN+4;
 					// move aliens down by one line (getting closer to you!)
-					alienYBasePos += 4;
+					alienYBasePos += 1;
 				}
 				if (alienXStartPos[0] < MIN_X_ALIEN)
 				{
@@ -746,7 +714,7 @@ int main()
 					alienXStartPos[3]=MIN_X_ALIEN+3;
 					alienXStartPos[4]=MIN_X_ALIEN+4;
 					// move aliens down by one line (getting closer to you!)
-					alienYBasePos += 4;
+					alienYBasePos += 1;
 
 					// speed up the aliens
 					alienMoveRate = alienMoveRate + 1;
