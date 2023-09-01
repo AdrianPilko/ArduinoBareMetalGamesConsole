@@ -115,6 +115,7 @@ int main()
 	int alienToggle = 0;
 	int firePressed = 0;
 	int alienYBasePos = 0;
+	int gameRunning = 0;
 
 	typedef enum {drawNothing=0,
 		drawAlien_row1,
@@ -625,10 +626,11 @@ int main()
 				}
 				break;
 		}
-		//if ((BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64) && (drawType != gameWon))
-		//{
-		//	drawType = gameLost;
-		//}
+		//if ((BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64))
+//		{
+			//drawType = gameLost;
+		//	alienYBasePos = 0;
+	//	}
 		//else if (drawType == gameWon)
 		//if (drawType == gameWon)
 		//{
@@ -685,7 +687,7 @@ int main()
 						firePressed = 1;
 						fireRate = 0;
 					}
-
+					gameRunning = 1;
 				}
 
 				if (playerXPos > MAX_X_PLAYER) {
@@ -698,27 +700,29 @@ int main()
 
 				alienMoveThisTime = alienMoveThisTime + 1;
 
-				if (alienMoveThisTime >= alienMoveRate)
+				if (gameRunning)
 				{
-					if (alienDirection == 1)
+					if (alienMoveThisTime >= alienMoveRate)
 					{
-						alienXStartPos[0]+=alienMoveRate;
-						alienXStartPos[1]+=alienMoveRate;
-						alienXStartPos[2]+=alienMoveRate;
-						alienXStartPos[3]+=alienMoveRate;
-						alienXStartPos[4]+=alienMoveRate;
+						if (alienDirection == 1)
+						{
+							alienXStartPos[0]+=alienMoveRate;
+							alienXStartPos[1]+=alienMoveRate;
+							alienXStartPos[2]+=alienMoveRate;
+							alienXStartPos[3]+=alienMoveRate;
+							alienXStartPos[4]+=alienMoveRate;
+						}
+						else
+						{
+							alienXStartPos[0]-=alienMoveRate;
+							alienXStartPos[1]-=alienMoveRate;
+							alienXStartPos[2]-=alienMoveRate;
+							alienXStartPos[3]-=alienMoveRate;
+							alienXStartPos[4]-=alienMoveRate;
+						}
+						alienMoveThisTime = 0;
 					}
-					else
-					{
-						alienXStartPos[0]-=alienMoveRate;
-						alienXStartPos[1]-=alienMoveRate;
-						alienXStartPos[2]-=alienMoveRate;
-						alienXStartPos[3]-=alienMoveRate;
-						alienXStartPos[4]-=alienMoveRate;
-					}
-					alienMoveThisTime = 0;
 				}
-
 				//alienXStartPos = playerXPos;
 				//alienXStartPos[0] = MIN_X_ALIEN;
 
