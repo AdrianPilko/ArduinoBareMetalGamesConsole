@@ -925,7 +925,7 @@ int main()
 					else if (aliensBitPackStatus.alien_row2_col5 == 0) { aliensBitPackStatus.alien_row1_col5 = 0;}
 
 				}
-			//	else if (playerXPos == alienXStartPos+10)
+			//	else if (playerXPos == alienXStartPos[5])
 			//	{
 			//		if (aliensBitPackStatus.alien_row5_col6 == 1) { aliensBitPackStatus.alien_row5_col6 = 0; }
 			//		else if (aliensBitPackStatus.alien_row5_col6 == 0) { aliensBitPackStatus.alien_row4_col6 = 0;}
