@@ -1,3 +1,6 @@
+//#define DEBUG_PIN5_MEASURE_ON_INT_LOOP
+//#define DEBUG_PIN5_MEASURE_ON_ALIEN_DELAY
+
 // This is meant to be run on an Arduino UNO board
 // pin and 12 and 13 go to centre of a 10k pot, pin 12 through a 330 Ohm resistor.
 // one side of the pot goes to VCC the other to ground and the centre of the pot also goes to the composite connector
@@ -185,14 +188,27 @@ int main()
 	DDRD &= ~(1 << PD4);	//Pin 4 input (fire button)
 	PORTD |= (1 << PD4);    //Pin 4 input
 
+	DDRD |= (1 << PD5);	//Pin 5 output for debug (measure length of pulse on scope)
+	PORTD |= (1 << PD5);    //Pin 5
+
 	TCCR1B = (1 << CS10); // switch off clock prescaller
 	OCR1A = 1025; //timer interrupt cycles which gives rise to 64usec line sync time
 	TCNT1 = 0;
 	while (1) {
 		// wait for hsync timer interrupt to trigger
+#ifdef DEBUG_PIN5_MEASURE_ON_INT_LOOP
+
+		PORTD |= (1 << PD5); // Set bit 5 of PORTD to 1 (high) this will tell me (via a scope on the pin ) how long we're waiting here
+		                   // which means how long we have left for our other code
+#endif
+
 		while ((TIFR1 & (1 << OCF1A)) == 0) {
 			// wait till the timer overflow flag is SET
 		}
+#ifdef DEBUG_PIN5_MEASURE_ON_INT_LOOP
+		PORTD &= ~(1 << PD5);
+#endif
+
 
 		// immediately reset the interrupt timer, previous version had this at the end
 		// which made the whole thing be delayed when we're trying to maintain the 64us PAL line timing
@@ -234,6 +250,7 @@ int main()
 			}
 		}
 
+
 		// the whole line writing must be a total of less than (64 - (18 * 3)) = 10usec =
 		// a delay in line 1 = 1/16000000 =0.0000000625 assuming nop = 1 clock cycle
 		//drawType = drawNothing;
@@ -255,7 +272,7 @@ int main()
 					else alienDraw_blank(alienLineCount);
 					if (aliensBitPackStatus.alien_row1_col3 == 1)
 					{
-						 alienDraw_1(alienLineCount);
+						alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
 					if (aliensBitPackStatus.alien_row1_col4 == 1)
@@ -325,10 +342,16 @@ int main()
 					if (aliensBitPackStatus.alien_row2_col3)
 					{
 						 alienDraw_1(alienLineCount);
+#ifdef DEBUG_PIN5_MEASURE_ON_ALIEN_DELAY
+					PORTD |= (1 << PD5); // Set bit 5 of PORTD to 1 (high) this will tell me (via a scope on the pin ) how long we're waiting here
+#endif
 					}
 					else alienDraw_blank(alienLineCount);
 					if (aliensBitPackStatus.alien_row2_col4)
 					{
+#ifdef DEBUG_PIN5_MEASURE_ON_ALIEN_DELAY
+					PORTD &= ~(1 << PD5); // Set bit 5 of PORTD to 1 (high) this will tell me (via a scope on the pin ) how long we're waiting here
+#endif
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
@@ -945,5 +968,8 @@ int main()
 			vSync = 0;
 			break;
 		}
+		//_delay_us(24.0); using a scope and the pin 5 output high low around the interrrupt timer loop 23 or 24usec delay here results in
+		// tv hsync issues sync because the scopes showing less than 180nsec left at worst case so the timing can't be maintained
+		/// as the timer interrupt has already expired
 	}
 }
