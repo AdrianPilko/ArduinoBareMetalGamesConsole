@@ -546,13 +546,11 @@ void alienDraw_blank(const int alienLineCount)
 	};
 }
 
-inline void delayLoop(int delay)
+inline void delayLoop(uint8_t delay)
 {
-	unsigned d = delay;
 	do
 	{
 		NOP_FOR_TIMING
-		d--;
 	}
-	while (d > 0);
+	while (delay-- > 0);
 }

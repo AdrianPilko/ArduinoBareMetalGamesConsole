@@ -1,5 +1,6 @@
 //#define DEBUG_PIN5_MEASURE_ON_INT_LOOP
 //#define DEBUG_PIN5_MEASURE_ON_ALIEN_DELAY
+#define DEBUG_PIN5_MEASURE_HSYNC
 
 // This is meant to be run on an Arduino UNO board
 // pin and 12 and 13 go to centre of a 10k pot, pin 12 through a 330 Ohm resistor.
@@ -47,9 +48,9 @@
 #define INITIAL_ALIEN_MOVE_RATE 10
 
 #define WIDTH_ALL_ALIENS 30
-#define MAX_X_PLAYER 125
+#define MAX_X_PLAYER 160
 #define MIN_X_PLAYER 3
-#define MAX_X_ALIEN 77
+#define MAX_X_ALIEN 90
 #define MIN_X_ALIEN 2
 
 // from experimenting a line started at linCounter = 25 appears right at top of screen one at 285 to 286 is bottom
@@ -129,13 +130,14 @@ int main()
 		gameWon} drawType_t;
 	drawType_t drawType = drawNothing;
 	int playerXPos = MIN_X_PLAYER+68;  // has to be non zero and less that 30
-	int alienXStartPos[5] = {MIN_X_ALIEN,
-			                 MIN_X_ALIEN+1,
-							 MIN_X_ALIEN+2,
-							 MIN_X_ALIEN+3,
-							 MIN_X_ALIEN+4};
+	uint8_t  alienXStartPos[5] = {MIN_X_ALIEN+2,
+			                 MIN_X_ALIEN+4,
+							 MIN_X_ALIEN+6,
+							 MIN_X_ALIEN+8,
+							 MIN_X_ALIEN+10};
 	int alienMoveThisTime = 0;
-	int alienMoveRate = 1;
+
+	uint8_t alienMoveRate = 1;
 	int fireRate = 0;
 
 
@@ -192,23 +194,24 @@ int main()
 	PORTD |= (1 << PD5);    //Pin 5
 
 	TCCR1B = (1 << CS10); // switch off clock prescaller
-	OCR1A = 1025; //timer interrupt cycles which gives rise to 64usec line sync time
+	OCR1A = 1024; //timer interrupt cycles which gives rise to 64usec line sync time
 	TCNT1 = 0;
 	while (1) {
 		// wait for hsync timer interrupt to trigger
+
+		while ((TIFR1 & (1 << OCF1A)) == 0) {
+			// wait till the timer overflow flag is SET
+		}
+
 #ifdef DEBUG_PIN5_MEASURE_ON_INT_LOOP
 
 		PORTD |= (1 << PD5); // Set bit 5 of PORTD to 1 (high) this will tell me (via a scope on the pin ) how long we're waiting here
 		                   // which means how long we have left for our other code
 #endif
 
-		while ((TIFR1 & (1 << OCF1A)) == 0) {
-			// wait till the timer overflow flag is SET
-		}
 #ifdef DEBUG_PIN5_MEASURE_ON_INT_LOOP
 		PORTD &= ~(1 << PD5);
 #endif
-
 
 		// immediately reset the interrupt timer, previous version had this at the end
 		// which made the whole thing be delayed when we're trying to maintain the 64us PAL line timing
@@ -226,6 +229,14 @@ int main()
 		}
 		else // hsync
 		{
+#ifdef DEBUG_PIN5_MEASURE_HSYNC
+
+		PORTD |= (1 << PD5); // Set bit 5 of PORTD to 1 (high) this will tell me (via a scope on the pin ) how long we're waiting here
+		                   // which means how long we have left for our other code
+#endif
+#ifdef DEBUG_PIN5_MEASURE_HSYNC
+		PORTD &= ~(1 << PD5);
+#endif
 			// before the end of line (which in here is also effectively just the start of the line!) we need to hold at 300mV
 			// and ensure no pixels
 			DDRB = 0;
@@ -646,7 +657,7 @@ int main()
 			break;
 		case FIRST_LINE_DRAWN:
 			PIXEL_ON()
-			delayLoop(125);
+			delayLoop(160);
 			PIXEL_OFF()
 			break;
 		case FIRST_LINE_DRAWN+1:
@@ -715,36 +726,36 @@ int main()
 					}
 				}
 				//alienXStartPos[0] = playerXPos;
-				//alienXStartPos[0] = MIN_X_ALIEN;
 
-				if (alienXStartPos[0] > MAX_X_ALIEN) // remember that this is only the X position of left most alien
+
+				if (alienXStartPos[0] > MAX_X_ALIEN-alienMoveRate) // remember that this is only the X position of left most alien
 				{
 					alienDirection = 0;
-					alienXStartPos[0]=MAX_X_ALIEN;
-					alienXStartPos[1]=MAX_X_ALIEN+1;
-					alienXStartPos[2]=MAX_X_ALIEN+2;
-					alienXStartPos[3]=MAX_X_ALIEN+3;
-					alienXStartPos[4]=MAX_X_ALIEN+4;
+					alienXStartPos[0]=MAX_X_ALIEN-2;
+					alienXStartPos[1]=MAX_X_ALIEN-4;
+					alienXStartPos[2]=MAX_X_ALIEN-6;
+					alienXStartPos[3]=MAX_X_ALIEN-8;
+					alienXStartPos[4]=MAX_X_ALIEN-10;
 					// move aliens down by one line (getting closer to you!)
 					alienYBasePos += 1;
 				}
-				if (alienXStartPos[0] < MIN_X_ALIEN)
+				if (alienXStartPos[0] < MIN_X_ALIEN+alienMoveRate)
 				{
 					alienDirection = 1;
-					alienXStartPos[0]=MIN_X_ALIEN;
-					alienXStartPos[1]=MIN_X_ALIEN+1;
-					alienXStartPos[2]=MIN_X_ALIEN+2;
-					alienXStartPos[3]=MIN_X_ALIEN+3;
-					alienXStartPos[4]=MIN_X_ALIEN+4;
+					alienXStartPos[0]=MIN_X_ALIEN+2;
+					alienXStartPos[1]=MIN_X_ALIEN+4;
+					alienXStartPos[2]=MIN_X_ALIEN+6;
+					alienXStartPos[3]=MIN_X_ALIEN+8;
+					alienXStartPos[4]=MIN_X_ALIEN+10;
 					// move aliens down by one line (getting closer to you!)
 					alienYBasePos += 1;
 
 					// speed up the aliens
-					alienMoveRate = alienMoveRate + 1;
-					if (alienMoveRate > 16)
-					{
-						alienMoveRate = 16;
-					}
+				//	alienMoveRate = alienMoveRate + 1;
+					//if (alienMoveRate > 16)
+					//{
+					//	alienMoveRate = 16;
+					//}
 				}
 
 				if (alienToggleTrigger++ >= 20 - alienMoveRate)
@@ -899,7 +910,7 @@ int main()
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 48):
 			PIXEL_ON()
-			delayLoop(125);
+			delayLoop(160);
 			PIXEL_OFF()
 			if (firePressed)
 			{
@@ -960,7 +971,7 @@ int main()
 			}
 
 			break;
-		case (MAX_LINE_BEFORE_BLANK - 7):
+		case (MAX_LINE_BEFORE_BLANK - 6):
 			vSync = 1;
 			break;
 		case MAX_LINE_BEFORE_BLANK:
