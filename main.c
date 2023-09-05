@@ -595,18 +595,18 @@ int main()
 						if (alienDirection == 1)
 						{
 							alienXStartPos[0]+=alienMoveRate;
-							alienXStartPos[1]+=alienMoveRate;
-							alienXStartPos[2]+=alienMoveRate;
-							alienXStartPos[3]+=alienMoveRate;
-							alienXStartPos[4]+=alienMoveRate;
+							alienXStartPos[1]=alienXStartPos[0]+2;
+							alienXStartPos[2]=alienXStartPos[1]+2;
+							alienXStartPos[3]=alienXStartPos[2]+2;
+							alienXStartPos[4]=alienXStartPos[3]+2;
 						}
 						else
 						{
 							alienXStartPos[0]-=alienMoveRate;
-							alienXStartPos[1]-=alienMoveRate;
-							alienXStartPos[2]-=alienMoveRate;
-							alienXStartPos[3]-=alienMoveRate;
-							alienXStartPos[4]-=alienMoveRate;
+							alienXStartPos[1]=alienXStartPos[0]+2;
+							alienXStartPos[2]=alienXStartPos[1]+2;
+							alienXStartPos[3]=alienXStartPos[2]+2;
+							alienXStartPos[4]=alienXStartPos[3]+2;
 						}
 						alienMoveThisTime = 0;
 					}
@@ -617,11 +617,6 @@ int main()
 				if (alienXStartPos[0] > MAX_X_ALIEN-alienMoveRate) // remember that this is only the X position of left most alien
 				{
 					alienDirection = 0;
-					alienXStartPos[0]=MAX_X_ALIEN-2;
-					alienXStartPos[1]=MAX_X_ALIEN-4;
-					alienXStartPos[2]=MAX_X_ALIEN-6;
-					alienXStartPos[3]=MAX_X_ALIEN-8;
-					alienXStartPos[4]=MAX_X_ALIEN-10;
 					// move aliens down by one line (getting closer to you!)
 					alienYBasePos += 1;
 				}
@@ -629,10 +624,10 @@ int main()
 				{
 					alienDirection = 1;
 					alienXStartPos[0]=MIN_X_ALIEN+2;
-					alienXStartPos[1]=MIN_X_ALIEN+4;
-					alienXStartPos[2]=MIN_X_ALIEN+6;
-					alienXStartPos[3]=MIN_X_ALIEN+8;
-					alienXStartPos[4]=MIN_X_ALIEN+10;
+					alienXStartPos[1]=alienXStartPos[0]+4;
+					alienXStartPos[2]=alienXStartPos[0]+6;
+					alienXStartPos[3]=alienXStartPos[0]+8;
+					alienXStartPos[4]=alienXStartPos[0]+10;
 					// move aliens down by one line (getting closer to you!)
 					alienYBasePos += 1;
 
