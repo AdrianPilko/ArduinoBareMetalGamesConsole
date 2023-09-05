@@ -97,8 +97,8 @@ int main()
 		drawAlien_row3,
 		drawAlien_row4,
 		drawAlien_row5,
-		//drawAlien_row6,
-		gameWon} drawType_t;
+		gameWon,
+		gameLost} drawType_t;
 	drawType_t drawType = drawNothing;
 	int playerXPos = MIN_X_PLAYER+68;  // has to be non zero and less that 30
 	uint8_t  alienXStartPos[5] = {MIN_X_ALIEN+2,
@@ -109,6 +109,8 @@ int main()
 	int alienMoveThisTime = 0;
 
 	uint8_t alienMoveRate = 1;
+
+	uint8_t alienCount = 5 * 5;
 	int fireRate = 0;
 
 
@@ -209,6 +211,11 @@ int main()
 		//drawType = drawNothing;
 		switch (drawType)
 		{
+			case gameLost: PIXEL_ON();
+						   PIXEL_OFF();
+						   PIXEL_ON();
+						   PIXEL_OFF();
+				break;
 			case drawAlien_row1:
 				delayLoop(alienXStartPos[0]);
 				if (alienToggle == 0)
@@ -526,12 +533,14 @@ int main()
 		//else
 		// row_1 is top most
 
-		if (lineCounter == BASE_ALIEN_Y_1+alienYBasePos) drawType = drawAlien_row1;
-		if (lineCounter == BASE_ALIEN_Y_2+alienYBasePos) drawType = drawAlien_row2;
-		if (lineCounter == BASE_ALIEN_Y_3+alienYBasePos) drawType = drawAlien_row3;
-		if (lineCounter == BASE_ALIEN_Y_4+alienYBasePos) drawType = drawAlien_row4;
-		if (lineCounter == BASE_ALIEN_Y_5+alienYBasePos) drawType = drawAlien_row5;
-
+		//if (drawType != gameLost)
+		//{
+			if (lineCounter == BASE_ALIEN_Y_1+alienYBasePos) drawType = drawAlien_row1;
+			if (lineCounter == BASE_ALIEN_Y_2+alienYBasePos) drawType = drawAlien_row2;
+			if (lineCounter == BASE_ALIEN_Y_3+alienYBasePos) drawType = drawAlien_row3;
+			if (lineCounter == BASE_ALIEN_Y_4+alienYBasePos) drawType = drawAlien_row4;
+			if (lineCounter == BASE_ALIEN_Y_5+alienYBasePos) drawType = drawAlien_row5;
+		//}
 
 		lineCounter++;
 
@@ -547,15 +556,15 @@ int main()
 			PIXEL_OFF()
 			break;
 		case FIRST_LINE_DRAWN+1:
-			//if ((BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64) && (drawType != gameWon))
-			//{
-			//	drawType = gameLost;
-			//}
-			//else if (drawType == gameWon)
-			//{
+			if ((alienYBasePos > FIRST_LINE_DRAWN+60) && (drawType != gameWon))
+			{
+				drawType = gameLost;
+			}
+			else if (drawType == gameWon)
+			{
 				// do nothing
-			//}
-			//else
+			}
+			else
 			{
 				// Check if input control pins
 				if (PIND & (1 << PD2)) {
@@ -632,11 +641,11 @@ int main()
 					alienYBasePos += 1;
 
 					// speed up the aliens
-				//	alienMoveRate = alienMoveRate + 1;
-					//if (alienMoveRate > 16)
-					//{
-					//	alienMoveRate = 16;
-					//}
+					alienMoveRate = alienMoveRate + 1;
+					if (alienMoveRate > 4)
+					{
+						alienMoveRate = 4;
+					}
 				}
 
 				if (alienToggleTrigger++ >= 20 - alienMoveRate)
