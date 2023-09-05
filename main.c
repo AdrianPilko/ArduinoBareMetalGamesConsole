@@ -110,9 +110,7 @@ int main()
 
 	uint8_t alienMoveRate = 1;
 
-	uint8_t alienCount = 5 * 5;
 	int fireRate = 0;
-
 
 	aliensBitPackStatus.alien_row1 = 0b00011111;
 	aliensBitPackStatus.alien_row2 = 0b00011111;
@@ -211,10 +209,29 @@ int main()
 		//drawType = drawNothing;
 		switch (drawType)
 		{
-			case gameLost: PIXEL_ON();
-						   PIXEL_OFF();
-						   PIXEL_ON();
-						   PIXEL_OFF();
+			case gameLost:
+			{
+						delayLoop(10);
+						uint8_t x = 60;
+						do
+						{
+							PIXEL_ON();
+						}
+						while (x-- > 0);
+						PIXEL_OFF();
+			}
+						break;
+			case gameWon:
+			{
+						delayLoop(10);
+				        uint8_t x = 60;
+						do
+						{
+							PIXEL_ON();
+							PIXEL_OFF();
+						}
+						while (x-- > 0);
+			}
 				break;
 			case drawAlien_row1:
 				delayLoop(alienXStartPos[0]);
@@ -566,6 +583,16 @@ int main()
 			}
 			else
 			{
+				if (aliensBitPackStatus.alien_row1 == 0 &&
+				aliensBitPackStatus.alien_row2 == 0 &&
+				aliensBitPackStatus.alien_row3 == 0 &&
+				aliensBitPackStatus.alien_row4 == 0 &&
+				aliensBitPackStatus.alien_row5 == 0)
+				{
+					drawType = gameWon;
+				}
+
+
 				// Check if input control pins
 				if (PIND & (1 << PD2)) {
 					playerXPos = playerXPos - 2;
