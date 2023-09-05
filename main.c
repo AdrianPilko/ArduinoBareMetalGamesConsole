@@ -72,42 +72,13 @@ int main()
 	int lineValidForFire = 0;
 	uint8_t alienLineCount = 0;
 
-	typedef struct alienStruct
+	typedef struct alienStatusStruct
 	{
-		uint32_t alien_row1_col1 : 1;
-		uint32_t alien_row1_col2 : 1;
-		uint32_t alien_row1_col3 : 1;
-		uint32_t alien_row1_col4 : 1;
-		uint32_t alien_row1_col5 : 1;
-		//uint32_t alien_row1_col6 : 1;
-
-		uint32_t alien_row2_col1 : 1;
-		uint32_t alien_row2_col2 : 1;
-		uint32_t alien_row2_col3 : 1;
-		uint32_t alien_row2_col4 : 1;
-		uint32_t alien_row2_col5 : 1;
-		//uint32_t alien_row2_col6 : 1;
-
-		uint32_t alien_row3_col1 : 1;
-		uint32_t alien_row3_col2 : 1;
-		uint32_t alien_row3_col3 : 1;
-		uint32_t alien_row3_col4 : 1;
-		uint32_t alien_row3_col5 : 1;
-		//uint32_t alien_row3_col6 : 1;
-
-		uint32_t alien_row4_col1 : 1;
-		uint32_t alien_row4_col2 : 1;
-		uint32_t alien_row4_col3 : 1;
-		uint32_t alien_row4_col4 : 1;
-		uint32_t alien_row4_col5 : 1;
-		//uint32_t alien_row4_col6 : 1;
-
-		uint32_t alien_row5_col1 : 1;
-		uint32_t alien_row5_col2 : 1;
-		uint32_t alien_row5_col3 : 1;
-		uint32_t alien_row5_col4 : 1;
-		uint32_t alien_row5_col5 : 1;
-		//uint32_t alien_row5_col6 : 1;
+		uint8_t alien_row1;
+		uint8_t alien_row2;
+		uint8_t alien_row3;
+		uint8_t alien_row4;
+		uint8_t alien_row5;
 	} alienBitPack_t;
 
 
@@ -141,40 +112,11 @@ int main()
 	int fireRate = 0;
 
 
-	aliensBitPackStatus.alien_row1_col1= 1;
-	aliensBitPackStatus.alien_row1_col2= 1;
-	aliensBitPackStatus.alien_row1_col3= 1;
-	aliensBitPackStatus.alien_row1_col4= 1;
-	aliensBitPackStatus.alien_row1_col5= 1;
-	//aliensBitPackStatus.alien_row1_col6= 1;
-
-	aliensBitPackStatus.alien_row2_col1= 1;
-	aliensBitPackStatus.alien_row2_col2= 1;
-	aliensBitPackStatus.alien_row2_col3= 1;
-	aliensBitPackStatus.alien_row2_col4= 1;
-	aliensBitPackStatus.alien_row2_col5= 1;
-	//aliensBitPackStatus.alien_row2_col6= 1;
-
-	aliensBitPackStatus.alien_row3_col1= 1;
-	aliensBitPackStatus.alien_row3_col2= 1;
-	aliensBitPackStatus.alien_row3_col3= 1;
-	aliensBitPackStatus.alien_row3_col4= 1;
-	aliensBitPackStatus.alien_row3_col5= 1;
-	//aliensBitPackStatus.alien_row3_col6= 1;
-
-	aliensBitPackStatus.alien_row4_col1= 1;
-	aliensBitPackStatus.alien_row4_col2= 1;
-	aliensBitPackStatus.alien_row4_col3= 1;
-	aliensBitPackStatus.alien_row4_col4= 1;
-	aliensBitPackStatus.alien_row4_col5= 1;
-	//aliensBitPackStatus.alien_row4_col6= 1;
-
-	aliensBitPackStatus.alien_row5_col1= 1;
-	aliensBitPackStatus.alien_row5_col2= 1;
-	aliensBitPackStatus.alien_row5_col3= 1;
-	aliensBitPackStatus.alien_row5_col4= 1;
-	aliensBitPackStatus.alien_row5_col5= 1;
-	//aliensBitPackStatus.alien_row5_col6= 1;
+	aliensBitPackStatus.alien_row1 = 0b00011111;
+	aliensBitPackStatus.alien_row2 = 0b00011111;
+	aliensBitPackStatus.alien_row3 = 0b00011111;
+	aliensBitPackStatus.alien_row4 = 0b00011111;
+	aliensBitPackStatus.alien_row5 = 0b00011111;
 
 	clock_prescale_set(clock_div_1);
 
@@ -271,351 +213,295 @@ int main()
 				delayLoop(alienXStartPos[0]);
 				if (alienToggle == 0)
 				{
-					if (aliensBitPackStatus.alien_row1_col1 == 1)
+					if (aliensBitPackStatus.alien_row1 & 0b00010000)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row1_col2 == 1)
+					if (aliensBitPackStatus.alien_row1 & 0b00001000)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row1_col3 == 1)
+					if (aliensBitPackStatus.alien_row1 & 0b00000100)
 					{
 						alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row1_col4 == 1)
+					if (aliensBitPackStatus.alien_row1 & 0b00000010)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row1_col5 == 1)
+					if (aliensBitPackStatus.alien_row1 & 0b00000001)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					//if (aliensBitPackStatus.alien_row1_col6)
-					//{
-					//	 alienDraw_1(alienLineCount);
-					//}
-					//else alienDraw_blank(alienLineCount);
 				}
 				else
 				{
-					if (aliensBitPackStatus.alien_row1_col1 == 1)
+					if (aliensBitPackStatus.alien_row1 & 0b00010000)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row1_col2 == 1)
+					if (aliensBitPackStatus.alien_row1 & 0b00001000)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row1_col3 == 1)
+					if (aliensBitPackStatus.alien_row1 & 0b00000100)
+					{
+						alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row1 & 0b00000010)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row1_col4 == 1)
+					if (aliensBitPackStatus.alien_row1 & 0b00000001)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row1_col5 == 1)
-					{
-						 alienDraw_2(alienLineCount);
-					}
-					else alienDraw_blank(alienLineCount);
-					//if (aliensBitPackStatus.alien_row1_col6)
-					//{
-					//	 alienDraw_2(alienLineCount);
-					//}
-					//else alienDraw_blank(alienLineCount);
 				}
 				break;
 			case drawAlien_row2:
 				delayLoop(alienXStartPos[0]);
 				if (alienToggle == 0)
 				{
-					if (aliensBitPackStatus.alien_row2_col1)
+					if (aliensBitPackStatus.alien_row2 & 0b00010000)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row2_col2)
+					if (aliensBitPackStatus.alien_row2 & 0b00001000)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row2_col3)
+					if (aliensBitPackStatus.alien_row2 & 0b00000100)
 					{
-						 alienDraw_1(alienLineCount);
-#ifdef DEBUG_PIN5_MEASURE_ON_ALIEN_DELAY
-					PORTD |= (1 << PD5); // Set bit 5 of PORTD to 1 (high) this will tell me (via a scope on the pin ) how long we're waiting here
-#endif
+						alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row2_col4)
-					{
-#ifdef DEBUG_PIN5_MEASURE_ON_ALIEN_DELAY
-					PORTD &= ~(1 << PD5); // Set bit 5 of PORTD to 1 (high) this will tell me (via a scope on the pin ) how long we're waiting here
-#endif
-						 alienDraw_1(alienLineCount);
-					}
-					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row2_col5)
+					if (aliensBitPackStatus.alien_row2 & 0b00000010)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-				//	if (aliensBitPackStatus.alien_row2_col6)
-					//{
-				//		 alienDraw_1(alienLineCount);
-				//	}
-				//	else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row2 & 0b00000001)
+					{
+						 alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
 				}
 				else
 				{
-					if (aliensBitPackStatus.alien_row2_col1)
+					if (aliensBitPackStatus.alien_row2 & 0b00010000)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row2_col2)
+					if (aliensBitPackStatus.alien_row2 & 0b00001000)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row2_col3)
+					if (aliensBitPackStatus.alien_row2 & 0b00000100)
+					{
+						alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row2 & 0b00000010)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row2_col4)
+					if (aliensBitPackStatus.alien_row2 & 0b00000001)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row2_col5)
-					{
-						 alienDraw_2(alienLineCount);
-					}
-					else alienDraw_blank(alienLineCount);
-				//#endif	if (aliensBitPackStatus.alien_row2_col6)
-				//	{
-				//		 alienDraw_2(alienLineCount);
-				//	}
-				//	else alienDraw_blank(alienLineCount);
 				}
 				break;
 			case drawAlien_row3:
 				delayLoop(alienXStartPos[0]);
 				if (alienToggle == 0)
 				{
-					if (aliensBitPackStatus.alien_row3_col1)
+					if (aliensBitPackStatus.alien_row3 & 0b00010000)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row3_col2)
+					if (aliensBitPackStatus.alien_row3 & 0b00001000)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row3_col3)
+					if (aliensBitPackStatus.alien_row3 & 0b00000100)
+					{
+						alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row3 & 0b00000010)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row3_col4)
+					if (aliensBitPackStatus.alien_row3 & 0b00000001)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row3_col5)
-					{
-						 alienDraw_1(alienLineCount);
-					}
-					else alienDraw_blank(alienLineCount);
-					//if (aliensBitPackStatus.alien_row3_col6)
-					//{
-					//	 alienDraw_1(alienLineCount);
-					//}
-					//else alienDraw_blank(alienLineCount);
 				}
 				else
 				{
-					if (aliensBitPackStatus.alien_row3_col1)
+					if (aliensBitPackStatus.alien_row3 & 0b00010000)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row3_col2)
+					if (aliensBitPackStatus.alien_row3 & 0b00001000)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row3_col3)
+					if (aliensBitPackStatus.alien_row3 & 0b00000100)
+					{
+						alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row3 & 0b00000010)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row3_col4)
+					if (aliensBitPackStatus.alien_row3 & 0b00000001)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row3_col5)
-					{
-						 alienDraw_2(alienLineCount);
-					}
-					else alienDraw_blank(alienLineCount);
-					//if (aliensBitPackStatus.alien_row3_col6)
-					//{
-					//	 alienDraw_2(alienLineCount);
-					//}
-					//else alienDraw_blank(alienLineCount);
 				}
 				break;
 			case drawAlien_row4:
 				delayLoop(alienXStartPos[0]);
 				if (alienToggle == 0)
 				{
-					if (aliensBitPackStatus.alien_row4_col1)
+					if (aliensBitPackStatus.alien_row4 & 0b00010000)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row4_col2)
+					if (aliensBitPackStatus.alien_row4 & 0b00001000)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row4_col3)
+					if (aliensBitPackStatus.alien_row4 & 0b00000100)
+					{
+						alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row4 & 0b00000010)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row4_col4)
+					if (aliensBitPackStatus.alien_row4 & 0b00000001)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row4_col5)
-					{
-						 alienDraw_1(alienLineCount);
-					}
-					else alienDraw_blank(alienLineCount);
-					//if (aliensBitPackStatus.alien_row4_col6)
-					//{
-					//	 alienDraw_1(alienLineCount);
-					//}
-					//else alienDraw_blank(alienLineCount);
 				}
 				else
 				{
-					if (aliensBitPackStatus.alien_row4_col1)
+					if (aliensBitPackStatus.alien_row4 & 0b00010000)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row4_col2)
+					if (aliensBitPackStatus.alien_row4 & 0b00001000)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row4_col3)
+					if (aliensBitPackStatus.alien_row4 & 0b00000100)
+					{
+						alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row4 & 0b00000010)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row4_col4)
+					if (aliensBitPackStatus.alien_row4 & 0b00000001)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row4_col5)
-					{
-						 alienDraw_2(alienLineCount);
-					}
-					else alienDraw_blank(alienLineCount);
-					//if (aliensBitPackStatus.alien_row4_col6)
-					//{
-					//	 alienDraw_2(alienLineCount);
-					//}
-					//else alienDraw_blank(alienLineCount);
 				}
 				break;
 			case drawAlien_row5:
 				delayLoop(alienXStartPos[0]);
 				if (alienToggle == 0)
 				{
-					if (aliensBitPackStatus.alien_row5_col1)
+					if (aliensBitPackStatus.alien_row5 & 0b00010000)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row5_col2)
+					if (aliensBitPackStatus.alien_row5 & 0b00001000)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row5_col3)
+					if (aliensBitPackStatus.alien_row5 & 0b00000100)
+					{
+						alienDraw_1(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row5 & 0b00000010)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row5_col4)
+					if (aliensBitPackStatus.alien_row5 & 0b00000001)
 					{
 						 alienDraw_1(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row5_col5)
-					{
-						 alienDraw_1(alienLineCount);
-					}
-					else alienDraw_blank(alienLineCount);
-					//if (aliensBitPackStatus.alien_row5_col6)
-					//{
-					//	 alienDraw_1(alienLineCount);
-					//}
-					//else alienDraw_blank(alienLineCount);
 				}
 				else
 				{
-					if (aliensBitPackStatus.alien_row5_col1)
+					if (aliensBitPackStatus.alien_row5 & 0b00010000)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row5_col2)
+					if (aliensBitPackStatus.alien_row5 & 0b00001000)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row5_col3)
+					if (aliensBitPackStatus.alien_row5 & 0b00000100)
+					{
+						alienDraw_2(alienLineCount);
+					}
+					else alienDraw_blank(alienLineCount);
+					if (aliensBitPackStatus.alien_row5 & 0b00000010)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row5_col4)
+					if (aliensBitPackStatus.alien_row5 & 0b00000001)
 					{
 						 alienDraw_2(alienLineCount);
 					}
 					else alienDraw_blank(alienLineCount);
-					if (aliensBitPackStatus.alien_row5_col5)
-					{
-						 alienDraw_2(alienLineCount);
-					}
-					else alienDraw_blank(alienLineCount);
-					//if (aliensBitPackStatus.alien_row5_col6)
-					//{
-					//	 alienDraw_2(alienLineCount);
-					//}
-					//else alienDraw_blank(alienLineCount);
 				}
 				break;
 		}
@@ -916,58 +802,45 @@ int main()
 			{
 				if (playerXPos == alienXStartPos[0])
 				{
-					if (aliensBitPackStatus.alien_row5_col1 == 1) { aliensBitPackStatus.alien_row5_col1 = 0; }
-					else if (aliensBitPackStatus.alien_row5_col1 == 0) { aliensBitPackStatus.alien_row4_col1 = 0;}
-					else if (aliensBitPackStatus.alien_row4_col1 == 0) { aliensBitPackStatus.alien_row3_col1 = 0;}
-					else if (aliensBitPackStatus.alien_row3_col1 == 0) { aliensBitPackStatus.alien_row2_col1 = 0;}
-					else if (aliensBitPackStatus.alien_row2_col1 == 0) { aliensBitPackStatus.alien_row1_col1 = 0;}
-
+					if (aliensBitPackStatus.alien_row5 &      0b00010000) { aliensBitPackStatus.alien_row5 &= ~(0b00010000);}
+					else if (aliensBitPackStatus.alien_row4 & 0b00010000) { aliensBitPackStatus.alien_row4 &= ~(0b00010000);}
+					else if (aliensBitPackStatus.alien_row3 & 0b00010000) { aliensBitPackStatus.alien_row3 &= ~(0b00010000);}
+					else if (aliensBitPackStatus.alien_row2 & 0b00010000) { aliensBitPackStatus.alien_row2 &= ~(0b00010000);}
+					else if (aliensBitPackStatus.alien_row1 & 0b00010000) { aliensBitPackStatus.alien_row1 &= ~(0b00010000);}
 				}
 				else if (playerXPos == alienXStartPos[1])
 				{
-					if (aliensBitPackStatus.alien_row5_col2 == 1) { aliensBitPackStatus.alien_row5_col2 = 0; }
-					else if (aliensBitPackStatus.alien_row5_col2 == 0) { aliensBitPackStatus.alien_row4_col2 = 0;}
-					else if (aliensBitPackStatus.alien_row4_col2== 0) { aliensBitPackStatus.alien_row3_col2 = 0;}
-					else if (aliensBitPackStatus.alien_row3_col2 == 0) { aliensBitPackStatus.alien_row2_col2 = 0;}
-					else if (aliensBitPackStatus.alien_row2_col2== 0) { aliensBitPackStatus.alien_row1_col2 = 0;}
+					if (aliensBitPackStatus.alien_row5 &      0b00001000) { aliensBitPackStatus.alien_row5 &= ~(0b00001000);}
+					else if (aliensBitPackStatus.alien_row4 & 0b00001000) { aliensBitPackStatus.alien_row4 &= ~(0b00001000);}
+					else if (aliensBitPackStatus.alien_row3 & 0b00001000) { aliensBitPackStatus.alien_row3 &= ~(0b00001000);}
+					else if (aliensBitPackStatus.alien_row2 & 0b00001000) { aliensBitPackStatus.alien_row2 &= ~(0b00001000);}
+					else if (aliensBitPackStatus.alien_row1 & 0b00001000) { aliensBitPackStatus.alien_row1 &= ~(0b00001000);}
 
 				}
 				else if (playerXPos == alienXStartPos[2])
 				{
-					if (aliensBitPackStatus.alien_row5_col3 == 1) { aliensBitPackStatus.alien_row5_col3 = 0; }
-					else if (aliensBitPackStatus.alien_row5_col3 == 0) { aliensBitPackStatus.alien_row4_col3 = 0;}
-					else if (aliensBitPackStatus.alien_row4_col3 == 0) { aliensBitPackStatus.alien_row3_col3 = 0;}
-					else if (aliensBitPackStatus.alien_row3_col3 == 0) { aliensBitPackStatus.alien_row2_col3 = 0;}
-					else if (aliensBitPackStatus.alien_row2_col3 == 0) { aliensBitPackStatus.alien_row1_col3 = 0;}
-
+					if (aliensBitPackStatus.alien_row5 &      0b00000100) { aliensBitPackStatus.alien_row5 &= ~(0b00000100);}
+					else if (aliensBitPackStatus.alien_row4 & 0b00000100) { aliensBitPackStatus.alien_row4 &= ~(0b00000100);}
+					else if (aliensBitPackStatus.alien_row3 & 0b00000100) { aliensBitPackStatus.alien_row3 &= ~(0b00000100);}
+					else if (aliensBitPackStatus.alien_row2 & 0b00000100) { aliensBitPackStatus.alien_row2 &= ~(0b00000100);}
+					else if (aliensBitPackStatus.alien_row1 & 0b00000100) { aliensBitPackStatus.alien_row1 &= ~(0b00000100);}
 				}
 				else if (playerXPos == alienXStartPos[3])
 				{
-					if (aliensBitPackStatus.alien_row5_col4 == 1) { aliensBitPackStatus.alien_row5_col4 = 0; }
-					else if (aliensBitPackStatus.alien_row5_col4 == 0) { aliensBitPackStatus.alien_row4_col4= 0;}
-					else if (aliensBitPackStatus.alien_row4_col4 == 0) { aliensBitPackStatus.alien_row3_col4 = 0;}
-					else if (aliensBitPackStatus.alien_row3_col4 == 0) { aliensBitPackStatus.alien_row2_col4 = 0;}
-					else if (aliensBitPackStatus.alien_row2_col4 == 0) { aliensBitPackStatus.alien_row1_col4 = 0;}
-
+					if (aliensBitPackStatus.alien_row5 &      0b00000010) { aliensBitPackStatus.alien_row5 &= ~(0b00000010);}
+					else if (aliensBitPackStatus.alien_row4 & 0b00000010) { aliensBitPackStatus.alien_row4 &= ~(0b00000010);}
+					else if (aliensBitPackStatus.alien_row3 & 0b00000010) { aliensBitPackStatus.alien_row3 &= ~(0b00000010);}
+					else if (aliensBitPackStatus.alien_row2 & 0b00000010) { aliensBitPackStatus.alien_row2 &= ~(0b00000010);}
+					else if (aliensBitPackStatus.alien_row1 & 0b00000010) { aliensBitPackStatus.alien_row1 &= ~(0b00000010);}
 				}
 				else if (playerXPos == alienXStartPos[4])
 				{
-					if (aliensBitPackStatus.alien_row5_col5 == 1) { aliensBitPackStatus.alien_row5_col5 = 0; }
-					else if (aliensBitPackStatus.alien_row5_col5 == 0) { aliensBitPackStatus.alien_row4_col5 = 0;}
-					else if (aliensBitPackStatus.alien_row4_col5 == 0) { aliensBitPackStatus.alien_row3_col5 = 0;}
-					else if (aliensBitPackStatus.alien_row3_col5 == 0) { aliensBitPackStatus.alien_row2_col5 = 0;}
-					else if (aliensBitPackStatus.alien_row2_col5 == 0) { aliensBitPackStatus.alien_row1_col5 = 0;}
-
+					if (aliensBitPackStatus.alien_row5 &      0b00000001) { aliensBitPackStatus.alien_row5 &= ~(0b00000001);}
+					else if (aliensBitPackStatus.alien_row4 & 0b00000001) { aliensBitPackStatus.alien_row4 &= ~(0b00000001);}
+					else if (aliensBitPackStatus.alien_row3 & 0b00000001) { aliensBitPackStatus.alien_row3 &= ~(0b00000001);}
+					else if (aliensBitPackStatus.alien_row2 & 0b00000001) { aliensBitPackStatus.alien_row2 &= ~(0b00000001);}
+					else if (aliensBitPackStatus.alien_row1 & 0b00000001) { aliensBitPackStatus.alien_row1 &= ~(0b00000001);}
 				}
-			//	else if (playerXPos == alienXStartPos[5])
-			//	{
-			//		if (aliensBitPackStatus.alien_row5_col6 == 1) { aliensBitPackStatus.alien_row5_col6 = 0; }
-			//		else if (aliensBitPackStatus.alien_row5_col6 == 0) { aliensBitPackStatus.alien_row4_col6 = 0;}
-			//		else if (aliensBitPackStatus.alien_row4_col6 == 0) { aliensBitPackStatus.alien_row3_col6 = 0;}
-			//		else if (aliensBitPackStatus.alien_row3_col6 == 0) { aliensBitPackStatus.alien_row2_col6 = 0;}
-			//		else if (aliensBitPackStatus.alien_row2_col6 == 0) { aliensBitPackStatus.alien_row1_col6 = 0;}
-
-				//}
 			}
 
 			break;
