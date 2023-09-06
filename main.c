@@ -70,6 +70,7 @@ int main()
 	int vSync = 0;
 	int lineCounter = 0;
 	int lineValidForFire = 0;
+	int drawDebug = 0;
 	uint8_t alienLineCount = 0;
 
 	typedef struct alienStatusStruct
@@ -102,10 +103,10 @@ int main()
 	drawType_t drawType = drawNothing;
 	int playerXPos = MIN_X_PLAYER+68;  // has to be non zero and less that 30
 	uint8_t  alienXStartPos[5] = {MIN_X_ALIEN+2,
-			                 MIN_X_ALIEN+4,
-							 MIN_X_ALIEN+6,
-							 MIN_X_ALIEN+8,
-							 MIN_X_ALIEN+10};
+			                 MIN_X_ALIEN+12,
+							 MIN_X_ALIEN+30,
+							 MIN_X_ALIEN+45,
+							 MIN_X_ALIEN+60};
 	int alienMoveThisTime = 0;
 
 	uint8_t alienMoveRate = 1;
@@ -568,11 +569,38 @@ int main()
 			firePressed = 0;
 			break;
 		case FIRST_LINE_DRAWN:
-			PIXEL_ON()
-			delayLoop(160);
-			PIXEL_OFF()
+			//PIXEL_ON()
+			//delayLoop(160);
+			//PIXEL_OFF()
+		    // debug alien target line up
+			{
+				int de = 0;
+				TEN_NOP_FOR_TIMING
+				TEN_NOP_FOR_TIMING
+				TEN_NOP_FOR_TIMING
+
+				do
+				{
+					delayLoop(5);
+					PIXEL_ON();
+					delayLoop(10);
+					PIXEL_OFF();
+				}
+				while (de++ < 4);
+			}
 			break;
 		case FIRST_LINE_DRAWN+1:
+
+			if (drawDebug > 0)
+			{
+				delayLoop((5*drawDebug));
+				NOP_FOR_TIMING
+				NOP_FOR_TIMING
+				PIXEL_ON();
+				delayLoop(10);
+				PIXEL_OFF();
+			}
+
 			if ((alienYBasePos > FIRST_LINE_DRAWN+60) && (drawType != gameWon))
 			{
 				drawType = gameLost;
@@ -595,10 +623,10 @@ int main()
 
 				// Check if input control pins
 				if (PIND & (1 << PD2)) {
-					playerXPos = playerXPos - 2;
+					playerXPos = playerXPos - 1;
 				}
 				if (PIND & (1 << PD3)) {
-					playerXPos = playerXPos + 2;
+					playerXPos = playerXPos + 1;
 				}
 				if (PIND & (1 << PD4))
 				{
@@ -606,19 +634,44 @@ int main()
 				}
 				else
 				{
-					if (fireRate > 12)
+					//if (fireRate <= 0) firePressed = 1;
+					firePressed = 1;
+					if (fireRate++ > 12)
 					{
-						firePressed = 1;
 						fireRate = 0;
 					}
+
 					gameRunning = 1;
 				}
 
-				if (playerXPos > MAX_X_PLAYER) {
+				if (playerXPos > MAX_X_PLAYER)
+				{
 					playerXPos = MAX_X_PLAYER-1;
 				}
-				if (playerXPos < MIN_X_PLAYER) {
+				if (playerXPos < MIN_X_PLAYER)
+				{
 					playerXPos = MIN_X_PLAYER+1;
+				}
+
+				if (playerXPos == alienXStartPos[0])
+				{
+					drawDebug = 1;
+				}
+				if (playerXPos == alienXStartPos[1])
+				{
+					drawDebug = 2;
+				}
+				if (playerXPos == alienXStartPos[2])
+				{
+					drawDebug = 3;
+				}
+				if (playerXPos == alienXStartPos[3])
+				{
+					drawDebug = 4;
+				}
+				if (playerXPos == alienXStartPos[4])
+				{
+					drawDebug = 5;
 				}
 				/// all the alien init gumbins!
 
@@ -631,18 +684,19 @@ int main()
 						if (alienDirection == 1)
 						{
 							alienXStartPos[0]+=alienMoveRate;
-							alienXStartPos[1]=alienXStartPos[0]+2;
-							alienXStartPos[2]=alienXStartPos[1]+2;
-							alienXStartPos[3]=alienXStartPos[2]+2;
-							alienXStartPos[4]=alienXStartPos[3]+2;
+							alienXStartPos[1]=alienXStartPos[0]+12;
+							alienXStartPos[2]=alienXStartPos[0]+30;
+							alienXStartPos[3]=alienXStartPos[0]+45;
+							alienXStartPos[4]=alienXStartPos[0]+60;
 						}
 						else
 						{
 							alienXStartPos[0]-=alienMoveRate;
-							alienXStartPos[1]=alienXStartPos[0]+2;
-							alienXStartPos[2]=alienXStartPos[1]+2;
-							alienXStartPos[3]=alienXStartPos[2]+2;
-							alienXStartPos[4]=alienXStartPos[3]+2;
+							alienXStartPos[1]=alienXStartPos[0]+12;
+							alienXStartPos[2]=alienXStartPos[0]+30;
+							alienXStartPos[3]=alienXStartPos[0]+45;
+							alienXStartPos[4]=alienXStartPos[0]+60;
+
 						}
 						alienMoveThisTime = 0;
 					}
@@ -660,19 +714,20 @@ int main()
 				{
 					alienDirection = 1;
 					alienXStartPos[0]=MIN_X_ALIEN+2;
-					alienXStartPos[1]=alienXStartPos[0]+4;
-					alienXStartPos[2]=alienXStartPos[0]+6;
-					alienXStartPos[3]=alienXStartPos[0]+8;
-					alienXStartPos[4]=alienXStartPos[0]+10;
+					alienXStartPos[1]=MIN_X_ALIEN+12;
+					alienXStartPos[2]=MIN_X_ALIEN+30;
+					alienXStartPos[3]=MIN_X_ALIEN+45;
+					alienXStartPos[4]=MIN_X_ALIEN+60;
+
 					// move aliens down by one line (getting closer to you!)
 					alienYBasePos += 1;
 
 					// speed up the aliens
-					alienMoveRate = alienMoveRate + 1;
-					if (alienMoveRate > 4)
-					{
-						alienMoveRate = 4;
-					}
+					//alienMoveRate = alienMoveRate + 1;
+					//if (alienMoveRate > 4)
+				//	{
+					//	alienMoveRate = 4;
+				//	}
 				}
 
 				if (alienToggleTrigger++ >= 20 - alienMoveRate)
