@@ -69,7 +69,6 @@ int main()
 	int alienDirection = 1;
 	int vSync = 0;
 	int lineCounter = 0;
-	int lineValidForFire = 0;
 	int drawDebug = 0;
 	uint8_t alienLineCount = 0;
 
@@ -89,8 +88,12 @@ int main()
 
 	int alienToggle = 0;
 	int firePressed = 0;
+	int fireYPos = 0;
+	int fireXPos = 0;
+
 	int alienYBasePos = 0;
 	int gameRunning = 0;
+	int kill = 0;
 
 	typedef enum {drawNothing=0,
 		drawAlien_row1,
@@ -101,6 +104,8 @@ int main()
 		gameWon,
 		gameLost} drawType_t;
 	drawType_t drawType = drawNothing;
+
+
 	int playerXPos = MIN_X_PLAYER+68;  // has to be non zero and less that 30
 	uint8_t  alienXStartPos[5] = {MIN_X_ALIEN+2,
 			                 MIN_X_ALIEN+12,
@@ -538,27 +543,29 @@ int main()
 				drawType = drawNothing;
 			}
 		}
-		//if ((BASE_ALIEN_Y_5+alienYBasePos > MAX_LINE_BEFORE_BLANK - 64))
-//		{
-			//drawType = gameLost;
-		//	alienYBasePos = 0;
-	//	}
-		//else if (drawType == gameWon)
-		//if (drawType == gameWon)
-		//{
-			// do nothing
-		//}
-		//else
-		// row_1 is top most
 
-		//if (drawType != gameLost)
-		//{
-			if (lineCounter == BASE_ALIEN_Y_1+alienYBasePos) drawType = drawAlien_row1;
-			if (lineCounter == BASE_ALIEN_Y_2+alienYBasePos) drawType = drawAlien_row2;
-			if (lineCounter == BASE_ALIEN_Y_3+alienYBasePos) drawType = drawAlien_row3;
-			if (lineCounter == BASE_ALIEN_Y_4+alienYBasePos) drawType = drawAlien_row4;
-			if (lineCounter == BASE_ALIEN_Y_5+alienYBasePos) drawType = drawAlien_row5;
-		//}
+		if (lineCounter > FIRST_LINE_DRAWN+5)
+		{
+			if ((lineCounter == fireYPos) && (firePressed))
+			{
+				delayLoop(fireXPos+10);
+				NOP_FOR_TIMING
+				NOP_FOR_TIMING
+				NOP_FOR_TIMING
+				NOP_FOR_TIMING
+				FIVE_NOP_FOR_TIMING
+				PIXEL_ON();
+				NOP_FOR_TIMING
+				PIXEL_OFF();
+			}
+			if (fireYPos <= FIRST_LINE_DRAWN+5) firePressed = 0;
+		}
+
+		if (lineCounter == BASE_ALIEN_Y_1+alienYBasePos) drawType = drawAlien_row1;
+		if (lineCounter == BASE_ALIEN_Y_2+alienYBasePos) drawType = drawAlien_row2;
+		if (lineCounter == BASE_ALIEN_Y_3+alienYBasePos) drawType = drawAlien_row3;
+		if (lineCounter == BASE_ALIEN_Y_4+alienYBasePos) drawType = drawAlien_row4;
+		if (lineCounter == BASE_ALIEN_Y_5+alienYBasePos) drawType = drawAlien_row5;
 
 		lineCounter++;
 
@@ -566,40 +573,48 @@ int main()
 		{
 		case 1:
 			vSync = 0;
-			firePressed = 0;
 			break;
 		case FIRST_LINE_DRAWN:
+
 			//PIXEL_ON()
 			//delayLoop(160);
 			//PIXEL_OFF()
 		    // debug alien target line up
 			{
-				int de = 0;
+				int de = kill;
 				TEN_NOP_FOR_TIMING
 				TEN_NOP_FOR_TIMING
 				TEN_NOP_FOR_TIMING
-
-				do
+				while (de > 0)
 				{
 					delayLoop(5);
 					PIXEL_ON();
 					delayLoop(10);
 					PIXEL_OFF();
+					de--;
 				}
-				while (de++ < 4);
+
 			}
 			break;
 		case FIRST_LINE_DRAWN+1:
-
-			if (drawDebug > 0)
+#if 0
+			if (firePressed == 1)
 			{
-				delayLoop((5*drawDebug));
-				NOP_FOR_TIMING
-				NOP_FOR_TIMING
-				PIXEL_ON();
-				delayLoop(10);
-				PIXEL_OFF();
+				if (drawDebug > 0)
+				{
+					delayLoop((5*drawDebug));
+					NOP_FOR_TIMING
+					NOP_FOR_TIMING
+					PIXEL_ON();
+					delayLoop(10);
+					PIXEL_OFF();
+				}
 			}
+			else
+			{
+				drawDebug = 0;
+			}
+#endif
 
 			if ((alienYBasePos > FIRST_LINE_DRAWN+60) && (drawType != gameWon))
 			{
@@ -634,14 +649,13 @@ int main()
 				}
 				else
 				{
-					//if (fireRate <= 0) firePressed = 1;
-					firePressed = 1;
-					if (fireRate++ > 12)
+					if (firePressed == 0)
 					{
-						fireRate = 0;
+						firePressed = 1;
+						fireYPos = MAX_LINE_BEFORE_BLANK - 66;
+						fireXPos = playerXPos;
+						gameRunning = 1;
 					}
-
-					gameRunning = 1;
 				}
 
 				if (playerXPos > MAX_X_PLAYER)
@@ -653,23 +667,23 @@ int main()
 					playerXPos = MIN_X_PLAYER+1;
 				}
 
-				if (playerXPos == alienXStartPos[0])
+				if (fireXPos == alienXStartPos[0])
 				{
 					drawDebug = 1;
 				}
-				if (playerXPos == alienXStartPos[1])
+				if (fireXPos == alienXStartPos[1])
 				{
 					drawDebug = 2;
 				}
-				if (playerXPos == alienXStartPos[2])
+				if (fireXPos == alienXStartPos[2])
 				{
 					drawDebug = 3;
 				}
-				if (playerXPos == alienXStartPos[3])
+				if (fireXPos == alienXStartPos[3])
 				{
 					drawDebug = 4;
 				}
-				if (playerXPos == alienXStartPos[4])
+				if (fireXPos == alienXStartPos[4])
 				{
 					drawDebug = 5;
 				}
@@ -677,10 +691,11 @@ int main()
 
 				alienMoveThisTime = alienMoveThisTime + 1;
 
-				if (gameRunning)
+				if (gameRunning == 1)
 				{
 					if (alienMoveThisTime >= alienMoveRate)
 					{
+
 						if (alienDirection == 1)
 						{
 							alienXStartPos[0]+=alienMoveRate;
@@ -696,7 +711,6 @@ int main()
 							alienXStartPos[2]=alienXStartPos[0]+30;
 							alienXStartPos[3]=alienXStartPos[0]+45;
 							alienXStartPos[4]=alienXStartPos[0]+60;
-
 						}
 						alienMoveThisTime = 0;
 					}
@@ -735,54 +749,11 @@ int main()
 					alienToggleTrigger = 0;
 					alienToggle = 1 - alienToggle;
 				}
-				fireRate++;
-			}
-			break;
-
-		case (MAX_LINE_BEFORE_BLANK - 120):    /// code to fire
-			if (firePressed == 1)
-			{
-				delayLoop(playerXPos);
-				PIXEL_ON();
-				NOP_FOR_TIMING;
-				PIXEL_OFF_NO_NOP();
-			}
-			break;
-		case (MAX_LINE_BEFORE_BLANK - 112):    /// code to fire
-			if (firePressed == 1)
-			{
-				delayLoop(playerXPos);
-				PIXEL_ON();
-				NOP_FOR_TIMING;
-				PIXEL_OFF_NO_NOP();
-			}
-			break;
-		case (MAX_LINE_BEFORE_BLANK - 104):    /// code to fire
-			if (firePressed == 1)
-			{
-				delayLoop(playerXPos);
-				PIXEL_ON();
-				NOP_FOR_TIMING;
-				PIXEL_OFF_NO_NOP();
-			}
-			break;
-		case (MAX_LINE_BEFORE_BLANK - 96):    /// code to fire
-			if (firePressed == 1)
-			{
-				delayLoop(playerXPos);
-				PIXEL_ON();
-				NOP_FOR_TIMING;
-				PIXEL_OFF_NO_NOP();
-			}
-			break;
-
-		case (MAX_LINE_BEFORE_BLANK - 88):    /// code to fire
-			if (firePressed == 1)
-			{
-				delayLoop(playerXPos);
-				PIXEL_ON();
-				NOP_FOR_TIMING;
-				PIXEL_OFF_NO_NOP();
+				if (fireRate-- == 0)
+				{
+					fireYPos-= 6;
+					fireRate = 2;
+				}
 			}
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 80):
@@ -813,6 +784,8 @@ int main()
 			TEN_NOP_FOR_TIMING;
 			TEN_NOP_FOR_TIMING;
 			TEN_NOP_FOR_TIMING;
+			TEN_NOP_FOR_TIMING;
+			TEN_NOP_FOR_TIMING;
 			NOP_FOR_TIMING;
 			NOP_FOR_TIMING;
 		    NOP_FOR_TIMING;
@@ -828,48 +801,25 @@ int main()
 			delayLoop(BARRIER_WIDTH);
 			PIXEL_OFF_NO_NOP();
 			break;
-		case (MAX_LINE_BEFORE_BLANK - 66):    /// code to fire
-			if (firePressed == 1)
-			{
-				delayLoop(playerXPos);
-				PIXEL_ON();
-				NOP_FOR_TIMING;
-				PIXEL_OFF_NO_NOP();
-			}
-			break;
-		case (MAX_LINE_BEFORE_BLANK - 65):    /// code to fire
-			if (firePressed == 1)
-			{
-				TEN_NOP_FOR_TIMING;
-				FIVE_NOP_FOR_TIMING;
-				delayLoop(playerXPos);
-				PIXEL_ON();
-				NOP_FOR_TIMING;
-				PIXEL_OFF_NO_NOP();
-			}
-			break;
 		case (MAX_LINE_BEFORE_BLANK - 64):    /// code to draw player
 			delayLoop(playerXPos);
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			FIVE_NOP_FOR_TIMING
 			PIXEL_ON();
 			delayLoop(PLAYER_WIDTH);
 			PIXEL_OFF_NO_NOP();
-			lineValidForFire = 0;
-			break;
-		case (MAX_LINE_BEFORE_BLANK - 63):
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 62):
-			delayLoop(playerXPos);
-			TEN_NOP_FOR_TIMING;
-			FIVE_NOP_FOR_TIMING;
+			delayLoop(playerXPos-2);
 			PIXEL_ON();
 			delayLoop(PLAYER_WIDTH);
 			PIXEL_OFF_NO_NOP();
-			lineValidForFire = 0;
-			break;
-		case (MAX_LINE_BEFORE_BLANK - 61):
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 60):  // last line of the player draw
-			delayLoop(playerXPos-2);
+			delayLoop(playerXPos-5);
 			PIXEL_ON();
 			delayLoop(PLAYER_WIDTH);
 			TEN_NOP_FOR_TIMING;
@@ -881,54 +831,59 @@ int main()
 		case (MAX_LINE_BEFORE_BLANK - 50):
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 48):
+			TEN_NOP_FOR_TIMING
 			PIXEL_ON()
-			delayLoop(160);
+			delayLoop(150);
 			PIXEL_OFF()
 			if (firePressed)
 			{
-				if (playerXPos == alienXStartPos[0])
+				if ((fireXPos == alienXStartPos[0]) && (fireYPos >= BASE_ALIEN_Y_1+alienYBasePos) && (fireYPos-20< BASE_ALIEN_Y_1+alienYBasePos))
 				{
-					if (aliensBitPackStatus.alien_row5 &      0b00010000) { aliensBitPackStatus.alien_row5 &= ~(0b00010000);}
-					else if (aliensBitPackStatus.alien_row4 & 0b00010000) { aliensBitPackStatus.alien_row4 &= ~(0b00010000);}
-					else if (aliensBitPackStatus.alien_row3 & 0b00010000) { aliensBitPackStatus.alien_row3 &= ~(0b00010000);}
-					else if (aliensBitPackStatus.alien_row2 & 0b00010000) { aliensBitPackStatus.alien_row2 &= ~(0b00010000);}
-					else if (aliensBitPackStatus.alien_row1 & 0b00010000) { aliensBitPackStatus.alien_row1 &= ~(0b00010000);}
+					if (aliensBitPackStatus.alien_row5 &      0b00010000) { aliensBitPackStatus.alien_row5 &= ~(0b00010000); firePressed=0;}
+					else if (aliensBitPackStatus.alien_row4 & 0b00010000) { aliensBitPackStatus.alien_row4 &= ~(0b00010000);firePressed=0;kill++;}
+					else if (aliensBitPackStatus.alien_row3 & 0b00010000) { aliensBitPackStatus.alien_row3 &= ~(0b00010000);firePressed=0;kill++;}
+					else if (aliensBitPackStatus.alien_row2 & 0b00010000) { aliensBitPackStatus.alien_row2 &= ~(0b00010000);firePressed=0;kill++;}
+					else if (aliensBitPackStatus.alien_row1 & 0b00010000) { aliensBitPackStatus.alien_row1 &= ~(0b00010000);firePressed=0;kill++;}
 				}
-				else if (playerXPos == alienXStartPos[1])
+				else if ((fireXPos == alienXStartPos[1]) && (fireYPos >= BASE_ALIEN_Y_2+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_2+alienYBasePos))
 				{
-					if (aliensBitPackStatus.alien_row5 &      0b00001000) { aliensBitPackStatus.alien_row5 &= ~(0b00001000);}
-					else if (aliensBitPackStatus.alien_row4 & 0b00001000) { aliensBitPackStatus.alien_row4 &= ~(0b00001000);}
-					else if (aliensBitPackStatus.alien_row3 & 0b00001000) { aliensBitPackStatus.alien_row3 &= ~(0b00001000);}
-					else if (aliensBitPackStatus.alien_row2 & 0b00001000) { aliensBitPackStatus.alien_row2 &= ~(0b00001000);}
-					else if (aliensBitPackStatus.alien_row1 & 0b00001000) { aliensBitPackStatus.alien_row1 &= ~(0b00001000);}
+					if (aliensBitPackStatus.alien_row5 &      0b00001000) { aliensBitPackStatus.alien_row5 &= ~(0b00001000);firePressed=0;}
+					else if (aliensBitPackStatus.alien_row4 & 0b00001000) { aliensBitPackStatus.alien_row4 &= ~(0b00001000);firePressed=0;kill++;}
+					else if (aliensBitPackStatus.alien_row3 & 0b00001000) { aliensBitPackStatus.alien_row3 &= ~(0b00001000);firePressed=0;kill++;}
+					else if (aliensBitPackStatus.alien_row2 & 0b00001000) { aliensBitPackStatus.alien_row2 &= ~(0b00001000);firePressed=0;kill++;}
+					else if (aliensBitPackStatus.alien_row1 & 0b00001000) { aliensBitPackStatus.alien_row1 &= ~(0b00001000);firePressed=0;kill++;}
 
 				}
-				else if (playerXPos == alienXStartPos[2])
+				else if ((fireXPos == alienXStartPos[2]) && (fireYPos >= BASE_ALIEN_Y_3+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_3+alienYBasePos))
 				{
-					if (aliensBitPackStatus.alien_row5 &      0b00000100) { aliensBitPackStatus.alien_row5 &= ~(0b00000100);}
-					else if (aliensBitPackStatus.alien_row4 & 0b00000100) { aliensBitPackStatus.alien_row4 &= ~(0b00000100);}
-					else if (aliensBitPackStatus.alien_row3 & 0b00000100) { aliensBitPackStatus.alien_row3 &= ~(0b00000100);}
-					else if (aliensBitPackStatus.alien_row2 & 0b00000100) { aliensBitPackStatus.alien_row2 &= ~(0b00000100);}
-					else if (aliensBitPackStatus.alien_row1 & 0b00000100) { aliensBitPackStatus.alien_row1 &= ~(0b00000100);}
+					if (aliensBitPackStatus.alien_row5 &      0b00000100) { aliensBitPackStatus.alien_row5 &= ~(0b00000100); firePressed=0;}
+					else if (aliensBitPackStatus.alien_row4 & 0b00000100) { aliensBitPackStatus.alien_row4 &= ~(0b00000100); firePressed=0;kill++;}
+					else if (aliensBitPackStatus.alien_row3 & 0b00000100) { aliensBitPackStatus.alien_row3 &= ~(0b00000100); firePressed=0;kill++;}
+					else if (aliensBitPackStatus.alien_row2 & 0b00000100) { aliensBitPackStatus.alien_row2 &= ~(0b00000100); firePressed=0;kill++;}
+					else if (aliensBitPackStatus.alien_row1 & 0b00000100) { aliensBitPackStatus.alien_row1 &= ~(0b00000100); firePressed=0;kill++;}
 				}
-				else if (playerXPos == alienXStartPos[3])
+				else if ((fireXPos == alienXStartPos[3]) && (fireYPos >= BASE_ALIEN_Y_4+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_4+alienYBasePos))
 				{
-					if (aliensBitPackStatus.alien_row5 &      0b00000010) { aliensBitPackStatus.alien_row5 &= ~(0b00000010);}
-					else if (aliensBitPackStatus.alien_row4 & 0b00000010) { aliensBitPackStatus.alien_row4 &= ~(0b00000010);}
-					else if (aliensBitPackStatus.alien_row3 & 0b00000010) { aliensBitPackStatus.alien_row3 &= ~(0b00000010);}
-					else if (aliensBitPackStatus.alien_row2 & 0b00000010) { aliensBitPackStatus.alien_row2 &= ~(0b00000010);}
-					else if (aliensBitPackStatus.alien_row1 & 0b00000010) { aliensBitPackStatus.alien_row1 &= ~(0b00000010);}
+					if (aliensBitPackStatus.alien_row5 &      0b00000010) { aliensBitPackStatus.alien_row5 &= ~(0b00000010);firePressed=0;}
+					else if (aliensBitPackStatus.alien_row4 & 0b00000010) { aliensBitPackStatus.alien_row4 &= ~(0b00000010);firePressed=0;kill++;}
+					else if (aliensBitPackStatus.alien_row3 & 0b00000010) { aliensBitPackStatus.alien_row3 &= ~(0b00000010);firePressed=0;kill++;}
+					else if (aliensBitPackStatus.alien_row2 & 0b00000010) { aliensBitPackStatus.alien_row2 &= ~(0b00000010);firePressed=0;kill++;}
+					else if (aliensBitPackStatus.alien_row1 & 0b00000010) { aliensBitPackStatus.alien_row1 &= ~(0b00000010);firePressed=0;kill++;}
 				}
-				else if (playerXPos == alienXStartPos[4])
+				else if ((fireXPos == alienXStartPos[4]) && (fireYPos >= BASE_ALIEN_Y_5+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_5+alienYBasePos))
 				{
-					if (aliensBitPackStatus.alien_row5 &      0b00000001) { aliensBitPackStatus.alien_row5 &= ~(0b00000001);}
-					else if (aliensBitPackStatus.alien_row4 & 0b00000001) { aliensBitPackStatus.alien_row4 &= ~(0b00000001);}
-					else if (aliensBitPackStatus.alien_row3 & 0b00000001) { aliensBitPackStatus.alien_row3 &= ~(0b00000001);}
-					else if (aliensBitPackStatus.alien_row2 & 0b00000001) { aliensBitPackStatus.alien_row2 &= ~(0b00000001);}
-					else if (aliensBitPackStatus.alien_row1 & 0b00000001) { aliensBitPackStatus.alien_row1 &= ~(0b00000001);}
+					if (aliensBitPackStatus.alien_row5 &      0b00000001) { aliensBitPackStatus.alien_row5 &= ~(0b00000001);firePressed=0;}
+					else if (aliensBitPackStatus.alien_row4 & 0b00000001) { aliensBitPackStatus.alien_row4 &= ~(0b00000001);firePressed=0;kill++;}
+					else if (aliensBitPackStatus.alien_row3 & 0b00000001) { aliensBitPackStatus.alien_row3 &= ~(0b00000001);firePressed=0;kill++;}
+					else if (aliensBitPackStatus.alien_row2 & 0b00000001) { aliensBitPackStatus.alien_row2 &= ~(0b00000001);firePressed=0;kill++;}
+					else if (aliensBitPackStatus.alien_row1 & 0b00000001) { aliensBitPackStatus.alien_row1 &= ~(0b00000001);firePressed=0;kill++;}
 				}
 			}
-
+			if (firePressed)
+			{
+				PIXEL_ON();
+				PIXEL_OFF();
+			}
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 6):
 			vSync = 1;
