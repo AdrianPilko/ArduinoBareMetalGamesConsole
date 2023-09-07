@@ -93,7 +93,7 @@ int main()
 
 	int alienYBasePos = 0;
 	int gameRunning = 0;
-	int kill = 0;
+	uint8_t kill = 0;
 
 	typedef enum {drawNothing=0,
 		drawAlien_row1,
@@ -581,19 +581,11 @@ int main()
 			//PIXEL_OFF()
 		    // debug alien target line up
 			{
-				int de = kill;
-				TEN_NOP_FOR_TIMING
-				TEN_NOP_FOR_TIMING
-				TEN_NOP_FOR_TIMING
-				while (de > 0)
-				{
-					delayLoop(5);
-					PIXEL_ON();
-					delayLoop(10);
-					PIXEL_OFF();
-					de--;
-				}
 
+				TEN_NOP_FOR_TIMING
+				PIXEL_ON();
+				if (kill >= 1) delayLoop(kill * 5);
+				PIXEL_OFF();
 			}
 			break;
 		case FIRST_LINE_DRAWN+1:
@@ -751,7 +743,7 @@ int main()
 				}
 				if (fireRate-- == 0)
 				{
-					fireYPos-= 6;
+					fireYPos-= 8;
 					fireRate = 2;
 				}
 			}
@@ -837,42 +829,46 @@ int main()
 			PIXEL_OFF()
 			if (firePressed)
 			{
-				if ((fireXPos == alienXStartPos[0]) && (fireYPos >= BASE_ALIEN_Y_1+alienYBasePos) && (fireYPos-20< BASE_ALIEN_Y_1+alienYBasePos))
+				if ((fireXPos >= alienXStartPos[0]) && (fireXPos-4 <= alienXStartPos[0]) && (fireYPos >= BASE_ALIEN_Y_1+alienYBasePos) && (fireYPos-20< BASE_ALIEN_Y_1+alienYBasePos))
 				{
-					if (aliensBitPackStatus.alien_row5 &      0b00010000) { aliensBitPackStatus.alien_row5 &= ~(0b00010000); firePressed=0;}
+					if (aliensBitPackStatus.alien_row5 &      0b00010000) { aliensBitPackStatus.alien_row5 &= ~(0b00010000); firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row4 & 0b00010000) { aliensBitPackStatus.alien_row4 &= ~(0b00010000);firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row3 & 0b00010000) { aliensBitPackStatus.alien_row3 &= ~(0b00010000);firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row2 & 0b00010000) { aliensBitPackStatus.alien_row2 &= ~(0b00010000);firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row1 & 0b00010000) { aliensBitPackStatus.alien_row1 &= ~(0b00010000);firePressed=0;kill++;}
 				}
-				else if ((fireXPos == alienXStartPos[1]) && (fireYPos >= BASE_ALIEN_Y_2+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_2+alienYBasePos))
+				else if ((fireXPos >= alienXStartPos[1]) && (fireXPos-4 < alienXStartPos[1]) &&
+						 (fireYPos >= BASE_ALIEN_Y_2+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_2+alienYBasePos))
 				{
-					if (aliensBitPackStatus.alien_row5 &      0b00001000) { aliensBitPackStatus.alien_row5 &= ~(0b00001000);firePressed=0;}
+					if (aliensBitPackStatus.alien_row5 &      0b00001000) { aliensBitPackStatus.alien_row5 &= ~(0b00001000);firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row4 & 0b00001000) { aliensBitPackStatus.alien_row4 &= ~(0b00001000);firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row3 & 0b00001000) { aliensBitPackStatus.alien_row3 &= ~(0b00001000);firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row2 & 0b00001000) { aliensBitPackStatus.alien_row2 &= ~(0b00001000);firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row1 & 0b00001000) { aliensBitPackStatus.alien_row1 &= ~(0b00001000);firePressed=0;kill++;}
 
 				}
-				else if ((fireXPos == alienXStartPos[2]) && (fireYPos >= BASE_ALIEN_Y_3+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_3+alienYBasePos))
+				else if ((fireXPos >= alienXStartPos[2]) && (fireXPos-4 <  alienXStartPos[2]) &&
+						 (fireYPos >= BASE_ALIEN_Y_3+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_3+alienYBasePos))
 				{
-					if (aliensBitPackStatus.alien_row5 &      0b00000100) { aliensBitPackStatus.alien_row5 &= ~(0b00000100); firePressed=0;}
+					if (aliensBitPackStatus.alien_row5 &      0b00000100) { aliensBitPackStatus.alien_row5 &= ~(0b00000100); firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row4 & 0b00000100) { aliensBitPackStatus.alien_row4 &= ~(0b00000100); firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row3 & 0b00000100) { aliensBitPackStatus.alien_row3 &= ~(0b00000100); firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row2 & 0b00000100) { aliensBitPackStatus.alien_row2 &= ~(0b00000100); firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row1 & 0b00000100) { aliensBitPackStatus.alien_row1 &= ~(0b00000100); firePressed=0;kill++;}
 				}
-				else if ((fireXPos == alienXStartPos[3]) && (fireYPos >= BASE_ALIEN_Y_4+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_4+alienYBasePos))
+				else if ((fireXPos >= alienXStartPos[3]) && (fireXPos-4 <  alienXStartPos[3]) &&
+						 (fireYPos >= BASE_ALIEN_Y_4+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_4+alienYBasePos))
 				{
-					if (aliensBitPackStatus.alien_row5 &      0b00000010) { aliensBitPackStatus.alien_row5 &= ~(0b00000010);firePressed=0;}
+					if (aliensBitPackStatus.alien_row5 &      0b00000010) { aliensBitPackStatus.alien_row5 &= ~(0b00000010);firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row4 & 0b00000010) { aliensBitPackStatus.alien_row4 &= ~(0b00000010);firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row3 & 0b00000010) { aliensBitPackStatus.alien_row3 &= ~(0b00000010);firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row2 & 0b00000010) { aliensBitPackStatus.alien_row2 &= ~(0b00000010);firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row1 & 0b00000010) { aliensBitPackStatus.alien_row1 &= ~(0b00000010);firePressed=0;kill++;}
 				}
-				else if ((fireXPos == alienXStartPos[4]) && (fireYPos >= BASE_ALIEN_Y_5+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_5+alienYBasePos))
+				else if ((fireXPos >= alienXStartPos[4])&& (fireXPos-4 <  alienXStartPos[4])  &&
+						 (fireYPos >= BASE_ALIEN_Y_5+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_5+alienYBasePos))
 				{
-					if (aliensBitPackStatus.alien_row5 &      0b00000001) { aliensBitPackStatus.alien_row5 &= ~(0b00000001);firePressed=0;}
+					if (aliensBitPackStatus.alien_row5 &      0b00000001) { aliensBitPackStatus.alien_row5 &= ~(0b00000001);firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row4 & 0b00000001) { aliensBitPackStatus.alien_row4 &= ~(0b00000001);firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row3 & 0b00000001) { aliensBitPackStatus.alien_row3 &= ~(0b00000001);firePressed=0;kill++;}
 					else if (aliensBitPackStatus.alien_row2 & 0b00000001) { aliensBitPackStatus.alien_row2 &= ~(0b00000001);firePressed=0;kill++;}
