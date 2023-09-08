@@ -631,3 +631,24 @@ inline void delayLoop(uint8_t delay)
 	}
 	while (delay-- > 0);
 }
+
+inline void checkHitAlien (uint8_t *rowStatusAddresses,
+				uint8_t fireXPos,
+				uint8_t fireYPos,
+				uint8_t AlienXPos,
+				uint8_t AlienYPos,
+				uint8_t mask,
+				int *firePressed,
+				uint8_t *kill)
+{
+	if ((fireXPos >= AlienXPos) && (fireXPos-7 <= AlienXPos)
+		 && (fireYPos >= AlienYPos) && (fireYPos-20 < AlienYPos))
+	{
+		if (*rowStatusAddresses & mask)
+		{
+			(*kill)++;
+			*firePressed=0;
+		}
+		*rowStatusAddresses &= ~(mask);
+	}
+}
