@@ -546,6 +546,83 @@ void alienDraw_blank(const int alienLineCount)
 	};
 }
 
+inline void putCharOneLine(const uint8_t charBits)
+{
+	if (charBits & 0b10000000) PIXEL_ON() else PIXEL_OFF()
+	if (charBits & 0b01000000) PIXEL_ON() else PIXEL_OFF()
+	if (charBits & 0b00100000) PIXEL_ON() else PIXEL_OFF()
+	if (charBits & 0b00010000) PIXEL_ON() else PIXEL_OFF()
+	if (charBits & 0b00001000) PIXEL_ON() else PIXEL_OFF()
+	if (charBits & 0b00000100) PIXEL_ON() else PIXEL_OFF()
+	if (charBits & 0b00000010) PIXEL_ON() else PIXEL_OFF()
+	if (charBits & 0b00000001) PIXEL_ON() else PIXEL_OFF()
+	PIXEL_OFF_NO_NOP()
+}
+
+// you won is 5 chars (o dup)
+// 012 415  <---- this is it in index into the "chars"
+const uint8_t chars[5][8]=
+{
+{0b10000010,
+ 0b10000010,
+ 0b01000100,
+ 0b00100100,
+ 0b00010000,
+ 0b00010000,
+ 0b00010000,
+ 0b00010000},
+
+{0b00111000,
+ 0b01000100,
+ 0b10000010,
+ 0b10000010,
+ 0b10000010,
+ 0b10000010,
+ 0b01000100,
+ 0b00111000},
+
+{0b10000010,
+ 0b10000010,
+ 0b10000010,
+ 0b10000010,
+ 0b10000010,
+ 0b10000010,
+ 0b01000100,
+ 0b00111000},
+
+{0b10000010,
+ 0b10000010,
+ 0b10000010,
+ 0b10000010,
+ 0b10000010,
+ 0b10010010,
+ 0b01010100,
+ 0b00101000},
+
+{0b10000010,
+ 0b11000010,
+ 0b10100010,
+ 0b10010010,
+ 0b10001010,
+ 0b10000110,
+ 0b10000010,
+ 0b00000000},
+};
+
+inline void drawGameWon(const int charLineCount)
+{
+	//012 415 == you won in my char set!
+	if ((charLineCount < 8) && (charLineCount >= 0))
+	{
+		putCharOneLine(chars[0][charLineCount]);
+		putCharOneLine(chars[1][charLineCount]);
+		putCharOneLine(chars[2][charLineCount]);
+		putCharOneLine(chars[3][charLineCount]);
+		putCharOneLine(chars[1][charLineCount]);
+		putCharOneLine(chars[4][charLineCount]);
+	}
+}
+
 inline void delayLoop(uint8_t delay)
 {
 	do
