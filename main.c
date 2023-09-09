@@ -111,7 +111,7 @@ int main()
 							 MIN_X_ALIEN+60};
 	int alienMoveThisTime = 0;
 
-	uint8_t alienMoveRate = 1;
+	uint8_t alienMoveRate = 2;
 
 	int fireRate = 0;
 
@@ -546,7 +546,7 @@ int main()
 			if (outputToneThisLoop > 0)
 			{
 				PORTD |= (1 << PD5); // speaker output
-				_delay_us(20);
+				_delay_us(15);
 				PORTD &= ~(1 << PD5);
 			}
 		}
@@ -598,13 +598,14 @@ int main()
 			}
 #endif
 
-			if ((alienYBasePos > FIRST_LINE_DRAWN+60) && (drawType != gameWon))
+			if ((alienYBasePos > FIRST_LINE_DRAWN+90) && (drawType != gameWon))
 			{
 				drawType = gameLost;
+				outputToneThisLoop = 30000;
 			}
 			else if (drawType == gameWon)
 			{
-				// do nothing
+				outputToneThisLoop = 10000;
 			}
 			else
 			{
@@ -718,13 +719,14 @@ int main()
 
 					// move aliens down by one line (getting closer to you!)
 					alienYBasePos += 1;
+					outputToneThisLoop = 10000;
 
 					// speed up the aliens
-					//alienMoveRate = alienMoveRate + 1;
-					//if (alienMoveRate > 4)
-				//	{
-					//	alienMoveRate = 4;
-				//	}
+					//alienMoveRate = alienMoveRate + 2;
+					//if (alienMoveRate >= 2)
+					//{
+					//	alienMoveRate = 2;
+					//}
 				}
 
 				if (alienToggleTrigger++ >= 20 - alienMoveRate)
@@ -786,15 +788,12 @@ int main()
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 64):    /// code to draw player
 			delayLoop(playerXPos);
-			NOP_FOR_TIMING
-			FIVE_NOP_FOR_TIMING
-			FIVE_NOP_FOR_TIMING
 			PIXEL_ON();
 			delayLoop(PLAYER_WIDTH);
 			PIXEL_OFF_NO_NOP();
 			break;
-		case (MAX_LINE_BEFORE_BLANK - 62):
-			delayLoop(playerXPos-2);
+		case (MAX_LINE_BEFORE_BLANK - 62):  // second line of player
+		    delayLoop(playerXPos-5);
 			PIXEL_ON();
 			delayLoop(PLAYER_WIDTH);
 			PIXEL_OFF_NO_NOP();
@@ -803,10 +802,6 @@ int main()
 			delayLoop(playerXPos-5);
 			PIXEL_ON();
 			delayLoop(PLAYER_WIDTH);
-			TEN_NOP_FOR_TIMING;
-			FIVE_NOP_FOR_TIMING;
-			NOP_FOR_TIMING;
-			NOP_FOR_TIMING;
 			PIXEL_OFF_NO_NOP();
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 50):
@@ -863,11 +858,6 @@ int main()
 					else if (aliensBitPackStatus.alien_row2 & 0b00000001) { aliensBitPackStatus.alien_row2 &= ~(0b00000001);firePressed=0;kill++;outputToneThisLoop = 30000;}
 					else if (aliensBitPackStatus.alien_row1 & 0b00000001) { aliensBitPackStatus.alien_row1 &= ~(0b00000001);firePressed=0;kill++;outputToneThisLoop = 30000;}
 				}
-			}
-			if (firePressed)
-			{
-				PIXEL_ON();
-				PIXEL_OFF();
 			}
 			break;
 		case (MAX_LINE_BEFORE_BLANK - 6):
