@@ -1,7 +1,3 @@
-//#define DEBUG_PIN5_MEASURE_ON_INT_LOOP
-//#define DEBUG_PIN5_MEASURE_ON_ALIEN_DELAY
-#define DEBUG_PIN5_MEASURE_HSYNC
-
 // This is meant to be run on an Arduino UNO board
 // pin and 12 and 13 go to centre of a 10k pot, pin 12 through a 330 Ohm resistor.
 // one side of the pot goes to VCC the other to ground and the centre of the pot also goes to the composite connector
@@ -94,6 +90,7 @@ int main()
 	int alienYBasePos = 0;
 	int gameRunning = 0;
 	uint8_t kill = 0;
+	int outputToneThisLoop = 0;
 
 	typedef enum {drawNothing=0,
 		drawAlien_row1,
@@ -138,7 +135,7 @@ int main()
 	DDRD &= ~(1 << PD4);	//Pin 4 input (fire button)
 	PORTD |= (1 << PD4);    //Pin 4 input
 
-	DDRD |= (1 << PD5);	//Pin 5 output for debug (measure length of pulse on scope)
+	DDRD |= (1 << PD5);	//Pin 5 output for speaker amp
 	PORTD |= (1 << PD5);    //Pin 5
 
 	TCCR1B = (1 << CS10); // switch off clock prescaller
@@ -150,17 +147,6 @@ int main()
 		while ((TIFR1 & (1 << OCF1A)) == 0) {
 			// wait till the timer overflow flag is SET
 		}
-
-#ifdef DEBUG_PIN5_MEASURE_ON_INT_LOOP
-
-		PORTD |= (1 << PD5); // Set bit 5 of PORTD to 1 (high) this will tell me (via a scope on the pin ) how long we're waiting here
-		                   // which means how long we have left for our other code
-#endif
-
-#ifdef DEBUG_PIN5_MEASURE_ON_INT_LOOP
-		PORTD &= ~(1 << PD5);
-#endif
-
 		// immediately reset the interrupt timer, previous version had this at the end
 		// which made the whole thing be delayed when we're trying to maintain the 64us PAL line timing
 		TCNT1 = 0;
@@ -177,14 +163,6 @@ int main()
 		}
 		else // hsync
 		{
-#ifdef DEBUG_PIN5_MEASURE_HSYNC
-
-		PORTD |= (1 << PD5); // Set bit 5 of PORTD to 1 (high) this will tell me (via a scope on the pin ) how long we're waiting here
-		                   // which means how long we have left for our other code
-#endif
-#ifdef DEBUG_PIN5_MEASURE_HSYNC
-		PORTD &= ~(1 << PD5);
-#endif
 			// before the end of line (which in here is also effectively just the start of the line!) we need to hold at 300mV
 			// and ensure no pixels
 			DDRB = 0;
@@ -558,7 +536,19 @@ int main()
 				NOP_FOR_TIMING
 				PIXEL_OFF();
 			}
-			if (fireYPos <= FIRST_LINE_DRAWN+5) firePressed = 0;
+			if (fireYPos <= FIRST_LINE_DRAWN+5)
+			{
+				firePressed = 0;
+			}
+
+			if (outputToneThisLoop > 0) outputToneThisLoop--;
+
+			if (outputToneThisLoop > 0)
+			{
+				PORTD |= (1 << PD5); // speaker output
+				_delay_us(20);
+				PORTD &= ~(1 << PD5);
+			}
 		}
 
 		if (lineCounter == BASE_ALIEN_Y_1+alienYBasePos) drawType = drawAlien_row1;
@@ -647,6 +637,7 @@ int main()
 						fireYPos = MAX_LINE_BEFORE_BLANK - 66;
 						fireXPos = playerXPos;
 						gameRunning = 1;
+						//outputToneThisLoop = 10000;
 					}
 				}
 
@@ -831,48 +822,48 @@ int main()
 			{
 				if ((fireXPos >= alienXStartPos[0]) && (fireXPos-4 <= alienXStartPos[0]) && (fireYPos >= BASE_ALIEN_Y_1+alienYBasePos) && (fireYPos-20< BASE_ALIEN_Y_1+alienYBasePos))
 				{
-					if (aliensBitPackStatus.alien_row5 &      0b00010000) { aliensBitPackStatus.alien_row5 &= ~(0b00010000); firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row4 & 0b00010000) { aliensBitPackStatus.alien_row4 &= ~(0b00010000);firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row3 & 0b00010000) { aliensBitPackStatus.alien_row3 &= ~(0b00010000);firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row2 & 0b00010000) { aliensBitPackStatus.alien_row2 &= ~(0b00010000);firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row1 & 0b00010000) { aliensBitPackStatus.alien_row1 &= ~(0b00010000);firePressed=0;kill++;}
+					if (aliensBitPackStatus.alien_row5 &      0b00010000) { aliensBitPackStatus.alien_row5 &= ~(0b00010000); firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row4 & 0b00010000) { aliensBitPackStatus.alien_row4 &= ~(0b00010000);firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row3 & 0b00010000) { aliensBitPackStatus.alien_row3 &= ~(0b00010000);firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row2 & 0b00010000) { aliensBitPackStatus.alien_row2 &= ~(0b00010000);firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row1 & 0b00010000) { aliensBitPackStatus.alien_row1 &= ~(0b00010000);firePressed=0;kill++;outputToneThisLoop = 30000;}
 				}
 				else if ((fireXPos >= alienXStartPos[1]) && (fireXPos-4 < alienXStartPos[1]) &&
 						 (fireYPos >= BASE_ALIEN_Y_2+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_2+alienYBasePos))
 				{
-					if (aliensBitPackStatus.alien_row5 &      0b00001000) { aliensBitPackStatus.alien_row5 &= ~(0b00001000);firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row4 & 0b00001000) { aliensBitPackStatus.alien_row4 &= ~(0b00001000);firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row3 & 0b00001000) { aliensBitPackStatus.alien_row3 &= ~(0b00001000);firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row2 & 0b00001000) { aliensBitPackStatus.alien_row2 &= ~(0b00001000);firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row1 & 0b00001000) { aliensBitPackStatus.alien_row1 &= ~(0b00001000);firePressed=0;kill++;}
+					if (aliensBitPackStatus.alien_row5 &      0b00001000) { aliensBitPackStatus.alien_row5 &= ~(0b00001000);firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row4 & 0b00001000) { aliensBitPackStatus.alien_row4 &= ~(0b00001000);firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row3 & 0b00001000) { aliensBitPackStatus.alien_row3 &= ~(0b00001000);firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row2 & 0b00001000) { aliensBitPackStatus.alien_row2 &= ~(0b00001000);firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row1 & 0b00001000) { aliensBitPackStatus.alien_row1 &= ~(0b00001000);firePressed=0;kill++;outputToneThisLoop = 30000;}
 
 				}
 				else if ((fireXPos >= alienXStartPos[2]) && (fireXPos-4 <  alienXStartPos[2]) &&
 						 (fireYPos >= BASE_ALIEN_Y_3+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_3+alienYBasePos))
 				{
-					if (aliensBitPackStatus.alien_row5 &      0b00000100) { aliensBitPackStatus.alien_row5 &= ~(0b00000100); firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row4 & 0b00000100) { aliensBitPackStatus.alien_row4 &= ~(0b00000100); firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row3 & 0b00000100) { aliensBitPackStatus.alien_row3 &= ~(0b00000100); firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row2 & 0b00000100) { aliensBitPackStatus.alien_row2 &= ~(0b00000100); firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row1 & 0b00000100) { aliensBitPackStatus.alien_row1 &= ~(0b00000100); firePressed=0;kill++;}
+					if (aliensBitPackStatus.alien_row5 &      0b00000100) { aliensBitPackStatus.alien_row5 &= ~(0b00000100); firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row4 & 0b00000100) { aliensBitPackStatus.alien_row4 &= ~(0b00000100); firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row3 & 0b00000100) { aliensBitPackStatus.alien_row3 &= ~(0b00000100); firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row2 & 0b00000100) { aliensBitPackStatus.alien_row2 &= ~(0b00000100); firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row1 & 0b00000100) { aliensBitPackStatus.alien_row1 &= ~(0b00000100); firePressed=0;kill++;outputToneThisLoop = 30000;}
 				}
 				else if ((fireXPos >= alienXStartPos[3]) && (fireXPos-4 <  alienXStartPos[3]) &&
 						 (fireYPos >= BASE_ALIEN_Y_4+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_4+alienYBasePos))
 				{
-					if (aliensBitPackStatus.alien_row5 &      0b00000010) { aliensBitPackStatus.alien_row5 &= ~(0b00000010);firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row4 & 0b00000010) { aliensBitPackStatus.alien_row4 &= ~(0b00000010);firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row3 & 0b00000010) { aliensBitPackStatus.alien_row3 &= ~(0b00000010);firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row2 & 0b00000010) { aliensBitPackStatus.alien_row2 &= ~(0b00000010);firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row1 & 0b00000010) { aliensBitPackStatus.alien_row1 &= ~(0b00000010);firePressed=0;kill++;}
+					if (aliensBitPackStatus.alien_row5 &      0b00000010) { aliensBitPackStatus.alien_row5 &= ~(0b00000010);firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row4 & 0b00000010) { aliensBitPackStatus.alien_row4 &= ~(0b00000010);firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row3 & 0b00000010) { aliensBitPackStatus.alien_row3 &= ~(0b00000010);firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row2 & 0b00000010) { aliensBitPackStatus.alien_row2 &= ~(0b00000010);firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row1 & 0b00000010) { aliensBitPackStatus.alien_row1 &= ~(0b00000010);firePressed=0;kill++;outputToneThisLoop = 30000;}
 				}
 				else if ((fireXPos >= alienXStartPos[4])&& (fireXPos-4 <  alienXStartPos[4])  &&
 						 (fireYPos >= BASE_ALIEN_Y_5+alienYBasePos) && (fireYPos-20 < BASE_ALIEN_Y_5+alienYBasePos))
 				{
-					if (aliensBitPackStatus.alien_row5 &      0b00000001) { aliensBitPackStatus.alien_row5 &= ~(0b00000001);firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row4 & 0b00000001) { aliensBitPackStatus.alien_row4 &= ~(0b00000001);firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row3 & 0b00000001) { aliensBitPackStatus.alien_row3 &= ~(0b00000001);firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row2 & 0b00000001) { aliensBitPackStatus.alien_row2 &= ~(0b00000001);firePressed=0;kill++;}
-					else if (aliensBitPackStatus.alien_row1 & 0b00000001) { aliensBitPackStatus.alien_row1 &= ~(0b00000001);firePressed=0;kill++;}
+					if (aliensBitPackStatus.alien_row5 &      0b00000001) { aliensBitPackStatus.alien_row5 &= ~(0b00000001);firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row4 & 0b00000001) { aliensBitPackStatus.alien_row4 &= ~(0b00000001);firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row3 & 0b00000001) { aliensBitPackStatus.alien_row3 &= ~(0b00000001);firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row2 & 0b00000001) { aliensBitPackStatus.alien_row2 &= ~(0b00000001);firePressed=0;kill++;outputToneThisLoop = 30000;}
+					else if (aliensBitPackStatus.alien_row1 & 0b00000001) { aliensBitPackStatus.alien_row1 &= ~(0b00000001);firePressed=0;kill++;outputToneThisLoop = 30000;}
 				}
 			}
 			if (firePressed)
