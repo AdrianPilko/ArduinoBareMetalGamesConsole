@@ -787,9 +787,7 @@ int main()
 		case (MAX_LINE_BEFORE_BLANK - 64):    /// code to draw player
 			delayLoop(playerXPos);
 			NOP_FOR_TIMING
-			NOP_FOR_TIMING
-			NOP_FOR_TIMING
-			NOP_FOR_TIMING
+			FIVE_NOP_FOR_TIMING
 			FIVE_NOP_FOR_TIMING
 			PIXEL_ON();
 			delayLoop(PLAYER_WIDTH);
