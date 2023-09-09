@@ -10,7 +10,7 @@
 /// On arduino a NOP is 1 clock cycles, so gives a timing of
 /// 1 / 16MHz = 1 / 16000000 = 0.0000000625seconds = 0.0625microseconds
 /// each line of the screen must take 64microseconds
-// also switch staements are used to speed up the logic where possible, and more memory is used for
+// also switch statements are used to speed up the logic where possible, and more memory is used for
 // structures to save execution time - all this to say the code may look messy but try doing it other ways
 // without using just assembly code (might be the final option!)
 
