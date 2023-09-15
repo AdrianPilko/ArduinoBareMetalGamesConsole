@@ -2,13 +2,13 @@
 // Copyright 2023 Adrian Pilkington
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
-// documentation files (the “Software”), to deal in the Software without restriction, including without limitation 
+// documentation files (the Software), to deal in the Software without restriction, including without limitation
 // the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
 // and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
 // The above copyright notice and this permission notice shall be included in all copies or substantial 
 // portions of the Software.
-// THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+// THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
 // TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
 // THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
 // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
@@ -22,7 +22,9 @@
 // one side of the pot goes to VCC the other to ground and the centre of the pot also goes to the composite connector
 // centre pin. if using atmega328p on bare board (not arduino) then its PB5 and PB4.
 
-// connect pin2 3 and 4 through ground for right, left and fire button
+// connect pin2 = left
+// connect pin3 = right
+// conect pin 4 = fire button
 
 /// The code is written deliberately to ensure correct timing, so instead of for or while, do while loops
 /// in several places, especially for delays, just directly unrolled loops of asm nop are used (nop = no operation)
@@ -153,17 +155,17 @@ int main() {
     DDRB |= 1 << COMPOSITE_PIN;
     DDRB |= 1 << LUMINANCE_PIN;
 
-    DDRD &= ~(1 << PD2); //Pin 2 input (move right)
+    DDRD &= ~(1 << PD2); //Pin 2 input (move left)
     PORTD |= (1 << PD2); //Pin 2 input
 
-    DDRD &= ~(1 << PD3); //Pin 3 input (move left)
+    DDRD &= ~(1 << PD3); //Pin 3 input (move right)
     PORTD |= (1 << PD3); //Pin 3 input
 
     DDRD &= ~(1 << PD4); //Pin 4 input (fire button)
     PORTD |= (1 << PD4); //Pin 4 input
 
-    DDRD |= (1 << PD5); //Pin 5 output for speaker amp
-    PORTD |= (1 << PD5); //Pin 5
+    DDRB |= (1 << PB1); //Pin 9 output for speaker amp
+    PORTB |= (1 << PB1); //Pin 9
 
     TCCR1B = (1 << CS10); // switch off clock prescaller
     OCR1A = 1024; //timer interrupt cycles which gives rise to 64usec line sync time
@@ -444,9 +446,9 @@ int main() {
             if (outputToneThisLoop > 0) outputToneThisLoop--;
 
             if (outputToneThisLoop > 0) {
-                PORTD |= (1 << PD5); // speaker output
+                PORTB |= (1 << PB1); // speaker output
                 _delay_us(15);
-                PORTD &= ~(1 << PD5);
+                PORTB &= ~(1 << PB1);
             }
         }
 
@@ -508,10 +510,10 @@ int main() {
 
                 // Check if input control pins
                 if (PIND & (1 << PD2)) {
-                    playerXPos = playerXPos - 1;
+                    playerXPos = playerXPos + 1;
                 }
                 if (PIND & (1 << PD3)) {
-                    playerXPos = playerXPos + 1;
+                    playerXPos = playerXPos - 1;
                 }
                 if (PIND & (1 << PD4)) {
 
