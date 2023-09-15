@@ -93,6 +93,7 @@ int main() {
     int lineCounter = 0;
     int drawDebug = 0;
     uint8_t alienLineCount = 0;
+    uint8_t speakerOff = 1;
 
     typedef struct alienStatusStruct {
         uint8_t alien_row1;
@@ -445,10 +446,18 @@ int main() {
 
             if (outputToneThisLoop > 0) outputToneThisLoop--;
 
-            if (outputToneThisLoop > 0) {
-                PORTB |= (1 << PB1); // speaker output
-                _delay_us(15);
-                PORTB &= ~(1 << PB1);
+            if (outputToneThisLoop > 0)
+            {
+                if (speakerOff)
+                {
+                	PORTB |= (1 << PB1); // speaker output
+                	speakerOff = 0;
+                }
+                else
+                {
+                	PORTB &= ~(1 << PB1); // speaker off
+                	speakerOff = 1;
+                }
             }
         }
 
@@ -523,7 +532,7 @@ int main() {
                         fireYPos = MAX_LINE_BEFORE_BLANK - 66;
                         fireXPos = playerXPos;
                         gameRunning = 1;
-                        //outputToneThisLoop = 10000;
+                        outputToneThisLoop = 30000;
                     }
                 }
 
@@ -557,6 +566,7 @@ int main() {
                     if (alienMoveThisTime >= alienMoveRate) {
 
                         if (alienDirection == 1) {
+                        	outputToneThisLoop = 10;
                             alienXStartPos[0] += alienMoveRate;
                             alienXStartPos[1] = alienXStartPos[0] + 12;
                             alienXStartPos[2] = alienXStartPos[0] + 30;
@@ -568,6 +578,7 @@ int main() {
                             alienXStartPos[2] = alienXStartPos[0] + 30;
                             alienXStartPos[3] = alienXStartPos[0] + 45;
                             alienXStartPos[4] = alienXStartPos[0] + 60;
+                            outputToneThisLoop = 10;
                         }
                         alienMoveThisTime = 0;
                     }
@@ -579,6 +590,7 @@ int main() {
                     alienDirection = 0;
                     // move aliens down by one line (getting closer to you!)
                     alienYBasePos += 1;
+                    outputToneThisLoop = 10000;
                 }
                 if (alienXStartPos[0] < MIN_X_ALIEN + alienMoveRate) {
                     alienDirection = 1;
