@@ -220,6 +220,7 @@ int main() {
         // a delay in line 1 = 1/16000000 =0.0000000625 assuming nop = 1 clock cycle
         //drawType = drawNothing;
         switch (drawType) {
+        case drawNothing: break;
         case gameLost: {
             delayLoop(10);
             uint8_t x = 60;
@@ -275,6 +276,12 @@ int main() {
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
             }
+
+            if (alienLineCount++ > 7)
+            {
+            	alienLineCount = 0;
+            	drawType = drawNothing;
+            }
             break;
         case drawAlien_row2:
             delayLoop(alienXStartPos[0]);
@@ -310,6 +317,12 @@ int main() {
                 if (aliensBitPackStatus.alien_row2 & 0b00000001) {
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
+            }
+
+            if (alienLineCount++ > 7)
+            {
+            	alienLineCount = 0;
+            	drawType = drawNothing;
             }
             break;
         case drawAlien_row3:
@@ -347,6 +360,12 @@ int main() {
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
             }
+
+            if (alienLineCount++ > 7)
+            {
+            	alienLineCount = 0;
+            	drawType = drawNothing;
+            }
             break;
         case drawAlien_row4:
             delayLoop(alienXStartPos[0]);
@@ -382,6 +401,12 @@ int main() {
                 if (aliensBitPackStatus.alien_row4 & 0b00000001) {
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
+            }
+
+            if (alienLineCount++ > 7)
+            {
+            	alienLineCount = 0;
+            	drawType = drawNothing;
             }
             break;
         case drawAlien_row5:
@@ -419,13 +444,14 @@ int main() {
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
             }
-            break;
-        }
-        if (drawType != drawNothing) {
-            if (alienLineCount++ > 7) {
-                alienLineCount = 0;
-                drawType = drawNothing;
+
+            if (alienLineCount++ > 7)
+            {
+            	alienLineCount = 0;
+            	drawType = drawNothing;
             }
+            break;
+        	default: break;
         }
 
         if (lineCounter > FIRST_LINE_DRAWN + 5) {
@@ -460,12 +486,19 @@ int main() {
                 }
             }
         }
-
-        if (lineCounter == BASE_ALIEN_Y_1 + alienYBasePos) drawType = drawAlien_row1;
-        if (lineCounter == BASE_ALIEN_Y_2 + alienYBasePos) drawType = drawAlien_row2;
-        if (lineCounter == BASE_ALIEN_Y_3 + alienYBasePos) drawType = drawAlien_row3;
-        if (lineCounter == BASE_ALIEN_Y_4 + alienYBasePos) drawType = drawAlien_row4;
-        if (lineCounter == BASE_ALIEN_Y_5 + alienYBasePos) drawType = drawAlien_row5;
+#if 0
+        if (lineCounter == BASE_ALIEN_Y_1 + alienYBasePos)	drawType = drawAlien_row1;
+        if (lineCounter == BASE_ALIEN_Y_2 + alienYBasePos)	drawType = drawAlien_row2;
+        if (lineCounter == BASE_ALIEN_Y_3 + alienYBasePos)	drawType = drawAlien_row3;
+        if (lineCounter == BASE_ALIEN_Y_4 + alienYBasePos)	drawType = drawAlien_row4;
+        if (lineCounter == BASE_ALIEN_Y_5 + alienYBasePos)	drawType = drawAlien_row5;
+#else
+        if (!(aliensBitPackStatus.alien_row1==0) && (lineCounter == BASE_ALIEN_Y_1 + alienYBasePos)) drawType = drawAlien_row1;
+        if (!(aliensBitPackStatus.alien_row2==0) && (lineCounter == BASE_ALIEN_Y_2 + alienYBasePos)) drawType = drawAlien_row2;
+        if (!(aliensBitPackStatus.alien_row3==0) && (lineCounter == BASE_ALIEN_Y_3 + alienYBasePos)) drawType = drawAlien_row3;
+        if (!(aliensBitPackStatus.alien_row4==0) && (lineCounter == BASE_ALIEN_Y_4 + alienYBasePos)) drawType = drawAlien_row4;
+        if (!(aliensBitPackStatus.alien_row5==0) && (lineCounter == BASE_ALIEN_Y_5 + alienYBasePos)) drawType = drawAlien_row5;
+#endif
 
         lineCounter++;
 
@@ -530,7 +563,7 @@ int main() {
                     if (firePressed == 0) {
                         firePressed = 1;
                         fireYPos = MAX_LINE_BEFORE_BLANK - 66;
-                        fireXPos = playerXPos;
+                        fireXPos = playerXPos+10;
                         gameRunning = 1;
                         outputToneThisLoop = 30000;
                     }
