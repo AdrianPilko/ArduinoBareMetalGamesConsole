@@ -117,6 +117,7 @@ int main() {
     int gameRunning = 0;
     uint8_t kill = 0;
     int outputToneThisLoop = 0;
+    uint8_t rowsLeft = 0;
 
     typedef enum {
         drawNothing = 0,
@@ -487,7 +488,7 @@ int main() {
 
         if (lineCounter > FIRST_LINE_DRAWN + 5) {
             if ((lineCounter == fireYPos) && (firePressed)) {
-                delayLoop(fireXPos + 10);
+                delayLoop(fireXPos + rowsLeft);
                 NOP_FOR_TIMING
                 NOP_FOR_TIMING
                 NOP_FOR_TIMING
@@ -900,6 +901,14 @@ int main() {
                 }
             }
             break;
+        case (MAX_LINE_BEFORE_BLANK - 7): // this corrects for the timing changes due to rows not being drawn during firePressed
+
+				if (!(aliensBitPackStatus.alien_row5==0)) rowsLeft = 10;
+				else if (!(aliensBitPackStatus.alien_row4==0)) rowsLeft = 7;
+				else if (!(aliensBitPackStatus.alien_row3==0)) rowsLeft = 4;
+				else if (!(aliensBitPackStatus.alien_row2==0)) rowsLeft = 3;
+				else if (!(aliensBitPackStatus.alien_row1==0)) rowsLeft = 0;
+		        break;
         case (MAX_LINE_BEFORE_BLANK - 6):
             vSync = 1;
             break;
