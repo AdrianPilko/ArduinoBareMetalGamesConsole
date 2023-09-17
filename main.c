@@ -243,7 +243,10 @@ int main() {
         break;
         case drawAlien_row1:
             delayLoop(alienXStartPos[0]);
-            if (alienToggle == 0) {
+            //if (alienToggle == 0) {
+            switch (alienToggle)
+            {
+            case 0:
                 if (aliensBitPackStatus.alien_row1 & 0b00010000) {
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
@@ -259,7 +262,9 @@ int main() {
                 if (aliensBitPackStatus.alien_row1 & 0b00000001) {
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
-            } else {
+            //} else {
+                break;
+            case 1:
                 if (aliensBitPackStatus.alien_row1 & 0b00010000) {
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
@@ -275,7 +280,8 @@ int main() {
                 if (aliensBitPackStatus.alien_row1 & 0b00000001) {
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
-            }
+                break;
+            };
 
             if (alienLineCount++ > 7)
             {
@@ -285,7 +291,10 @@ int main() {
             break;
         case drawAlien_row2:
             delayLoop(alienXStartPos[0]);
-            if (alienToggle == 0) {
+            switch (alienToggle)
+            {
+            case 0:
+            //if (alienToggle == 0) {
                 if (aliensBitPackStatus.alien_row2 & 0b00010000) {
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
@@ -301,7 +310,9 @@ int main() {
                 if (aliensBitPackStatus.alien_row2 & 0b00000001) {
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
-            } else {
+                break;
+            //} else {
+            case 1:
                 if (aliensBitPackStatus.alien_row2 & 0b00010000) {
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
@@ -317,7 +328,8 @@ int main() {
                 if (aliensBitPackStatus.alien_row2 & 0b00000001) {
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
-            }
+                break;
+            };
 
             if (alienLineCount++ > 7)
             {
@@ -327,7 +339,10 @@ int main() {
             break;
         case drawAlien_row3:
             delayLoop(alienXStartPos[0]);
-            if (alienToggle == 0) {
+            switch (alienToggle)
+            {
+            case 0:
+            //if (alienToggle == 0) {
                 if (aliensBitPackStatus.alien_row3 & 0b00010000) {
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
@@ -343,7 +358,9 @@ int main() {
                 if (aliensBitPackStatus.alien_row3 & 0b00000001) {
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
-            } else {
+                break;
+            //} else {
+            case 1:
                 if (aliensBitPackStatus.alien_row3 & 0b00010000) {
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
@@ -359,6 +376,7 @@ int main() {
                 if (aliensBitPackStatus.alien_row3 & 0b00000001) {
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
+                break;
             }
 
             if (alienLineCount++ > 7)
@@ -369,7 +387,10 @@ int main() {
             break;
         case drawAlien_row4:
             delayLoop(alienXStartPos[0]);
-            if (alienToggle == 0) {
+            switch (alienToggle)
+            {
+            case 0:
+            //if (alienToggle == 0) {
                 if (aliensBitPackStatus.alien_row4 & 0b00010000) {
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
@@ -385,7 +406,9 @@ int main() {
                 if (aliensBitPackStatus.alien_row4 & 0b00000001) {
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
-            } else {
+                break;
+            //} else {
+            case 1:
                 if (aliensBitPackStatus.alien_row4 & 0b00010000) {
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
@@ -401,7 +424,8 @@ int main() {
                 if (aliensBitPackStatus.alien_row4 & 0b00000001) {
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
-            }
+                break;
+            };
 
             if (alienLineCount++ > 7)
             {
@@ -411,7 +435,10 @@ int main() {
             break;
         case drawAlien_row5:
             delayLoop(alienXStartPos[0]);
-            if (alienToggle == 0) {
+            switch (alienToggle)
+            {
+            case 0:
+            //if (alienToggle == 0) {
                 if (aliensBitPackStatus.alien_row5 & 0b00010000) {
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
@@ -427,7 +454,9 @@ int main() {
                 if (aliensBitPackStatus.alien_row5 & 0b00000001) {
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
-            } else {
+                break;
+            //} else {
+            case 1:
                 if (aliensBitPackStatus.alien_row5 & 0b00010000) {
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
@@ -443,7 +472,9 @@ int main() {
                 if (aliensBitPackStatus.alien_row5 & 0b00000001) {
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
-            }
+                break;
+
+            };
 
             if (alienLineCount++ > 7)
             {
