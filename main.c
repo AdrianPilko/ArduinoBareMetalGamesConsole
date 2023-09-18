@@ -91,6 +91,7 @@
 
 int main() {
     int alienDirection = 1;
+    int lives = 4;
     int vSync = 0;
     int lineCounter = 0;
     uint8_t alienLineCount = 0;
@@ -453,22 +454,18 @@ int main() {
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00001000) {
                 	NOP_FOR_TIMING
-        			NOP_FOR_TIMING
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000100) {
                 	NOP_FOR_TIMING
-        			NOP_FOR_TIMING
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000010) {
                 	NOP_FOR_TIMING
-        			NOP_FOR_TIMING
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000001) {
                 	NOP_FOR_TIMING
-        			NOP_FOR_TIMING
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 break;
@@ -476,27 +473,22 @@ int main() {
             case 1:
                 if (aliensBitPackStatus.alien_row5 & 0b00010000) {
                 	NOP_FOR_TIMING
-        			NOP_FOR_TIMING
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00001000) {
                 	NOP_FOR_TIMING
-        			NOP_FOR_TIMING
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000100) {
                 	NOP_FOR_TIMING
-        			NOP_FOR_TIMING
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000010) {
                 	NOP_FOR_TIMING
-        			NOP_FOR_TIMING
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000001) {
                 	NOP_FOR_TIMING
-        			NOP_FOR_TIMING
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 break;
@@ -622,7 +614,7 @@ int main() {
 							fireYPos = MAX_LINE_BEFORE_BLANK - 66;
 							fireXPos = playerXPos+10;
 							gameRunning = 1;
-							outputToneThisLoop = 30000;
+							outputToneThisLoop = 300;
 						}
 					}
 
@@ -664,7 +656,7 @@ int main() {
 						alienDirection = 0;
 						// move aliens down by one line (getting closer to you!)
 						alienYBasePos += 1;
-						outputToneThisLoop = 10000;
+						outputToneThisLoop = 10;
 					}
 					if (alienXStartPos[0] < MIN_X_ALIEN + alienMoveRate) {
 						alienDirection = 1;
@@ -676,7 +668,7 @@ int main() {
 
 						// move aliens down by one line (getting closer to you!)
 						alienYBasePos += 1;
-						outputToneThisLoop = 10000;
+						outputToneThisLoop = 10;
 
 						// speed up the aliens
 						//alienMoveRate = alienMoveRate + 2;
@@ -912,41 +904,64 @@ int main() {
             delayLoop(130);
             PIXEL_OFF()
         	break;
-        case (MAX_LINE_BEFORE_BLANK - 38):
+        case (MAX_LINE_BEFORE_BLANK - 38):  // draw player "score" indicator bar
             TEN_NOP_FOR_TIMING
             PIXEL_ON();
             if (kill >= 1) delayLoop(kill * 5);
             PIXEL_OFF();
             break;
+        case (MAX_LINE_BEFORE_BLANK - 36): // draw player lives indicator bar
+			TEN_NOP_FOR_TIMING
+			TEN_NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+			NOP_FOR_TIMING
+            PIXEL_ON();
+            if (lives >= 1) delayLoop(lives * 15);
+            PIXEL_OFF();
+            break;
+
 
         case (MAX_LINE_BEFORE_BLANK - 35): // check if alien shot hit
 			if ((gameRunning == 1) &&(alienShoot == 1) && (alienFireXPos == playerXPos) && (alienFireYPos > MAX_LINE_BEFORE_BLANK - 60))
 			{
-				drawType = gameLost;
+				lives--;
+                for (int i = 0; i < 3000; i++)
+                {
+                	PORTB |= (1 << PB1); // speaker output
+                	delayLoop(30);
+                	PORTB &= ~(1 << PB1); // speaker off
+                }
+                alienShoot = 0;
 			}
+        	if (lives <= 0) drawType = gameLost;
 	        break;
 
         case (MAX_LINE_BEFORE_BLANK - 12): // this creates alien fire randomly
 			{
-				int randVal  = rand() % 100;
+				int randVal  = rand() % 4;
 
 				if ((gameRunning == 1) && (randVal == 1) && (alienShoot == 0))
 				{
 					alienShoot = 1;
-					alienFireXPos = alienXStartPos[0];
-					alienFireYPos = BASE_ALIEN_Y_5 + alienYBasePos;
-
+					alienFireXPos = alienXStartPos[randVal];
+					if (!(aliensBitPackStatus.alien_row5==0)) alienFireYPos = BASE_ALIEN_Y_5 + alienYBasePos;
+					else if (!(aliensBitPackStatus.alien_row4==0)) alienFireYPos = BASE_ALIEN_Y_4 + alienYBasePos;
+					else if (!(aliensBitPackStatus.alien_row3==0)) alienFireYPos = BASE_ALIEN_Y_3 + alienYBasePos;
+					else if (!(aliensBitPackStatus.alien_row2==0)) alienFireYPos = BASE_ALIEN_Y_2 + alienYBasePos;
+					else if (!(aliensBitPackStatus.alien_row1==0)) alienFireYPos = BASE_ALIEN_Y_1 + alienYBasePos;
 				}
 			}
 	        break;
 
         case (MAX_LINE_BEFORE_BLANK - 8): // this corrects for the timing changes due to rows not being drawn during firePressed
 
-				if (!(aliensBitPackStatus.alien_row5==0)) rowsLeft = 10;
-				else if (!(aliensBitPackStatus.alien_row4==0)) rowsLeft = 7;
-				else if (!(aliensBitPackStatus.alien_row3==0)) rowsLeft = 4;
-				else if (!(aliensBitPackStatus.alien_row2==0)) rowsLeft = 3;
-				else if (!(aliensBitPackStatus.alien_row1==0)) rowsLeft = 0;
+				if (!(aliensBitPackStatus.alien_row5==0)) rowsLeft = 15;
+				else if (!(aliensBitPackStatus.alien_row4==0)) rowsLeft = 15;
+				else if (!(aliensBitPackStatus.alien_row3==0)) rowsLeft = 10;
+				else if (!(aliensBitPackStatus.alien_row2==0)) rowsLeft = 10;
+				else if (!(aliensBitPackStatus.alien_row1==0)) rowsLeft = 10;
         		break;
         case (MAX_LINE_BEFORE_BLANK - 6):
             vSync = 1;
