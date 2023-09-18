@@ -442,6 +442,8 @@ int main() {
             break;
         case drawAlien_row5:
             delayLoop(alienXStartPos[0]);
+        	NOP_FOR_TIMING
+			NOP_FOR_TIMING
             switch (alienToggle)
             {
             case 0:
@@ -450,33 +452,51 @@ int main() {
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00001000) {
+                	NOP_FOR_TIMING
+        			NOP_FOR_TIMING
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000100) {
+                	NOP_FOR_TIMING
+        			NOP_FOR_TIMING
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000010) {
+                	NOP_FOR_TIMING
+        			NOP_FOR_TIMING
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000001) {
+                	NOP_FOR_TIMING
+        			NOP_FOR_TIMING
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 break;
             //} else {
             case 1:
                 if (aliensBitPackStatus.alien_row5 & 0b00010000) {
+                	NOP_FOR_TIMING
+        			NOP_FOR_TIMING
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00001000) {
+                	NOP_FOR_TIMING
+        			NOP_FOR_TIMING
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000100) {
+                	NOP_FOR_TIMING
+        			NOP_FOR_TIMING
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000010) {
+                	NOP_FOR_TIMING
+        			NOP_FOR_TIMING
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000001) {
+                	NOP_FOR_TIMING
+        			NOP_FOR_TIMING
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 break;
