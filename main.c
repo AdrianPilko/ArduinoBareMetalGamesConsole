@@ -443,8 +443,6 @@ int main() {
             break;
         case drawAlien_row5:
             delayLoop(alienXStartPos[0]);
-        	NOP_FOR_TIMING
-			NOP_FOR_TIMING
             switch (alienToggle)
             {
             case 0:
@@ -453,42 +451,33 @@ int main() {
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00001000) {
-                	NOP_FOR_TIMING
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000100) {
-                	NOP_FOR_TIMING
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000010) {
-                	NOP_FOR_TIMING
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000001) {
-                	NOP_FOR_TIMING
                     alienDraw_1(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 break;
             //} else {
             case 1:
                 if (aliensBitPackStatus.alien_row5 & 0b00010000) {
-                	NOP_FOR_TIMING
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00001000) {
-                	NOP_FOR_TIMING
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000100) {
-                	NOP_FOR_TIMING
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000010) {
-                	NOP_FOR_TIMING
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 if (aliensBitPackStatus.alien_row5 & 0b00000001) {
-                	NOP_FOR_TIMING
                     alienDraw_2(alienLineCount);
                 } else alienDraw_blank(alienLineCount);
                 break;
@@ -505,13 +494,8 @@ int main() {
         }
 
         if (lineCounter > FIRST_LINE_DRAWN + 20) {
-            if ((lineCounter == fireYPos) && (firePressed)) {
+            if ((drawType == drawNothing) && (lineCounter == fireYPos) && (firePressed)) {
                 delayLoop(fireXPos + rowsLeft);
-                NOP_FOR_TIMING
-                NOP_FOR_TIMING
-                NOP_FOR_TIMING
-                NOP_FOR_TIMING
-                FIVE_NOP_FOR_TIMING
                 PIXEL_ON();
                 NOP_FOR_TIMING
                 PIXEL_OFF();
@@ -535,7 +519,7 @@ int main() {
                 	speakerOff = 1;
                 }
             }
-            if ((alienShoot == 1) && (lineCounter < MAX_LINE_BEFORE_BLANK - 50) && (lineCounter == alienFireYPos))
+            if ((drawType == drawNothing) && (alienShoot == 1) && (lineCounter < MAX_LINE_BEFORE_BLANK - 50) && (lineCounter == alienFireYPos))
 			{
 				   delayLoop(alienFireXPos+24);
 				   PIXEL_ON();
@@ -548,19 +532,11 @@ int main() {
 				alienShoot = 0;
             }
         }
-#if 0
-        if (lineCounter == BASE_ALIEN_Y_1 + alienYBasePos)	drawType = drawAlien_row1;
-        if (lineCounter == BASE_ALIEN_Y_2 + alienYBasePos)	drawType = drawAlien_row2;
-        if (lineCounter == BASE_ALIEN_Y_3 + alienYBasePos)	drawType = drawAlien_row3;
-        if (lineCounter == BASE_ALIEN_Y_4 + alienYBasePos)	drawType = drawAlien_row4;
-        if (lineCounter == BASE_ALIEN_Y_5 + alienYBasePos)	drawType = drawAlien_row5;
-#else
-		if (!(aliensBitPackStatus.alien_row1==0) && (lineCounter == BASE_ALIEN_Y_1 + alienYBasePos)) drawType = drawAlien_row1;
-		if (!(aliensBitPackStatus.alien_row2==0) && (lineCounter == BASE_ALIEN_Y_2 + alienYBasePos)) drawType = drawAlien_row2;
-		if (!(aliensBitPackStatus.alien_row3==0) && (lineCounter == BASE_ALIEN_Y_3 + alienYBasePos)) drawType = drawAlien_row3;
-		if (!(aliensBitPackStatus.alien_row4==0) && (lineCounter == BASE_ALIEN_Y_4 + alienYBasePos)) drawType = drawAlien_row4;
-		if (!(aliensBitPackStatus.alien_row5==0) && (lineCounter == BASE_ALIEN_Y_5 + alienYBasePos)) drawType = drawAlien_row5;
-#endif
+		if (!(aliensBitPackStatus.alien_row1 & 0) && (lineCounter == BASE_ALIEN_Y_1 + alienYBasePos)) drawType = drawAlien_row1;
+		if (!(aliensBitPackStatus.alien_row2 & 0) && (lineCounter == BASE_ALIEN_Y_2 + alienYBasePos)) drawType = drawAlien_row2;
+		if (!(aliensBitPackStatus.alien_row3 & 0) && (lineCounter == BASE_ALIEN_Y_3 + alienYBasePos)) drawType = drawAlien_row3;
+		if (!(aliensBitPackStatus.alien_row4 & 0) && (lineCounter == BASE_ALIEN_Y_4 + alienYBasePos)) drawType = drawAlien_row4;
+		if (!(aliensBitPackStatus.alien_row5 & 0) && (lineCounter == BASE_ALIEN_Y_5 + alienYBasePos)) drawType = drawAlien_row5;
 
         lineCounter++;
 
@@ -632,7 +608,7 @@ int main() {
 						if (alienMoveThisTime >= alienMoveRate) {
 
 							if (alienDirection == 1) {
-								outputToneThisLoop = 10;
+								//outputToneThisLoop = 10;
 								alienXStartPos[0] += alienMoveRate;
 								alienXStartPos[1] = alienXStartPos[0] + 12;
 								alienXStartPos[2] = alienXStartPos[0] + 30;
@@ -644,7 +620,7 @@ int main() {
 								alienXStartPos[2] = alienXStartPos[0] + 30;
 								alienXStartPos[3] = alienXStartPos[0] + 45;
 								alienXStartPos[4] = alienXStartPos[0] + 60;
-								outputToneThisLoop = 10;
+								//outputToneThisLoop = 10;
 							}
 							alienMoveThisTime = 0;
 						}
@@ -957,8 +933,8 @@ int main() {
 
         case (MAX_LINE_BEFORE_BLANK - 8): // this corrects for the timing changes due to rows not being drawn during firePressed
 
-				if (!(aliensBitPackStatus.alien_row5==0)) rowsLeft = 15;
-				else if (!(aliensBitPackStatus.alien_row4==0)) rowsLeft = 15;
+				if (!(aliensBitPackStatus.alien_row5==0)) rowsLeft = 10;
+				else if (!(aliensBitPackStatus.alien_row4==0)) rowsLeft = 10;
 				else if (!(aliensBitPackStatus.alien_row3==0)) rowsLeft = 10;
 				else if (!(aliensBitPackStatus.alien_row2==0)) rowsLeft = 10;
 				else if (!(aliensBitPackStatus.alien_row1==0)) rowsLeft = 10;
